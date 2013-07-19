@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# base on: 
+# https://github.com/wlanslovenija/firmware-core/blob/master/scripts/build
+echo "Not yet implemented"

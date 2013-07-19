@@ -1,0 +1,10 @@
+
+ip
+iptables
+tc
+kmod-lib-crc16
+kmod-l2tp
+kmod-l2tp-ip
+kmod-l2tp-eth
+kmod-batman-adv
+

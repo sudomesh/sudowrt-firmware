@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# sudomesh firmware prepare script
+# based on wlanslovenija prepare script
+
+
+BUILD_DIR=built_firmware
+
+echo "Checking dependencies"
+
+#if [ ! command -v quilt ]; then
+#  echo "quilt not found."
+#  exit 1
+#fi
+
+echo "Checking working directory"
+if [[ ! -d openwrt_config ]]; then
+  echo "Invalid working directory!"
+  exit 1
+fi
+
+workdir=$(pwd)
+mkdir -p ${BUILD_DIR}
+
+# Get version identifier
+firmware_version=$(git describe --always)
+
+openwrt_version=$(cat openwrt_config/version)
+openwrt_path=$(echo $openwrt_version | cut -d ':' -f 1)
+openwrt_path_name="${openwrt_path//\//-}"
+openwrt_path_name="${openwrt_path_name//_/-}"
+openwrt_rev=$(echo $openwrt_version | cut -d ':' -f 2)
+
+echo "OpenWRT path: ${openwrt_path}"
+echo "OpenWRT revision: ${openwrt_rev}"
+echo "Checking out OpenWRT into ${BUILD_DIR}, this could take some time"
+
+OPENWRT_CHECKOUT_DIR=${workdir}/${BUILD_DIR}/openwrt
+rm -rf ${OPENWRT_CHECKOUT_DIR}
+svn co -q -r ${openwrt_rev} svn://svn.openwrt.org/openwrt/${openwrt_path} ${OPENWRT_CHECKOUT_DIR}
+
+echo "Purging .svn files from repository"
+find ${OPENWRT_CHECKOUT_DIR} -name .svn -type d -exec rm -rf "{}" \; 2>/dev/null
+
+# Inject feeds and configurations
+echo "Configuring feeds"
+echo "src-git sudomesh git://github.com/sudomesh/openwrt-packages.git" > ${OPENWRT_CHECKOUT_DIR}/feeds.conf
+echo "src-svn openwrt svn://svn.openwrt.org/openwrt/packages" >> ${OPENWRT_CHECKOUT_DIR}/feeds.conf
+echo "src-git routing git://github.com/openwrt-routing/packages.git" >> ${OPENWRT_CHECKOUT_DIR}/feeds.conf
+
+echo "Changing work directory to openwrt"
+cd ${OPENWRT_CHECKOUT_DIR}
+
+#echo "Applying patches for OpenWRT base tree..."
+
+#ln -s ${workdir}/openwrt/patches/${openwrt_path_name} patches
+#quilt push -f -a
+
+# Importing feeds
+echo "Importing feeds"
+./scripts/feeds update -a > /dev/null
+./scripts/feeds install -a -p sudomesh
+
+for package in $(cat ${workdir}/openwrt/packages); do
+  ./scripts/feeds install ${package}
+done
+
+# Preparation is now completed
+echo "Preparation completed, you may now build the firmware or build single packages."
