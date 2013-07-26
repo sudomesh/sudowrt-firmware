@@ -7,4 +7,7 @@ kmod-l2tp
 kmod-l2tp-ip
 kmod-l2tp-eth
 kmod-batman-adv
-
+wireless-tools
+ntpclient
+hostapd
+opkg

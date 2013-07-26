@@ -61,9 +61,147 @@ echo "Importing feeds"
 ./scripts/feeds update -a > /dev/null
 ./scripts/feeds install -a -p sudomesh
 
-for package in $(cat ${workdir}/openwrt/packages); do
+for package in $(cat ${workdir}/openwrt_config/packages); do
   ./scripts/feeds install ${package}
 done
+
+# change back to initial directory
+cd ${workdir}
+
+override_architectures="$*"
+
+# Check architectures that we need to build
+all_architectures=$(cat openwrt_config/architectures)
+if [ -z "${override_architectures}" ]; then
+  architectures="${all_architectures}"
+else
+  architectures=""
+  for arch in $override_architectures; do
+    found=0
+    for sarch in $all_architectures; do
+      if [[ "$arch" == "$sarch" ]]; then
+        architectures="${architectures} ${arch}"
+        found=1
+        break
+      fi
+    done
+
+    if [[ $found == 0 ]]; then
+      echo "ERROR: Invalid architecture '${arch}' specified."
+      exit 1
+    fi
+  done
+fi
+
+
+openwrt_verify_architecture()
+{
+  local arch=$1
+  if [ ! -d ${workdir}/${BUILD_DIR}/openwrt/target/linux/${arch} ]; then
+    echo "Invalid architecture '${arch}', aborting."
+    exit 1
+  fi
+
+  if [ ! -f ${workdir}/openwrt_config/arch_configs/${arch} ]; then
+    echo "Architecture '${arch}' missing configuration file, aborting."
+    exit 1
+  fi
+}
+
+echo "Configuring for the following OpenWRT architectures:"
+for arch in $architectures; do
+  openwrt_verify_architecture $arch
+  echo " * ${arch}"
+done
+
+
+# Check packages that we need to build
+echo "Configuring build for the following OpenWRT packages:"
+all_packages=$(grep 'Package:' ${workdir}/${BUILD_DIR}/openwrt/feeds/sudomesh.index | cut -d ':' -f 2)
+all_packages="${all_packages} $(cat openwrt_config/packages)"
+for pkg in $all_packages; do
+  echo " * ${pkg}"
+done
+
+echo "Cleaning up previous builder leftovers..."
+rm -rf ${workdir}/${BUILD_DIR}/builder.*
+rm -rf ${workdir}/${BUILD_DIR}/release
+
+
+openwrt_build_configure()
+{
+  local arch=$1
+  local kconfig=${workdir}/${BUILD_DIR}/openwrt/scripts/kconfig.pl
+  local config_dir=${workdir}/openwrt_config/arch_configs
+  local config=${workdir}/${BUILD_DIR}/openwrt/config.${arch}
+  $kconfig 'm+' ${config_dir}/generic ${config_dir}/${arch} > ${config}
+
+  # Include all common packages
+  for pkg in ${all_packages}; do
+    echo "CONFIG_PACKAGE_${pkg}=y" >> ${config}
+  done
+
+  # Remove configuration file already present in the generic build dir
+  rm -f ${workdir}/${BUILD_DIR}/openwrt/.config
+}
+
+# Generate build configurations
+echo "Generating build configurations..."
+for arch in $architectures; do
+  openwrt_build_configure $arch
+done
+
+
+openwrt_buildprep()
+{
+  local arch=$1
+  local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}.$$
+
+  # Make hardlinks to avoid space duplication but to still isolate builds
+  cp -lr ${workdir}/${BUILD_DIR}/openwrt ${build_dir}
+  
+  # Prepare configuration file and build
+  cd ${build_dir}
+  cp config.${arch} .config
+  make defconfig &> ${build_dir}/build.echo
+  if [ "$?" != "0" ]; then
+    echo "Default configuration preparation for '${arch}' has failed. See build.echo for details!"
+    exit 1
+  fi
+
+  echo "Installing tools"
+  make tools/install
+  make toolchain/install
+
+  echo "Compile linux"
+  make target/linux 
+  
+  echo "Compiling packages"
+  make package/cleanup
+  make package/compile
+
+  echo "Installing packages"
+  make package/install
+
+# TODO stuff below this point should be in another script
+
+  echo "Compiling your package of choice"
+  make package/internetisdownredirect/compile
+  make package/internetisdownredirect/install
+  make package/index
+}
+
+
+echo "Configure for build."
+for arch in $architectures; do
+  openwrt_build_configure $arch
+done
+
+echo "Prepare for build"
+for arch in $architectures; do
+  openwrt_buildprep ${arch}
+done
+
 
 # Preparation is now completed
 echo "Preparation completed, you may now build the firmware or build single packages."
