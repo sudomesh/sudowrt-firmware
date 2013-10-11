@@ -1,3 +1,18 @@
 #!/bin/sh
 
-echo "Not yet implemented"
+echoerr() { echo "$@" 1>&2; }
+
+if [ $# -ne 1 ]; then
+
+  echoerr "Usage: ${0} <package_name>"
+  echoerr "  Ensure that you have run"
+  echoerr "  ./prepare before running ${0}."
+
+fi
+
+# currently only the package internetisdownredirect is available
+
+echo "Compiling package ${1}"
+make package/${1}/compile
+make package/${1}/install
+make package/index

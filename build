@@ -1,5 +1,180 @@
 #!/bin/sh
 
-# base on: 
+# based on: 
 # https://github.com/wlanslovenija/firmware-core/blob/master/scripts/build
-echo "Not yet implemented"
+
+BUILD_DIR=built_firmware
+
+log()
+{
+  echo "[PON firmware] build: $*"
+}
+
+
+openwrt_verify_architecture()
+{
+  local arch=$1
+  if [ ! -d ${workdir}/${BUILD_DIR}/openwrt/target/linux/${arch} ]; then
+    log "Invalid architecture '${arch}', aborting."
+    exit 1
+  fi
+
+  if [ ! -f ${workdir}/openwrt/configs/${arch} ]; then
+    log "Architecture missing configuration file, aborting."
+    exit 1
+  fi
+}
+
+openwrt_build_configure()
+{
+  local arch=$1
+  local kconfig=${workdir}/${BUILD_DIR}/openwrt/scripts/kconfig.pl
+  local config_dir=${workdir}/openwrt/configs
+  local config=${workdir}/${BUILD_DIR}/openwrt/config.${arch}
+  $kconfig 'm+' ${config_dir}/generic ${config_dir}/${arch} > ${config}
+
+  # Include all common packages
+  for pkg in ${all_packages}; do
+    echo "CONFIG_PACKAGE_${pkg}=y" >> ${config}
+  done
+
+  # Remove configuration file already present in the generic build dir
+  rm -f ${workdir}/${BUILD_DIR}/openwrt/.config
+}
+
+openwrt_builder_cleanup()
+{
+  local build_dir=$1
+  rm -rf ${build_dir}
+  exit
+}
+
+openwrt_builder()
+{
+  local arch=$1
+  local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}.$$
+
+  # Make hardlinks to avoid space duplication but to still isolate builds
+  cp -lr ${workdir}/${BUILD_DIR}/openwrt ${build_dir}
+  
+  # Prepare configuration file and build the bastard
+  cd ${build_dir}
+  cp config.${arch} .config
+  make defconfig &> ${build_dir}/build.log
+  if [ "$?" != "0" ]; then
+    log "Default configuration preparation for '${arch}' has failed. See build.log for details!"
+    exit 1
+  fi
+
+  make V=99 &> ${build_dir}/build.log
+  if [ "$?" != "0" ]; then
+    log "Build for architecture '${arch}' has failed. See build.log for details!"
+    exit 1
+  fi
+
+  # Copy image builder and packages
+  log "Copying image builder and packages for '${arch}'..."
+  local release_dir=${workdir}/${BUILD_DIR}/release/${arch}
+  mkdir -p ${release_dir}
+  cp ${build_dir}/bin/${arch}/OpenWrt-ImageBuilder-*.tar.bz2 ${release_dir}/imagebuilder.${arch}.tar.bz2
+  cp -a ${build_dir}/bin/${arch}/packages ${release_dir}
+
+  # Cleanup things
+  openwrt_builder_cleanup ${build_dir}
+}
+
+
+
+##########################################
+##                                      ##
+##  Build code calling above functions  ##
+##                                      ##
+##########################################
+
+
+# Check for proper working directory
+log "Checking working directory..."
+if [[ ! -d scripts || ! -d openwrt ]]; then
+  log "Invalid working directory!"
+  exit 1
+fi
+
+if [[ ! -d build/openwrt ]]; then
+  log "Build directory is not prepared. Have you run ./scripts/prepare?"
+  exit 1
+fi
+
+override_architectures="$*"
+workdir=$(pwd)
+
+# Check architectures that we need to build
+all_architectures=$(cat openwrt/architectures)
+if [ -z "${override_architectures}" ]; then
+  architectures="${all_architectures}"
+else
+  architectures=""
+  for arch in $override_architectures; do
+    found=0
+    for sarch in $all_architectures; do
+      if [[ "$arch" == "$sarch" ]]; then
+        architectures="${architectures} ${arch}"
+        found=1
+        break
+      fi
+    done
+
+    if [[ $found == 0 ]]; then
+      log "ERROR: Invalid architecture '${arch}' specified."
+      exit 1
+    fi
+  done
+fi
+
+log "Will build for the following OpenWRT architectures:"
+for arch in $architectures; do
+  openwrt_verify_architecture $arch
+  log " * ${arch}"
+done
+
+# Check packages that we need to build
+log "Will build the following OpenWRT packages for ALL architectures:"
+all_packages=$(grep 'Package:' ${workdir}/${BUILD_DIR}/openwrt/feeds/peopleswifi.index | cut -d ':' -f 2)
+all_packages="${all_packages} $(cat openwrt/packages)"
+for pkg in $all_packages; do
+  log " * ${pkg}"
+done
+
+# Cleanup previous builder leftovers
+log "Cleaning up previous builder leftovers..."
+rm -rf ${workdir}/${BUILD_DIR}/builder.*
+rm -rf ${workdir}/${BUILD_DIR}/release
+
+# Generate build configurations
+log "Generating build configurations..."
+for arch in $architectures; do
+  openwrt_build_configure $arch
+done
+
+# Spawn builders
+log "Spawning builders..."
+builder_pids=""
+for arch in $architectures; do
+  openwrt_builder ${arch} &
+  bpid=$!
+  builder_pids="${builder_pids} ${bpid}"
+  
+  log " * ${arch} (${bpid})"
+done
+
+# Trap interruptions
+trap_handler()
+{
+  local pgid=$(ps -p $$ -o pgid="")
+  kill -- -${pgid}
+  exit
+}
+trap trap_handler INT QUIT TERM EXIT
+
+# Wait for builders
+log "Waiting for builders to finish building..."
+wait ${builder_pids}

@@ -1,13 +1,12 @@
 #!/bin/bash
 
-# sudomesh firmware prepare script
+# peopleswifi firmware prepare script
 # based on wlanslovenija prepare script
 
 
 BUILD_DIR=built_firmware
 
-echo "Checking dependencies"
-
+#echo "Checking dependencies"
 #if [ ! command -v quilt ]; then
 #  echo "quilt not found."
 #  exit 1
@@ -36,15 +35,26 @@ echo "OpenWRT revision: ${openwrt_rev}"
 echo "Checking out OpenWRT into ${BUILD_DIR}, this could take some time"
 
 OPENWRT_CHECKOUT_DIR=${workdir}/${BUILD_DIR}/openwrt
-rm -rf ${OPENWRT_CHECKOUT_DIR}
-svn co -q -r ${openwrt_rev} svn://svn.openwrt.org/openwrt/${openwrt_path} ${OPENWRT_CHECKOUT_DIR}
-
-echo "Purging .svn files from repository"
-find ${OPENWRT_CHECKOUT_DIR} -name .svn -type d -exec rm -rf "{}" \; 2>/dev/null
+if [ -f ${OPENWRT_CHECKOUT_DIR}/.success ]; then
+  echo "OpenWRT already checked out"
+else
+  svn status ${OPENWRT_CHECKOUT_DIR}
+  rm -rf ${OPENWRT_CHECKOUT_DIR}
+  svn co -q -r ${openwrt_rev} svn://svn.openwrt.org/openwrt/${openwrt_path} ${OPENWRT_CHECKOUT_DIR}
+  if [ $? -ne 0 ]; then
+    echo "Error during svn checkout of OpenWRT"
+    exit $?
+  else
+    # make a file indicating that this is a successfully checked out openwrt dir
+    touch ${OPENWRT_CHECKOUT_DIR}/.success
+  fi
+  echo "Purging .svn files from repository"
+  find ${OPENWRT_CHECKOUT_DIR} -name .svn -type d -exec rm -rf "{}" \; 2>/dev/null
+fi
 
 # Inject feeds and configurations
 echo "Configuring feeds"
-echo "src-git sudomesh git://github.com/sudomesh/openwrt-packages.git" > ${OPENWRT_CHECKOUT_DIR}/feeds.conf
+echo "src-git peopleswifi git://github.com/sudomesh/openwrt-packages.git" > ${OPENWRT_CHECKOUT_DIR}/feeds.conf
 echo "src-svn openwrt svn://svn.openwrt.org/openwrt/packages" >> ${OPENWRT_CHECKOUT_DIR}/feeds.conf
 echo "src-git routing git://github.com/openwrt-routing/packages.git" >> ${OPENWRT_CHECKOUT_DIR}/feeds.conf
 
@@ -59,7 +69,7 @@ cd ${OPENWRT_CHECKOUT_DIR}
 # Importing feeds
 echo "Importing feeds"
 ./scripts/feeds update -a > /dev/null
-./scripts/feeds install -a -p sudomesh
+./scripts/feeds install -a -p peopleswifi
 
 for package in $(cat ${workdir}/openwrt_config/packages); do
   ./scripts/feeds install ${package}
@@ -93,7 +103,6 @@ else
   done
 fi
 
-
 openwrt_verify_architecture()
 {
   local arch=$1
@@ -117,15 +126,15 @@ done
 
 # Check packages that we need to build
 echo "Configuring build for the following OpenWRT packages:"
-all_packages=$(grep 'Package:' ${workdir}/${BUILD_DIR}/openwrt/feeds/sudomesh.index | cut -d ':' -f 2)
+all_packages=$(grep 'Package:' ${workdir}/${BUILD_DIR}/openwrt/feeds/peopleswifi.index | cut -d ':' -f 2)
 all_packages="${all_packages} $(cat openwrt_config/packages)"
 for pkg in $all_packages; do
   echo " * ${pkg}"
 done
 
-echo "Cleaning up previous builder leftovers..."
-rm -rf ${workdir}/${BUILD_DIR}/builder.*
-rm -rf ${workdir}/${BUILD_DIR}/release
+#echo "Cleaning up previous builder leftovers..."
+#rm -rf ${workdir}/${BUILD_DIR}/builder.*
+#rm -rf ${workdir}/${BUILD_DIR}/release
 
 
 openwrt_build_configure()
@@ -183,14 +192,7 @@ openwrt_buildprep()
   echo "Installing packages"
   make package/install
 
-# TODO stuff below this point should be in another script
-
-  echo "Compiling your package of choice"
-  make package/internetisdownredirect/compile
-  make package/internetisdownredirect/install
-  make package/index
 }
-
 
 echo "Configure for build."
 for arch in $architectures; do
@@ -201,7 +203,6 @@ echo "Prepare for build"
 for arch in $architectures; do
   openwrt_buildprep ${arch}
 done
-
 
 # Preparation is now completed
 echo "Preparation completed, you may now build the firmware or build single packages."
