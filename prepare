@@ -55,6 +55,7 @@ fi
 # Inject feeds and configurations
 echo "Configuring feeds"
 echo "src-git peopleswifi git://github.com/sudomesh/openwrt-packages.git" > ${OPENWRT_CHECKOUT_DIR}/feeds.conf
+echo "src-git luci git://nbd.name/luci.git" > ${OPENWRT_CHECKOUT_DIR}/feeds.conf
 echo "src-svn openwrt svn://svn.openwrt.org/openwrt/packages" >> ${OPENWRT_CHECKOUT_DIR}/feeds.conf
 echo "src-git routing git://github.com/openwrt-routing/packages.git" >> ${OPENWRT_CHECKOUT_DIR}/feeds.conf
 
