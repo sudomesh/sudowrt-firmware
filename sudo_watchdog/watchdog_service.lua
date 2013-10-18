@@ -2,6 +2,6 @@
 
 require("batctl")
 
-for line in get_interface_settings() do
+for line in add_interface('bat0') do
   print(line)
 end

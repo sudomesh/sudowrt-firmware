@@ -158,3 +158,23 @@ function set_isolation_mode(isolation)
   batctl = io.popen(COMMAND_BATCTL_ISOLATION_MODE .. ' ' .. isolation)
   return batctl:lines()
 end
+
+function ping(destination)
+  batctl = io.popen(COMMAND_BATCTL_PING .. ' ' .. destination)
+  return batctl:lines()
+end
+
+function traceroute(destination)
+  batctl = io.popen(COMMAND_BATCTL_TRACEROUTE .. ' ' .. destination)
+  return batctl:lines()
+end
+
+function tcpdump(interface)
+  batctl = io.popen(COMMAND_BATCTL_TCPDUMP .. ' ' .. interface)
+  return batctl:lines()
+end
+
+function bisect(file1, file2)
+  batctl = io.popen(COMMAND_BATCTL_BISECT .. ' ' .. file1 .. ' ' .. file2)
+  return batctl:lines()
+end
