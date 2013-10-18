@@ -184,7 +184,7 @@ openwrt_buildprep()
   make toolchain/install
 
   echo "Compile linux"
-  make target/linux 
+  make target/compile 
   
   echo "Compiling packages"
   make package/cleanup
