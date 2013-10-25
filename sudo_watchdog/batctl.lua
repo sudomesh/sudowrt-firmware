@@ -1,5 +1,7 @@
 #!/usr/bin/env lua
 
+require("string")
+
 --[[
 
   The purpose of the script is to provide a
@@ -7,41 +9,91 @@
 
 --]]
 
-COMMAND_BATCTL_INTERFACE           = 'batctl if'
-COMMAND_BATCTL_ORIGINATORS         = 'batctl o'
-COMMAND_BATCTL_ORIGINATOR_INTERVAL = 'batctl it'
-COMMAND_BATCTL_LOG_LEVEL           = 'batctl ll'
-COMMAND_BATCTL_KERNEL_LOG          = 'batctl l'
-COMMAND_BATCTL_GATEWAY_MODE        = 'batctl gw'
-COMMAND_BATCTL_GATEWAY_LIST        = 'batctl gwl'
-COMMAND_BATCTL_LOCAL_TRANSLATIONS  = 'batctl tl'
-COMMAND_BATCTL_GLOBAL_TRANSLATIONS = 'batctl tg'
-COMMAND_BATCTL_INTERFACE_NEIGHBORS = 'batctl sn'
-COMMAND_BATCTL_VIS_SERVER_MODE     = 'batctl vm'
-COMMAND_BATCTL_VIS_DATA            = 'batctl vd'
-COMMAND_BATCTL_PACKET_AGGREGATION  = 'batctl ag'
-COMMAND_BATCTL_BONDING_MODE        = 'batctl b'
-COMMAND_BATCTL_FRAGMENTATION_MODE  = 'batctl f'
-COMMAND_BATCTL_ISOLATION_MODE      = 'batctl ap'
+BATCTL_STATUS_SUCCESS = 0
+BATCTL_STATUS_FAILURE = -1
 
-COMMAND_BATCTL_PING       = 'batctl p'
-COMMAND_BATCTL_TRACEROUTE = 'batctl tr'
-COMMAND_BATCTL_TCPDUMP    = 'batctl td'
-COMMAND_BATCTL_BISECT     = 'batctl bisect'
+COMMAND_BATCTL_INTERFACE           = '2>&1 batctl if'
+COMMAND_BATCTL_ORIGINATORS         = '2>&1 batctl o'
+COMMAND_BATCTL_ORIGINATOR_INTERVAL = '2>&1 batctl it'
+COMMAND_BATCTL_LOG_LEVEL           = '2>&1 batctl ll'
+COMMAND_BATCTL_KERNEL_LOG          = '2>&1 batctl l'
+COMMAND_BATCTL_GATEWAY_MODE        = '2>&1 batctl gw'
+COMMAND_BATCTL_GATEWAY_LIST        = '2>&1 batctl gwl'
+COMMAND_BATCTL_LOCAL_TRANSLATIONS  = '2>&1 batctl tl'
+COMMAND_BATCTL_GLOBAL_TRANSLATIONS = '2>&1 batctl tg'
+COMMAND_BATCTL_INTERFACE_NEIGHBORS = '2>&1 batctl sn'
+COMMAND_BATCTL_VIS_SERVER_MODE     = '2>&1 batctl vm'
+COMMAND_BATCTL_VIS_DATA            = '2>&1 batctl vd'
+COMMAND_BATCTL_PACKET_AGGREGATION  = '2>&1 batctl ag'
+COMMAND_BATCTL_BONDING_MODE        = '2>&1 batctl b'
+COMMAND_BATCTL_FRAGMENTATION_MODE  = '2>&1 batctl f'
+COMMAND_BATCTL_ISOLATION_MODE      = '2>&1 batctl ap'
+
+COMMAND_BATCTL_PING       = '2>&1 batctl p'
+COMMAND_BATCTL_TRACEROUTE = '2>&1 batctl tr'
+COMMAND_BATCTL_TCPDUMP    = '2>&1 batctl td'
+COMMAND_BATCTL_BISECT     = '2>&1 batctl bisect'
+
+ERROR_MODULE_NOT_LOADED         = 'Error . batman.adv module has not been loaded'
+ERROR_INTERFACE_DOES_NOT_EXISTS = 'Error . interface does not exist:'
+ERROR_MESH_NOT_ENABLED          = 'Error . mesh has not been enabled yet'
+ERROR_VALUE_NOT_ALLOWED         = 'The following values are allowed:'
+
+Result = {}
+Result.__index = Result
+
+function Result.build(status, data)
+  local rslt = {}
+  setmetatable(rslt, Result)
+  rslt.status = status
+  rslt.data = data
+  return rslt
+end
+
+function line_contains_error(line)  
+  if string.find(line, ERROR_MODULE_NOT_LOADED) == nil and
+      string.find(line, ERROR_INTERFACE_DOES_NOT_EXISTS) == nil and
+      string.find(line, ERROR_MESH_NOT_ENABLED) == nil and
+      string.find(line, ERROR_VALUE_NOT_ALLOWED) == nil then
+    return false
+  end
+  
+  return true
+end
 
 function get_interface_settings()
+  interfaces = {}
   batctl = io.popen(COMMAND_BATCTL_INTERFACE)
-  return batctl:lines()
+    
+  for line in batctl:lines() do
+    if line_contains_error(line) then
+      return Result.build(BATCTL_STATUS_FAILURE, line)
+    else
+      interfaces[#interfaces + 1] = line
+    end
+  end
+  
+  return Result.build(BATCTL_STATUS_SUCCESS, interfaces)
 end
 
 function add_interface(interface)
   batctl = io.popen(COMMAND_BATCTL_INTERFACE .. ' add ' .. interface)
-  return batctl:lines()
+  
+  for line in batctl:lines() do
+    return Result.build(BATCTL_STATUS_FAILURE, line)
+  end
+  
+  return Result.build(BATCTL_STATUS_SUCCESS, nil)
 end
 
-function delete_interface(interface)
+function remove_interface(interface)
   batctl = io.popen(COMMAND_BATCTL_INTERFACE .. ' del ' .. interface)
-  return batctl:lines()
+  
+  for line in batctl:lines() do
+    return Result.build(BATCTL_STATUS_FAILURE, line)
+  end
+
+  return Result.build(BATCTL_STATUS_SUCCESS, nil)
 end
 
 function get_originators()
@@ -51,12 +103,27 @@ end
 
 function get_originator_interval()
   batctl = io.popen(COMMAND_BATCTL_ORIGINATOR_INTERVAL)
-  return batctl:lines()
+  interval_ms = 0
+  
+  for line in batctl:lines() do
+    if line_contains_error(line) then
+      return Result.build(BATCTL_STATUS_FAILURE, line)
+    else
+      interval_ms = string.match(line, '%d+')
+    end
+  end
+  
+  return Result.build(BATCTL_STATUS_SUCCESS, interval_ms)
 end
 
 function set_originator_interval(interval_ms)
   batctl = io.popen(COMMAND_BATCTL_ORIGINATOR_INTERVAL .. ' ' .. interval_ms)
-  return batctl:lines()
+  
+  for line in batctl:lines() do
+    return Result.build(BATCTL_STATUS_FAILURE, line)
+  end
+
+  return Result.build(BATCTL_STATUS_SUCCESS, nil)
 end
 
 function get_log_level()
@@ -76,12 +143,26 @@ end
 
 function get_gateway_mode()
   batctl = io.popen(COMMAND_BATCTL_GATEWAY_MODE)
-  return batctl:lines()
+  
+  for line in batctl:lines() do
+    if line_contains_error(line) then
+      return Result.build(BATCTL_STATUS_FAILURE, line)
+    else
+      return Result.build(BATCTL_STATUS_SUCCESS, line)
+    end
+  end
+  
+  return Result.build(BATCTL_STATUS_FAILURE, nil)
 end
 
 function set_gateway_mode(gateway_mode)
   batctl = io.popen(COMMAND_BATCTL_GATEWAY_MODE .. ' ' .. gateway_mode)
-  return batctl:lines()
+  
+  for line in batctl:lines() do
+    return Result.build(BATCTL_STATUS_FAILURE, line)
+  end
+  
+  return Result.build(BATCTL_STATUS_SUCCESS, nil)
 end
 
 function get_gateway_list()
@@ -119,44 +200,100 @@ function get_vis_data(format)
   return batctl:lines()
 end
 
-function get_packet_aggregation_setting()
+function get_packet_aggregation()
   batctl = io.popen(COMMAND_BATCTL_PACKET_AGGREGATION)
-  return batctl:lines()
+  
+  for line in batctl:lines() do
+    if line_contains_error(line) then
+      return Result.build(BATCTL_STATUS_FAILURE, line)
+    else
+      return Result.build(BATCTL_STATUS_SUCCESS, line)
+    end
+  end
+  
+  return Result.build(BATCTL_STATUS_FAILURE, nil)
 end
 
 function set_packet_aggregation(aggregation)
   batctl = io.popen(COMMAND_BATCTL_PACKET_AGGREGATION .. ' ' .. aggregation)
-  return batctl:lines()
+  
+  for line in batctl:lines() do
+    return Result.build(BATCTL_STATUS_FAILURE, line)
+  end
+  
+  return Result.build(BATCTL_STATUS_SUCCESS, nil)
 end
 
-function get_bonding_mode_setting()
+function get_bonding_mode()
   batctl = io.popen(COMMAND_BATCTL_BONDING_MODE)
-  return batctl:lines()
+  
+  for line in batctl:lines() do
+    if line_contains_error(line) then
+      return Result.build(BATCTL_STATUS_FAILURE, line)
+    else
+      return Result.build(BATCTL_STATUS_SUCCESS, line)
+    end
+  end
+  
+  return Result.build(BATCTL_STATUS_FAILURE, nil)
 end
 
 function set_bonding_mode(bonding)
   batctl = io.popen(COMMAND_BATCTL_BONDING_MODE .. ' ' .. bonding)
-  return batctl:lines()
+  
+  for line in batctl:lines() do
+    return Result.build(BATCTL_STATUS_FAILURE, line)
+  end
+  
+  return Result.build(BATCTL_STATUS_SUCCESS, nil)
 end
 
-function get_fragmentation_mode_setting()
+function get_fragmentation_mode()
   batctl = io.popen(COMMAND_BATCTL_FRAGMENTATION_MODE)
-  return batctl:lines()
+  
+  for line in batctl:lines() do
+    if line_contains_error(line) then
+      return Result.build(BATCTL_STATUS_FAILURE, line)
+    else
+      return Result.build(BATCTL_STATUS_SUCCESS, line)
+    end
+  end
+  
+  return Result.build(BATCTL_STATUS_FAILURE, nil)
 end
 
 function set_fragmentation_mode(fragmentation)
   batctl = io.popen(COMMAND_BATCTL_FRAGMENTATION_MODE .. ' ' .. fragmentation)
-  return batctl:lines()
+  
+  for line in batctl:lines() do
+    return Result.build(BATCTL_STATUS_FAILURE, line)
+  end
+  
+  return Result.build(BATCTL_STATUS_SUCCESS, nil)
 end
 
-function get_isolation_mode_setting()
+function get_isolation_mode()
   batctl = io.popen(COMMAND_BATCTL_ISOLATION_MODE)
-  return batctl:lines()
+  
+  for line in batctl:lines() do
+    if line_contains_error(line) then
+      return Result.build(BATCTL_STATUS_FAILURE, line)
+    else
+      return Result.build(BATCTL_STATUS_SUCCESS, line)
+    end
+  end
+  
+  return Result.build(BATCTL_STATUS_FAILURE, nil)
 end
 
 function set_isolation_mode(isolation)
   batctl = io.popen(COMMAND_BATCTL_ISOLATION_MODE .. ' ' .. isolation)
-  return batctl:lines()
+  
+  for line in batctl:lines() do
+    return Result.build(BATCTL_STATUS_FAILURE, line)
+  end
+  
+  return Result.build(BATCTL_STATUS_SUCCESS, nil)
 end
 
 function ping(destination)
