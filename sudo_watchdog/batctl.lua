@@ -12,27 +12,33 @@ require("string")
 BATCTL_STATUS_SUCCESS = 0
 BATCTL_STATUS_FAILURE = -1
 
-COMMAND_BATCTL_INTERFACE           = '2>&1 batctl if'
-COMMAND_BATCTL_ORIGINATORS         = '2>&1 batctl o'
-COMMAND_BATCTL_ORIGINATOR_INTERVAL = '2>&1 batctl it'
-COMMAND_BATCTL_LOG_LEVEL           = '2>&1 batctl ll'
-COMMAND_BATCTL_KERNEL_LOG          = '2>&1 batctl l'
-COMMAND_BATCTL_GATEWAY_MODE        = '2>&1 batctl gw'
-COMMAND_BATCTL_GATEWAY_LIST        = '2>&1 batctl gwl'
-COMMAND_BATCTL_LOCAL_TRANSLATIONS  = '2>&1 batctl tl'
-COMMAND_BATCTL_GLOBAL_TRANSLATIONS = '2>&1 batctl tg'
-COMMAND_BATCTL_INTERFACE_NEIGHBORS = '2>&1 batctl sn'
-COMMAND_BATCTL_VIS_SERVER_MODE     = '2>&1 batctl vm'
-COMMAND_BATCTL_VIS_DATA            = '2>&1 batctl vd'
-COMMAND_BATCTL_PACKET_AGGREGATION  = '2>&1 batctl ag'
-COMMAND_BATCTL_BONDING_MODE        = '2>&1 batctl b'
-COMMAND_BATCTL_FRAGMENTATION_MODE  = '2>&1 batctl f'
-COMMAND_BATCTL_ISOLATION_MODE      = '2>&1 batctl ap'
+COMMAND_BATCTL_INTERFACE             = '2>&1 batctl if'
+COMMAND_BATCTL_ORIGINATORS           = '2>&1 batctl o'
+COMMAND_BATCTL_ORIGINATOR_INTERVAL   = '2>&1 batctl it'
+COMMAND_BATCTL_LOG_LEVEL             = '2>&1 batctl ll'
+COMMAND_BATCTL_KERNEL_LOG            = '2>&1 batctl l'
+COMMAND_BATCTL_GATEWAY_MODE          = '2>&1 batctl gw'
+COMMAND_BATCTL_GATEWAY_LIST          = '2>&1 batctl gwl'
+COMMAND_BATCTL_LOCAL_TRANSLATIONS    = '2>&1 batctl tl'
+COMMAND_BATCTL_GLOBAL_TRANSLATIONS   = '2>&1 batctl tg'
+COMMAND_BATCTL_CLAIM_TABLE           = '2>&1 batctl cl'
+COMMAND_BATCTL_INTERFACE_NEIGHBORS   = '2>&1 batctl sn'
+COMMAND_BATCTL_VIS_SERVER_MODE       = '2>&1 batctl vm'
+COMMAND_BATCTL_VIS_DATA              = '2>&1 batctl vd'
+COMMAND_BATCTL_PACKET_AGGREGATION    = '2>&1 batctl ag'
+COMMAND_BATCTL_BONDING_MODE          = '2>&1 batctl b'
+COMMAND_BATCTL_BRIDGE_LOOP_AVOIDANCE = '2>&1 batctl bl'
+COMMAND_BATCTL_FRAGMENTATION_MODE    = '2>&1 batctl f'
+COMMAND_BATCTL_ISOLATION_MODE        = '2>&1 batctl ap'
 
+COMMAND_BATCTL_STATISTICS = '2>&1 batctl s'
 COMMAND_BATCTL_PING       = '2>&1 batctl p'
 COMMAND_BATCTL_TRACEROUTE = '2>&1 batctl tr'
 COMMAND_BATCTL_TCPDUMP    = '2>&1 batctl td'
 COMMAND_BATCTL_BISECT     = '2>&1 batctl bisect'
+
+MESSAGE_NO_BATMAN_NODES_IN_RANGE = 'No batman nodes in range'
+MESSAGE_NO_GATEWAYS_IN_RANGE     = 'No gateways in range'
 
 ERROR_MODULE_NOT_LOADED         = 'Error . batman.adv module has not been loaded'
 ERROR_INTERFACE_DOES_NOT_EXISTS = 'Error . interface does not exist:'
@@ -71,6 +77,41 @@ function Interface.build(name, status)
   return iface
 end
 
+--[[
+  An object for modeling batman-adv
+  originators
+--]]
+
+Originator = {}
+Originator.__index = Originator
+
+function Originator.build(address, last_seen_str, num_255, next_hop, outgoing_interface, potential_next_hops)
+  local orig = {}
+  setmetatable(orig, Originator)
+  
+  function parse_last_seen_ms(str)
+    units = string.match(str, '%d+.%d+(%a)')
+    if units == 's' then
+      factor = 1000
+    elseif units == 'm' then
+      factor = 60 * 1000
+    else
+      return 0
+    end
+    
+    milliseconds = string.match(str, '(%d+).%d+%a') * factor
+    return milliseconds + string.match(str, '%d+.(%d+)%a')
+  end
+  
+  orig.address = address
+  orig.last_seen_ms = parse_last_seen_ms(last_seen_str)
+  orig.num_255 = num_255
+  orig.next_hop = next_hop
+  orig.outgoing_interface = outgoing_interface
+  orig.potential_next_hops = potential_next_hops
+  return orig
+end
+
 function line_contains_error(line)  
   if string.find(line, ERROR_MODULE_NOT_LOADED) == nil and
       string.find(line, ERROR_INTERFACE_DOES_NOT_EXISTS) == nil and
@@ -84,7 +125,8 @@ end
 
 --[[
   returns a Result containing an array of
-  all the Interfaces batman-adv is currently
+  Interface objects representing all of the
+  interfaces that batman-adv is currently
   managing.
 --]]
 function get_interface_settings()
@@ -130,10 +172,31 @@ function remove_interface(interface_name)
   return Result.build(BATCTL_STATUS_SUCCESS, nil)
 end
 
--- TODO: implement me!
+--[[
+  returns a Result containing an array of
+  Originator objects representing all of the
+  known originators in the batman-adv network.
+--]]
 function get_originators()
+  originators = {}
+  line_count = 0
   batctl = io.popen(COMMAND_BATCTL_ORIGINATORS)
-  return batctl:lines()
+  
+  for line in batctl:lines() do
+    line_count = line_count + 1
+    
+    if line_contains_error(line) then
+      return Result.build(BATCTL_STATUS_FAILURE, line)
+    elseif string.find(line, MESSAGE_NO_BATMAN_NODES_IN_RANGE) ~= nil then
+      break
+    elseif line_count > 2 then
+      originators[#originators + 1] = Originator.build(
+        string.match(line, '(%w%w:%w%w:%w%w:%w%w:%w%w:%w%w)%s+(%d+.%d+%a)%s+.(%d+).%s(%w%w:%w%w:%w%w:%w%w:%w%w:%w%w)%s+.%s+(%w+).:%s+(.+)')
+      )
+    end
+  end
+  
+  return Result.build(BATCTL_STATUS_SUCCESS, originators)
 end
 
 --[[

@@ -2,14 +2,6 @@
 
 require("batctl")
 
--- add an interface to batman-adv
-result = add_interface('wlan0')
-if result.status == BATCTL_STATUS_SUCCESS then
-  print("added wlan0 to batman-adv interface list")
-else
-  print("error! " .. result.data)
-end
-
 -- get an array of batman-adv managed interfaces
 result = get_interface_settings()
 if result.status == BATCTL_STATUS_SUCCESS then
@@ -21,10 +13,13 @@ else
   print("error! " .. result.data)
 end
 
--- set the originator interval
-result = set_originator_interval_ms(1337)
+-- get an array of all known batman-adv network originators
+result = get_originators()
 if result.status == BATCTL_STATUS_SUCCESS then
-  print("\noriginator interval has been set to 1337")
+  print("\nthere are " .. #result.data .. " originators known to the network.")
+  for key, orig in pairs(result.data) do
+    print(orig.address .. ' last seen ' .. orig.last_seen_ms .. 'ms ago')
+  end
 else
   print("error! " .. result.data)
 end
@@ -32,15 +27,7 @@ end
 -- get the originator interval
 result = get_originator_interval_ms()
 if result.status == BATCTL_STATUS_SUCCESS then
-  print("originator interval is: " .. result.data)
-else
-  print("error! " .. result.data)
-end
-
--- set gateway mode
-result = set_gateway_mode('off')
-if result.status == BATCTL_STATUS_SUCCESS then
-  print("\ngateway mode has been turned off")
+  print("\noriginator interval is: " .. result.data)
 else
   print("error! " .. result.data)
 end
@@ -48,15 +35,7 @@ end
 -- get the gateway mode
 result = get_gateway_mode()
 if result.status == BATCTL_STATUS_SUCCESS then
-  print("gateway mode is: " .. result.data)
-else
-  print("error! " .. result.data)
-end
-
--- set packet aggregation
-result = set_packet_aggregation('enable')
-if result.status == BATCTL_STATUS_SUCCESS then
-  print("\npacket aggregation has been enabled")
+  print("\ngateway mode is: " .. result.data)
 else
   print("error! " .. result.data)
 end
@@ -64,15 +43,7 @@ end
 -- get packet aggregation
 result = get_packet_aggregation()
 if result.status == BATCTL_STATUS_SUCCESS then
-  print("packet aggregation is: " .. result.data)
-else
-  print("error! " .. result.data)
-end
-
--- set bonding mode
-result = set_bonding_mode('disable')
-if result.status == BATCTL_STATUS_SUCCESS then
-  print("\nbonding mode has been disabled")
+  print("\npacket aggregation is: " .. result.data)
 else
   print("error! " .. result.data)
 end
@@ -80,15 +51,7 @@ end
 -- get bonding mode
 result = get_bonding_mode()
 if result.status == BATCTL_STATUS_SUCCESS then
-  print("bonding mode is: " .. result.data)
-else
-  print("error! " .. result.data)
-end
-
--- set fragmentation mode
-result = set_fragmentation_mode('enable')
-if result.status == BATCTL_STATUS_SUCCESS then
-  print("\nfragmentation mode has been enabled")
+  print("\nbonding mode is: " .. result.data)
 else
   print("error! " .. result.data)
 end
@@ -96,15 +59,7 @@ end
 -- get fragmentation mode
 result = get_fragmentation_mode()
 if result.status == BATCTL_STATUS_SUCCESS then
-  print("fragmentation mode is: " .. result.data)
-else
-  print("error! " .. result.data)
-end
-
--- set isolation mode
-result = set_isolation_mode('disable')
-if result.status == BATCTL_STATUS_SUCCESS then
-  print("\nisolation mode has been disabled")
+  print("\nfragmentation mode is: " .. result.data)
 else
   print("error! " .. result.data)
 end
@@ -112,15 +67,7 @@ end
 -- get isolation mode
 result = get_isolation_mode()
 if result.status == BATCTL_STATUS_SUCCESS then
-  print("isolation mode is: " .. result.data)
-else
-  print("error! " .. result.data)
-end
-
--- remove an interface from batman-adv
-result = remove_interface('wlan0')
-if result.status == BATCTL_STATUS_SUCCESS then
-  print("\nbatman-adv is no longer managing interface wlan0")
+  print("\nisolation mode is: " .. result.data)
 else
   print("error! " .. result.data)
 end
