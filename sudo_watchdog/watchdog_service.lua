@@ -23,7 +23,7 @@ else
 end
 
 -- set the originator interval
-result = set_originator_interval(1337)
+result = set_originator_interval_ms(1337)
 if result.status == BATCTL_STATUS_SUCCESS then
   print("originator interval has been set to 1337")
 else
@@ -31,7 +31,7 @@ else
 end
 
 -- get the originator interval
-result = get_originator_interval()
+result = get_originator_interval_ms()
 if result.status == BATCTL_STATUS_SUCCESS then
   print("originator interval is: " .. result.data)
 else

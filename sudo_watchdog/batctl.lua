@@ -101,7 +101,7 @@ function get_originators()
   return batctl:lines()
 end
 
-function get_originator_interval()
+function get_originator_interval_ms()
   batctl = io.popen(COMMAND_BATCTL_ORIGINATOR_INTERVAL)
   interval_ms = 0
   
@@ -116,7 +116,7 @@ function get_originator_interval()
   return Result.build(BATCTL_STATUS_SUCCESS, interval_ms)
 end
 
-function set_originator_interval(interval_ms)
+function set_originator_interval_ms(interval_ms)
   batctl = io.popen(COMMAND_BATCTL_ORIGINATOR_INTERVAL .. ' ' .. interval_ms)
   
   for line in batctl:lines() do
