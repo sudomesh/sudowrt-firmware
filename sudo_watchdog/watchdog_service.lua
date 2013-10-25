@@ -24,6 +24,17 @@ else
   print("error! " .. result.data)
 end
 
+-- get an array of all known batman-adv gateways
+result = get_gateway_list()
+if result.status == BATCTL_STATUS_SUCCESS then
+  print("\nthere are " .. #result.data .. " gateways known to the network.")
+  for key, gateway in pairs(result.data) do
+    print(gateway.address .. ' class: ' .. gateway.class)
+  end
+else
+  print("error! " .. result.data)
+end
+
 -- get the originator interval
 result = get_originator_interval_ms()
 if result.status == BATCTL_STATUS_SUCCESS then

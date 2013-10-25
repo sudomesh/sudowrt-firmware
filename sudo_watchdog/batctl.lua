@@ -112,6 +112,26 @@ function Originator.build(address, last_seen_str, num_255, next_hop, outgoing_in
   return orig
 end
 
+--[[
+  An object for modeling batman-adv
+  gateways
+--]]
+
+Gateway = {}
+Gateway.__index = Gateway
+
+function Gateway.build(address, num_255, next_hop, outgoing_interface, class)
+  local gatew = {}
+  setmetatable(gatew, Gateway)
+  
+  gatew.address = address
+  gatew.num_255 = num_255
+  gatew.next_hop = next_hop
+  gatew.outgoing_interface = outgoing_interface
+  gatew.class = class
+  return gatew
+end
+
 function line_contains_error(line)  
   if string.find(line, ERROR_MODULE_NOT_LOADED) == nil and
       string.find(line, ERROR_INTERFACE_DOES_NOT_EXISTS) == nil and
@@ -191,7 +211,7 @@ function get_originators()
       break
     elseif line_count > 2 then
       originators[#originators + 1] = Originator.build(
-        string.match(line, '(%w%w:%w%w:%w%w:%w%w:%w%w:%w%w)%s+(%d+.%d+%a)%s+.(%d+).%s(%w%w:%w%w:%w%w:%w%w:%w%w:%w%w)%s+.%s+(%w+).:%s+(.+)')
+        string.match(line, '(%w%w:%w%w:%w%w:%w%w:%w%w:%w%w)%s+(%d+.%d+%a)%s+.%s*(%d+).%s+(%w%w:%w%w:%w%w:%w%w:%w%w:%w%w)%s+.%s+(%w+).:%s+(.+)')
       )
     end
   end
@@ -284,10 +304,31 @@ function set_gateway_mode(gateway_mode)
   return Result.build(BATCTL_STATUS_SUCCESS, nil)
 end
 
--- TODO: implement me!
-function get_gateway_list()
+--[[
+  returns a Result containing an array of
+  Gateway objects representing all of the
+  known gateways in the batman-adv network.
+--]]
+function get_gateway_list()  
+  gateways = {}
+  line_count = 0
   batctl = io.popen(COMMAND_BATCTL_GATEWAY_LIST)
-  return batctl:lines()
+  
+  for line in batctl:lines() do
+    line_count = line_count + 1
+    
+    if line_contains_error(line) then
+      return Result.build(BATCTL_STATUS_FAILURE, line)
+    elseif string.find(line, MESSAGE_NO_GATEWAYS_IN_RANGE) ~= nil then
+      break
+    elseif line_count > 1 then
+      gateways[#gateways + 1] = Gateway.build(
+        string.match(line, '(%w%w:%w%w:%w%w:%w%w:%w%w:%w%w)%s+.%s*(%d+).%s+(%w%w:%w%w:%w%w:%w%w:%w%w:%w%w)%s+.%s+(%w+).:%s+(.+)')
+      )
+    end
+  end
+  
+  return Result.build(BATCTL_STATUS_SUCCESS, gateways)
 end
 
 -- TODO: implement me!
