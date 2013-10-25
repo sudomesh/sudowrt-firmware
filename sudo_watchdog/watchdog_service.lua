@@ -11,12 +11,11 @@ else
 end
 
 -- get an array of batman-adv managed interfaces
--- format >> interface_name : status
 result = get_interface_settings()
 if result.status == BATCTL_STATUS_SUCCESS then
   print("batman-adv currently managing " .. #result.data .. " interfaces.")
-  for k, v in pairs(result.data) do
-    print(v)
+  for key, iface in pairs(result.data) do
+    print(iface.name .. ': ' .. iface.status)
   end
 else
   print("error! " .. result.data)
@@ -25,7 +24,7 @@ end
 -- set the originator interval
 result = set_originator_interval_ms(1337)
 if result.status == BATCTL_STATUS_SUCCESS then
-  print("originator interval has been set to 1337")
+  print("\noriginator interval has been set to 1337")
 else
   print("error! " .. result.data)
 end
@@ -41,7 +40,7 @@ end
 -- set gateway mode
 result = set_gateway_mode('off')
 if result.status == BATCTL_STATUS_SUCCESS then
-  print("gateway mode has been turned off")
+  print("\ngateway mode has been turned off")
 else
   print("error! " .. result.data)
 end
@@ -57,7 +56,7 @@ end
 -- set packet aggregation
 result = set_packet_aggregation('enable')
 if result.status == BATCTL_STATUS_SUCCESS then
-  print("packet aggregation has been enabled")
+  print("\npacket aggregation has been enabled")
 else
   print("error! " .. result.data)
 end
@@ -73,7 +72,7 @@ end
 -- set bonding mode
 result = set_bonding_mode('disable')
 if result.status == BATCTL_STATUS_SUCCESS then
-  print("bonding mode has been disabled")
+  print("\nbonding mode has been disabled")
 else
   print("error! " .. result.data)
 end
@@ -89,7 +88,7 @@ end
 -- set fragmentation mode
 result = set_fragmentation_mode('enable')
 if result.status == BATCTL_STATUS_SUCCESS then
-  print("fragmentation mode has been enabled")
+  print("\nfragmentation mode has been enabled")
 else
   print("error! " .. result.data)
 end
@@ -105,7 +104,7 @@ end
 -- set isolation mode
 result = set_isolation_mode('disable')
 if result.status == BATCTL_STATUS_SUCCESS then
-  print("isolation mode has been disabled")
+  print("\nisolation mode has been disabled")
 else
   print("error! " .. result.data)
 end
@@ -121,7 +120,7 @@ end
 -- remove an interface from batman-adv
 result = remove_interface('wlan0')
 if result.status == BATCTL_STATUS_SUCCESS then
-  print("batman-adv is no longer managing interface wlan0")
+  print("\nbatman-adv is no longer managing interface wlan0")
 else
   print("error! " .. result.data)
 end
