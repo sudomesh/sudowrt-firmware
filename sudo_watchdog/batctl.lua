@@ -5,7 +5,8 @@ require("string")
 --[[
 
   The purpose of the script is to provide a
-  wrapper for the batctl program.
+  wrapper library for the batctl command line
+  utility.
 
 --]]
 
@@ -22,14 +23,13 @@ COMMAND_BATCTL_GATEWAY_LIST          = '2>&1 batctl gwl'
 COMMAND_BATCTL_LOCAL_TRANSLATIONS    = '2>&1 batctl tl'
 COMMAND_BATCTL_GLOBAL_TRANSLATIONS   = '2>&1 batctl tg'
 COMMAND_BATCTL_CLAIM_TABLE           = '2>&1 batctl cl'
-COMMAND_BATCTL_INTERFACE_NEIGHBORS   = '2>&1 batctl sn'
 COMMAND_BATCTL_VIS_SERVER_MODE       = '2>&1 batctl vm'
 COMMAND_BATCTL_VIS_DATA              = '2>&1 batctl vd'
 COMMAND_BATCTL_PACKET_AGGREGATION    = '2>&1 batctl ag'
 COMMAND_BATCTL_BONDING_MODE          = '2>&1 batctl b'
 COMMAND_BATCTL_BRIDGE_LOOP_AVOIDANCE = '2>&1 batctl bl'
 COMMAND_BATCTL_FRAGMENTATION_MODE    = '2>&1 batctl f'
-COMMAND_BATCTL_ISOLATION_MODE        = '2>&1 batctl ap'
+COMMAND_BATCTL_AP_ISOLATION_MODE     = '2>&1 batctl ap'
 
 COMMAND_BATCTL_STATISTICS = '2>&1 batctl s'
 COMMAND_BATCTL_PING       = '2>&1 batctl p'
@@ -344,8 +344,8 @@ function get_global_translation_table()
 end
 
 -- TODO: implement me!
-function get_interface_neighbor_table()
-  batctl = io.popen(COMMAND_BATCTL_INTERFACE_NEIGHBORS)
+function get_claim_table()
+  batctl = io.popen(COMMAND_BATCTL_CLAIM_TABLE)
   return batctl:lines()
 end
 
@@ -418,6 +418,40 @@ function set_bonding_mode(bonding)
 end
 
 --[[
+  returns a Result containing the bridge
+  loop avoidance setting which can be of the
+  values [enable, disable, 1, 0]
+--]]
+function get_bridge_loop_avoidance()
+  batctl = io.popen(COMMAND_BATCTL_BRIDGE_LOOP_AVOIDANCE)
+  
+  for line in batctl:lines() do
+    if line_contains_error(line) then
+      return Result.build(BATCTL_STATUS_FAILURE, line)
+    else
+      return Result.build(BATCTL_STATUS_SUCCESS, line)
+    end
+  end
+  
+  return Result.build(BATCTL_STATUS_FAILURE, nil)
+end
+
+--[[
+  sets bridge loop avoidance to $avoid, where
+  $avoid can be of the values
+  [enable, disable, 1, 0].
+--]]
+function set_bridge_loop_avoidance(avoid)
+  batctl = io.popen(COMMAND_BATCTL_BRIDGE_LOOP_AVOIDANCE .. ' ' .. avoid)
+  
+  for line in batctl:lines() do
+    return Result.build(BATCTL_STATUS_FAILURE, line)
+  end
+  
+  return Result.build(BATCTL_STATUS_SUCCESS, nil)
+end
+
+--[[
   returns a Result containing the
   fragmentation mode setting which can be of
   the values [enable, disable, 1, 0]
@@ -456,8 +490,8 @@ end
   mode setting which can be of the values
   [enable, disable, 1, 0]
 --]]
-function get_isolation_mode()
-  batctl = io.popen(COMMAND_BATCTL_ISOLATION_MODE)
+function get_ap_isolation_mode()
+  batctl = io.popen(COMMAND_BATCTL_AP_ISOLATION_MODE)
   
   for line in batctl:lines() do
     if line_contains_error(line) then
@@ -475,14 +509,23 @@ end
   $isolation can be of the values
   [enable, disable, 1, 0].
 --]]
-function set_isolation_mode(isolation)
-  batctl = io.popen(COMMAND_BATCTL_ISOLATION_MODE .. ' ' .. isolation)
+function set_ap_isolation_mode(isolation)
+  batctl = io.popen(COMMAND_BATCTL_AP_ISOLATION_MODE .. ' ' .. isolation)
   
   for line in batctl:lines() do
     return Result.build(BATCTL_STATUS_FAILURE, line)
   end
   
   return Result.build(BATCTL_STATUS_SUCCESS, nil)
+end
+
+--[[
+  returns an iterator over the lines of text
+  returned by the 'batctl s' command.
+--]]
+function get_statistics()
+  batctl = io.popen(COMMAND_BATCTL_STATISTICS)
+  return batctl:lines()
 end
 
 -- TODO: what to do with this?

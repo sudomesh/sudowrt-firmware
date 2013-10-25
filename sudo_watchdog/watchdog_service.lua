@@ -75,8 +75,8 @@ else
   print("error! " .. result.data)
 end
 
--- get isolation mode
-result = get_isolation_mode()
+-- get ap isolation mode
+result = get_ap_isolation_mode()
 if result.status == BATCTL_STATUS_SUCCESS then
   print("\nisolation mode is: " .. result.data)
 else
