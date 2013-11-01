@@ -70,7 +70,6 @@ cd ${OPENWRT_CHECKOUT_DIR}
 # Importing feeds
 echo "Importing feeds"
 ./scripts/feeds update -a > /dev/null
-./scripts/feeds install -a -p peopleswifi
 
 for package in $(cat ${workdir}/openwrt_config/packages); do
   ./scripts/feeds install ${package}
@@ -169,6 +168,8 @@ openwrt_buildprep()
 
   # Make hardlinks to avoid space duplication but to still isolate builds
   cp -lr ${workdir}/${BUILD_DIR}/openwrt ${build_dir}
+  
+  cp -r files ${build_dir}/
   
   # Prepare configuration file and build
   cd ${build_dir}

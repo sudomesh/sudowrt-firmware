@@ -1,0 +1,59 @@
+#!/bin/sh
+
+# changed by Juul
+
+STATUS=$1
+IFACE=$2
+
+# TODO re-use thesevariables from /etc/init.d/meshrouting 
+
+ETH=eth0
+ADHOC=adhoc0
+OPEN=open0
+MESH=bat0
+PRIV=priv0
+BRIDGE=br-openmesh
+
+MESHNET=10.0.0.0/8
+PRIVNET=172.30.0.1/16
+
+TUNNELSERVER=172.31.1.1
+
+# TODO don't use ifconfig (it's basically deprecated)
+# TODO fetch local ip and netmask from uci config
+
+case "$STATUS" in
+  session.up)
+    echo "Received 'session.up' for interface ${IFACE}"
+
+#    brctl addif $BRIDGE $IFACE
+    batctl if add $IFACE
+    ifconfig $IFACE up
+
+    # TODO use 'ip link' and 'ip addr add' instead of ifconfig
+    # create a default route in the tunnel table 
+#    ifconfig $IFACE 172.31.1.1 netmask 255.255.0.0 up
+#    ip route add default via 172.31.0.1 table tunnel
+#    ip rule add from $OPENNET iif $OPEN lookup tunnel prio 1000
+#    ip link set mtu 1500 dev $ETH
+#    ip link set mtu 1500 dev $OPEN
+#    ip link set mtu 1400 dev $IFACE # TODO sane mtu choice?
+
+    # TODO firewall rules to prohibit bad traffic to/from the tunnel
+
+    ;;
+  session.down)
+    echo "Received 'session.down' for interface ${IFACE}"
+
+#    brctl delif $BRIDGE $IFACE
+    batctl if del $IFACE
+
+#    ip rule del from $OPENNET iif open0 lookup tunnel
+#    ip route del default via 172.31.0.1 table tunnel
+#    ifconfig $IFACE down
+    ;;
+esac
+
+
+# ip addr add 172.31.0.2 dev $IFACE brd 255.255.0.0
+# ip addr del 172.31.0.2 dev $IFACE
