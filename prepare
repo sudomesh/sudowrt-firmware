@@ -61,23 +61,31 @@ fi
 # Inject feeds and configurations
 echo "Configuring feeds"
 
-all_feeds=$(cat ${workdir}/openwrt_config/feeds)
+feedlines=()
+feed_file="${workdir}/openwrt_config/feeds"
+while read -r line
+do
+  feedlines=("${feedlines[@]}" "${line}")
+  echo "line = ${line}"
+done < "$feed_file"
+
 feed_titles=()
 feed_sources=()
-for feedline in ${all_feeds}; do
-  IFS=: read -a ARRAY <<< "$feedline" # one-line solution
-  feed_titles+=(ARRAY[0])
+for feedline in "${feedlines[@]}"; do
+  IFS=: read -a ARRAY <<< "${feedline}" 
+  feed_title=${ARRAY[*]:0:1}
+  feed_titles=("${feed_titles[@]}" "${feed_title}")
 
   SAVE_IFS=$IFS
   IFS=":"
   feed_source="${ARRAY[*]:1}"
   IFS=$SAVE_IFS
 
-  feed_sources+=(feed_source)
+  feed_sources=("${feed_sources[@]}" "${feed_source}")
 done
 
-for feed_source in ${feed_sources}; do
-  echo "${feed_source}"  > ${OPENWRT_CHECKOUT_DIR}/feeds.conf    
+for feed_source in "${feed_sources[@]}"; do
+  echo "${feed_source}"  >> ${OPENWRT_CHECKOUT_DIR}/feeds.conf    
 done
 
 echo "Changing work directory to openwrt"
@@ -87,7 +95,7 @@ cd ${OPENWRT_CHECKOUT_DIR}
 echo "Importing feeds"
 ./scripts/feeds update -a > /dev/null
 
-for feed_title in ${feed_titles}; do
+for feed_title in "${feed_titles[@]}"; do
   ./scripts/feeds install ${feed_title}
 done
 
