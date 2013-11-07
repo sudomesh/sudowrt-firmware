@@ -17,5 +17,13 @@ mdnsd
 libopenssl
 luasec
 md5sum
+uhttpd
+libuci-lua 
+libubus-lua
+luci
+luci-lib-json 
+luci-mod-admin-core 
+luci-lib-httpclient 
+luci-theme-bootstrap
 peopleswifi
 

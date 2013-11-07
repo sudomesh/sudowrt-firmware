@@ -52,27 +52,43 @@ else
   find ${OPENWRT_CHECKOUT_DIR} -name .svn -type d -exec rm -rf "{}" \; 2>/dev/null
 fi
 
-# Inject feeds and configurations
-echo "Configuring feeds"
-echo "src-git peopleswifi git://github.com/sudomesh/openwrt-packages.git" > ${OPENWRT_CHECKOUT_DIR}/feeds.conf
-echo "src-git luci git://nbd.name/luci.git" > ${OPENWRT_CHECKOUT_DIR}/feeds.conf
-echo "src-svn openwrt svn://svn.openwrt.org/openwrt/packages" >> ${OPENWRT_CHECKOUT_DIR}/feeds.conf
-echo "src-git routing git://github.com/openwrt-routing/packages.git" >> ${OPENWRT_CHECKOUT_DIR}/feeds.conf
-
-echo "Changing work directory to openwrt"
-cd ${OPENWRT_CHECKOUT_DIR}
 
 #echo "Applying patches for OpenWRT base tree..."
 
 #ln -s ${workdir}/openwrt/patches/${openwrt_path_name} patches
 #quilt push -f -a
 
+# Inject feeds and configurations
+echo "Configuring feeds"
+
+all_feeds=$(cat ${workdir}/openwrt_config/feeds)
+feed_titles=()
+feed_sources=()
+for feedline in ${all_feeds}; do
+  IFS=: read -a ARRAY <<< "$feedline" # one-line solution
+  feed_titles+=(ARRAY[0])
+
+  SAVE_IFS=$IFS
+  IFS=":"
+  feed_source="${ARRAY[*]:1}"
+  IFS=$SAVE_IFS
+
+  feed_sources+=(feed_source)
+done
+
+for feed_source in ${feed_sources}; do
+  echo "${feed_source}"  > ${OPENWRT_CHECKOUT_DIR}/feeds.conf    
+done
+
+echo "Changing work directory to openwrt"
+cd ${OPENWRT_CHECKOUT_DIR}
+
 # Importing feeds
 echo "Importing feeds"
 ./scripts/feeds update -a > /dev/null
 
-for package in $(cat ${workdir}/openwrt_config/packages); do
-  ./scripts/feeds install ${package}
+for feed_title in ${feed_titles}; do
+  ./scripts/feeds install ${feed_title}
 done
 
 # change back to initial directory
