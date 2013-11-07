@@ -66,7 +66,6 @@ feed_file="${workdir}/openwrt_config/feeds"
 while read -r line
 do
   feedlines=("${feedlines[@]}" "${line}")
-  echo "line = ${line}"
 done < "$feed_file"
 
 feed_titles=()
@@ -146,7 +145,6 @@ for arch in $architectures; do
   openwrt_verify_architecture $arch
   echo " * ${arch}"
 done
-
 
 # Check packages that we need to build
 echo "Configuring build for the following OpenWRT packages:"
