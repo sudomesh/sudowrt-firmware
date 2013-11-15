@@ -26,4 +26,5 @@ luci-mod-admin-core
 luci-lib-httpclient 
 luci-theme-bootstrap
 luci-app-peopleswifi
+mdnssd-min
 
