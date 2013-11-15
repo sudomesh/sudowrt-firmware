@@ -25,5 +25,5 @@ luci-lib-json
 luci-mod-admin-core 
 luci-lib-httpclient 
 luci-theme-bootstrap
-peopleswifi
+luci-app-peopleswifi
 

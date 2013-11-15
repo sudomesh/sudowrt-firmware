@@ -87,6 +87,13 @@ for feed_source in "${feed_sources[@]}"; do
   echo "${feed_source}"  >> ${OPENWRT_CHECKOUT_DIR}/feeds.conf    
 done
 
+package_names=()
+packages_file="${workdir}/openwrt_config/packages"
+while read -r line
+do
+  package_names=("${package_names[@]}" "${line}")
+done < "$packages_file"
+
 echo "Changing work directory to openwrt"
 cd ${OPENWRT_CHECKOUT_DIR}
 
@@ -94,8 +101,8 @@ cd ${OPENWRT_CHECKOUT_DIR}
 echo "Importing feeds"
 ./scripts/feeds update -a > /dev/null
 
-for feed_title in "${feed_titles[@]}"; do
-  ./scripts/feeds install ${feed_title}
+for package_name in "${package_names[@]}"; do
+  ./scripts/feeds install ${package_name}
 done
 
 # change back to initial directory
