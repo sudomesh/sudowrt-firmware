@@ -8,17 +8,17 @@ config interface 'lan'
 	option ifname 'eth0'
 	option proto 'dhcp'	
 
-#config interface 'mesh'
-#	option ifname 'bat0'
-#	option proto 'static'
-#	option ipaddr '10.42.0.1'
-#	option netmask '255.255.0.0'
-
 #config interface 'open'
 #	option ifname 'open0'
 #	option proto 'static'
 #	option ipaddr '10.0.1.1'
 #	option netmask '255.255.255.0'
+
+config interface 'mesh'
+	option ifname 'adhoc0'
+	option mtu '1528'
+	option proto 'batadv'
+	option mesh 'bat0'
 
 config interface 'openmesh'
 	option type 'bridge'
