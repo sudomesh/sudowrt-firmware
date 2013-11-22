@@ -8,12 +8,6 @@ config interface 'lan'
 	option ifname 'eth0'
 	option proto 'dhcp'	
 
-#config interface 'open'
-#	option ifname 'open0'
-#	option proto 'static'
-#	option ipaddr '10.0.1.1'
-#	option netmask '255.255.255.0'
-
 config interface 'mesh'
 	option ifname 'adhoc0'
 	option mtu '1528'
@@ -27,15 +21,9 @@ config interface 'openmesh'
 	option ipaddr '10.42.0.1'
 	option netmask '255.0.0.0'
 
-
 config interface 'priv'
 	option ifname 'priv0'
 	option proto 'static'
 	option ipaddr '172.30.0.1'
 	option netmask '255.255.0.0'
 
-# the mesh interface
-#config interface 'mesh'
-#	option ifname 'adhoc0'
-#	option proto 'none'
-#	option mtu '1528'
