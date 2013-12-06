@@ -83,6 +83,7 @@ for feedline in "${feedlines[@]}"; do
   feed_sources=("${feed_sources[@]}" "${feed_source}")
 done
 
+cat /dev/null > ${OPENWRT_CHECKOUT_DIR}/feeds.conf
 for feed_source in "${feed_sources[@]}"; do
   echo "${feed_source}"  >> ${OPENWRT_CHECKOUT_DIR}/feeds.conf    
 done
