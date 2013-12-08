@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # based on: 
 # https://github.com/wlanslovenija/firmware-core/blob/master/scripts/build
@@ -94,12 +94,12 @@ openwrt_builder()
 
 # Check for proper working directory
 log "Checking working directory..."
-if [[ ! -d scripts || ! -d openwrt ]]; then
+if [[ ! -d openwrt_config ]]; then
   log "Invalid working directory!"
   exit 1
 fi
 
-if [[ ! -d build/openwrt ]]; then
+if [[ ! -d built_firmware/openwrt ]]; then
   log "Build directory is not prepared. Have you run ./scripts/prepare?"
   exit 1
 fi
