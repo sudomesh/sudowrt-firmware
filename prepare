@@ -50,6 +50,10 @@ else
   fi
   echo "Purging .svn files from repository"
   find ${OPENWRT_CHECKOUT_DIR} -name .svn -type d -exec rm -rf "{}" \; 2>/dev/null
+
+  echo "Adding extra files."
+  cp -r openwrt_addons/* "${OPENWRT_CHECKOUT_DIR}"
+
 fi
 
 
