@@ -194,7 +194,8 @@ done
 openwrt_buildprep()
 {
   local arch=$1
-  local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}.$$
+#  local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}.$$
+  local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
 
   # Make hardlinks to avoid space duplication but to still isolate builds
   cp -lr ${workdir}/${BUILD_DIR}/openwrt ${build_dir}
