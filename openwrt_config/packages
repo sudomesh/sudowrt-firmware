@@ -13,7 +13,6 @@ hostapd
 opkg
 lua
 luasocket
-mdnsd
 libopenssl
 luasec
 md5sum
