@@ -1,4 +1,0 @@
-config mesh 'bat0'
-	option 'aggregated_ogms' # no idea what this means
-	option 'ap_isolation' # no idea what this means
-	option 'gw_mode' 'server 11mbit/5mbit'
