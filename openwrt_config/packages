@@ -28,4 +28,5 @@ luci-app-peopleswifi
 mdnssd-min
 tunneldigger
 openwrt-firmware-config
+coreutils
 coreutils-nohup
