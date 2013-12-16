@@ -1,0 +1,11 @@
+{
+        "utils": {
+                "mdnssd_min": "/usr/bin/mdnssd-min"
+        },
+        "client": {
+                "download_path": "/tmp"
+        },
+        "server": {
+		"service_type": "_nodeconf._tcp.local"
+	}
+}

@@ -1,0 +1,11 @@
+#!/bin/sh /etc/rc.common
+
+start() 
+{
+	/usr/bin/nohup /usr/bin/lua /usr/bin/nodeconf_client.lua > /tmp/nodeconf_client.log &
+}
+
+stop() {
+	/usr/bin/killall nodeconf_client.lua
+}
+

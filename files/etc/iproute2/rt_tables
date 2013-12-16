@@ -1,0 +1,20 @@
+
+# Changed by Juul
+
+# mesh tables
+42	tunnel
+
+
+# reserved values
+
+255	local
+254	main
+253	default
+0	unspec
+
+#
+# local
+#
+#1	inr.ruhep
+
+300 public
