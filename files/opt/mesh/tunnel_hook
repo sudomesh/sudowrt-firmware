@@ -1,7 +1,20 @@
 #!/bin/sh
 
+# include config_load and config_get functions
+. /lib/functions.sh
+
 STATUS=$1
 IFACE=$2
+
+config_cb() {
+	local type="$1"
+	local name="$2"
+	config_get limit_bw_up "$2" limit_bw_up
+	echo $limit_bw_up
+}
+
+config_load tunneldigger
+
 
 # TODO don't use ifconfig (it's deprecated)
 
@@ -12,11 +25,14 @@ case "$STATUS" in
     batctl if add $IFACE
     ifconfig $IFACE up
 
+    tc qdisc del
+
     ;;
   session.down)
     echo "Received 'session.down' for interface ${IFACE}"
 
     batctl if del $IFACE
+    tc qdisc del $IFACE root
 
     ;;
 esac
