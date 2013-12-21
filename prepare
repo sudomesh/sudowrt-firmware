@@ -57,10 +57,9 @@ else
 fi
 
 
-#echo "Applying patches for OpenWRT base tree..."
-
-#ln -s ${workdir}/openwrt/patches/${openwrt_path_name} patches
-#quilt push -f -a
+echo "Applying patches for OpenWRT base tree..."
+ln -s ${workdir}/openwrt_patches patches
+quilt push -f -a
 
 # Inject feeds and configurations
 echo "Configuring feeds"
