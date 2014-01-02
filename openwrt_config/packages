@@ -28,6 +28,7 @@ libpthread
 uhttpd-mod-ubus
 luci-lib-json 
 luci-mod-admin-core 
+luci-mod-admin-full 
 luci-proto-core
 libiwinfo-lua
 luci-lib-httpclient 
