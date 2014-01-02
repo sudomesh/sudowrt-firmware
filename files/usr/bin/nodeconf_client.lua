@@ -102,7 +102,7 @@ function run_command(cmd)
 
   -- actually only gets the last digit of exit code
   -- but that's good enough
-  exit_code = string.match(output, ".*(%d+[\r\n])")
+  exit_code = string.match(output, ".*(%d+)[\r\n]")
   if exit_code ~= '0' then
     return false, output
   else
@@ -281,7 +281,7 @@ function find_server_and_connect()
 
 -- keep trying to connect
   while true do
-    mdns = io.popen(config.utils.mdnssd_min..' '..config.server.service_type, 'r')
+    mdns = io.popen(config.utils.mdnssd_min..' '..config.client.service_type, 'r')
 
     while true do
       line = mdns:read("*line")
