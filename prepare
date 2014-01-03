@@ -56,15 +56,6 @@ else
     cp -r openwrt_addons/* "${OPENWRT_CHECKOUT_DIR}"
   fi
 fi
-
-echo "Applying patches for OpenWRT base tree..."
-
-if [ ! -h "${workdir}/patches" ] ; then
-  ln -s ${workdir}/openwrt_patches patches
-fi
-
-quilt push -f -a
-
 # Inject feeds and configurations
 echo "Configuring feeds"
 
@@ -94,6 +85,16 @@ cat /dev/null > ${OPENWRT_CHECKOUT_DIR}/feeds.conf
 for feed_source in "${feed_sources[@]}"; do
   echo "${feed_source}"  >> ${OPENWRT_CHECKOUT_DIR}/feeds.conf
 done
+
+echo "Applying patches for OpenWRT base tree..."
+cd ${OPENWRT_CHECKOUT_DIR}
+if [ ! -h "patches" ] ; then
+  ln -s ${workdir}/openwrt_patches patches
+fi
+if [ ! -f "patches/series" ] ; then
+  quilt import patches/*
+fi
+quilt push -f -a
 
 package_names=()
 packages_file="${workdir}/openwrt_config/packages"
