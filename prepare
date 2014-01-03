@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # peopleswifi firmware prepare script
 # based on wlanslovenija prepare script
@@ -38,7 +39,6 @@ OPENWRT_CHECKOUT_DIR=${workdir}/${BUILD_DIR}/openwrt
 if [ -f ${OPENWRT_CHECKOUT_DIR}/.success ]; then
   echo "OpenWRT already checked out"
 else
-  svn status ${OPENWRT_CHECKOUT_DIR}
   rm -rf ${OPENWRT_CHECKOUT_DIR}
   svn co -q -r ${openwrt_rev} svn://svn.openwrt.org/openwrt/${openwrt_path} ${OPENWRT_CHECKOUT_DIR}
   if [ $? -ne 0 ]; then
@@ -49,16 +49,20 @@ else
     touch ${OPENWRT_CHECKOUT_DIR}/.success
   fi
   echo "Purging .svn files from repository"
-  find ${OPENWRT_CHECKOUT_DIR} -name .svn -type d -exec rm -rf "{}" \; 2>/dev/null
+  find ${OPENWRT_CHECKOUT_DIR} -depth -name .svn -type d -exec rm -rf "{}" \; 2>/dev/null
 
-  echo "Adding extra files."
-  cp -r openwrt_addons/* "${OPENWRT_CHECKOUT_DIR}"
-
+  if [ -d "openwrt_addons" ] ; then
+    echo "Adding extra files."
+    cp -r openwrt_addons/* "${OPENWRT_CHECKOUT_DIR}"
+  fi
 fi
 
-
 echo "Applying patches for OpenWRT base tree..."
-ln -s ${workdir}/openwrt_patches patches
+
+if [ ! -h "${workdir}/patches" ] ; then
+  ln -s ${workdir}/openwrt_patches patches
+fi
+
 quilt push -f -a
 
 # Inject feeds and configurations
@@ -74,7 +78,7 @@ done < "$feed_file"
 feed_titles=()
 feed_sources=()
 for feedline in "${feedlines[@]}"; do
-  IFS=: read -a ARRAY <<< "${feedline}" 
+  IFS=: read -a ARRAY <<< "${feedline}"
   feed_title=${ARRAY[*]:0:1}
   feed_titles=("${feed_titles[@]}" "${feed_title}")
 
@@ -88,7 +92,7 @@ done
 
 cat /dev/null > ${OPENWRT_CHECKOUT_DIR}/feeds.conf
 for feed_source in "${feed_sources[@]}"; do
-  echo "${feed_source}"  >> ${OPENWRT_CHECKOUT_DIR}/feeds.conf    
+  echo "${feed_source}"  >> ${OPENWRT_CHECKOUT_DIR}/feeds.conf
 done
 
 package_names=()
@@ -202,9 +206,9 @@ openwrt_buildprep()
 
   # Make hardlinks to avoid space duplication but to still isolate builds
   cp -lr ${workdir}/${BUILD_DIR}/openwrt ${build_dir}
-  
+
   cp -r files ${build_dir}/
-  
+
   # Prepare configuration file and build
   cd ${build_dir}
   cp config.${arch} .config
@@ -219,8 +223,8 @@ openwrt_buildprep()
   make toolchain/install
 
   echo "Compile linux"
-  make target/compile 
-  
+  make target/compile
+
   echo "Compiling packages"
   make package/cleanup
   make package/compile

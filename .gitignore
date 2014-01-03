@@ -1,3 +1,5 @@
 *~
 *.save
 \#*\#
+built_firmware
+patches
