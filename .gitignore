@@ -3,3 +3,5 @@
 \#*\#
 built_firmware
 patches
+openwrt_patches/series
+.pc/
