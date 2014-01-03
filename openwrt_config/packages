@@ -35,3 +35,4 @@ luci-lib-httpclient
 luci-theme-bootstrap
 luci-app-firewall
 luci-app-peopleswifi
+ifplugd
