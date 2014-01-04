@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# based on: 
+# based on:
 # https://github.com/wlanslovenija/firmware-core/blob/master/scripts/build
 
 BUILD_DIR=built_firmware
@@ -54,7 +54,7 @@ openwrt_builder()
   local arch=$1
   local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
 
-  make V=99 &> ${build_dir}/build.log
+  make V=99 -C "${build_dir}" &> "${build_dir}/build.log"
   if [ "$?" != "0" ]; then
     log "Build for architecture '${arch}' has failed. See build.log for details!"
     exit 1
@@ -90,6 +90,53 @@ if [[ ! -d built_firmware/openwrt ]]; then
   exit 1
 fi
 
+override_architectures="$*"
+
+# Check architectures that we need to build
+all_architectures=$(cat openwrt_config/architectures)
+if [ -z "${override_architectures}" ]; then
+  architectures="${all_architectures}"
+else
+  architectures=""
+  for arch in $override_architectures; do
+    found=0
+    for sarch in $all_architectures; do
+      if [[ "$arch" == "$sarch" ]]; then
+        architectures="${architectures} ${arch}"
+        found=1
+        break
+      fi
+    done
+
+    if [[ $found == 0 ]]; then
+      echo "ERROR: Invalid architecture '${arch}' specified."
+      exit 1
+    fi
+  done
+fi
+
+workdir=$(pwd)
+
+openwrt_verify_architecture()
+{
+  local arch=$1
+  if [ ! -d ${workdir}/${BUILD_DIR}/openwrt/target/linux/${arch} ]; then
+    echo "Invalid architecture '${arch}', aborting."
+    exit 1
+  fi
+
+  if [ ! -f ${workdir}/openwrt_config/arch_configs/${arch} ]; then
+    echo "Architecture '${arch}' missing configuration file, aborting."
+    exit 1
+  fi
+}
+
+echo "Building for the following OpenWRT architectures:"
+for arch in $architectures; do
+  openwrt_verify_architecture $arch
+  echo " * ${arch}"
+done
+
 # Spawn builders
 log "Spawning builders..."
 builder_pids=""
@@ -97,7 +144,7 @@ for arch in $architectures; do
   openwrt_builder ${arch} &
   bpid=$!
   builder_pids="${builder_pids} ${bpid}"
-  
+
   log " * ${arch} (${bpid})"
 done
 
