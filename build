@@ -7,7 +7,7 @@ BUILD_DIR=built_firmware
 
 log()
 {
-  echo "[PON firmware] build: $*"
+  echo "[sudomesh firmware] build: $*"
 }
 
 
