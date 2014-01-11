@@ -61,11 +61,11 @@ openwrt_builder()
   fi
 
   # Copy image builder and packages
-  log "Copying image builder and packages for '${arch}'..."
-  local release_dir=${workdir}/${BUILD_DIR}/release/${arch}
-  mkdir -p ${release_dir}
-  cp ${build_dir}/bin/${arch}/OpenWrt-ImageBuilder-*.tar.bz2 ${release_dir}/imagebuilder.${arch}.tar.bz2
-  cp -a ${build_dir}/bin/${arch}/packages ${release_dir}
+#  log "Copying image builder and packages for '${arch}'..."
+#  local release_dir=${workdir}/${BUILD_DIR}/release/${arch}
+#  mkdir -p ${release_dir}
+#  cp ${build_dir}/bin/${arch}/OpenWrt-ImageBuilder-*.tar.bz2 ${release_dir}/imagebuilder.${arch}.tar.bz2
+#  cp -a ${build_dir}/bin/${arch}/packages ${release_dir}
 
 }
 
