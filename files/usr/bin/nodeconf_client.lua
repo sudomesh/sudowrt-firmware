@@ -311,9 +311,7 @@ function get_node_mac()
   local f
   local line
 
--- TODO we should be using the MAC addres of the wlan0 device
--- but it is currently not available during configuration
-  f = io.popen("ip addr show scope link dev wlan0|grep link", 'r')
+  f = io.popen("cat /sys/class/ieee80211/`ls /sys/class/ieee80211/|head -n 1`/macaddress", 'r')
   line = f:read("*line")
   f:close()
   if line == nil then
