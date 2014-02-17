@@ -2,6 +2,8 @@
 ip
 iptables
 tc
+kmod-sched-core
+kmod-sched
 kmod-lib-crc16
 kmod-l2tp
 kmod-l2tp-ip
