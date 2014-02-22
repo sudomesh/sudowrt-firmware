@@ -1,4 +1,4 @@
-peopleswifi:src-git peopleswifi git://github.com/sudomesh/openwrt-packages.git
+peopleswifi:src-git peopleswifi git://github.com/sudomesh/sudowrt-packages.git
 luci:src-git luci git://nbd.name/luci.git
 openwrt:src-git openwrt git://git.openwrt.org/12.09/packages.git
 routing:src-git routing git://github.com/openwrt-routing/packages.git;for-12.09.x
