@@ -4,6 +4,10 @@ NOTICE: This is still a work in progress. Don't expect it to work.
 
 Only contains patches and build scripts. 
 
+# Requirements
+
+sudo aptitude install build-essential git subversion quilt cmake libncurses5-dev
+
 What the prepare script does:
 
 1. Downloads OpenWRT

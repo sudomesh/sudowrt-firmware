@@ -53,6 +53,7 @@ openwrt_builder()
 {
   local arch=$1
   local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
+  mkdir -p $build_dir
 
   make V=99 -C "${build_dir}" &> "${build_dir}/build.log"
   if [ "$?" != "0" ]; then
