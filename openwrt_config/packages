@@ -39,4 +39,4 @@ luci-app-firewall
 luci-app-peopleswifi
 libdaemon
 ifplugd
-node-configurator-client
+mini-snmpd
