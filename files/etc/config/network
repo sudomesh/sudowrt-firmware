@@ -6,5 +6,8 @@ config interface 'loopback'
 
 config interface 'lan'
 	option ifname 'eth0'
-	option proto 'dhcp'	
+	option proto 'static'
+        option ipaddr '192.168.13.37'
+        option netmask '255.255.255.0'
+
 
