@@ -2,11 +2,11 @@ The sudo mesh firmware builder.
 
 NOTICE: This is still a work in progress. Don't expect it to work.
 
-Only contains patches and build scripts. 
+Only contains patches and build scripts.
 
 # Requirements
 
-sudo aptitude install build-essential git subversion quilt cmake libncurses5-dev
+    sudo aptitude install build-essential git subversion quilt cmake libncurses5-dev
 
 What the prepare script does:
 
@@ -14,19 +14,19 @@ What the prepare script does:
 
 2. Patches OpenWRT with sudo mesh patches (actually we don't yet have any patches).
 
-3. Adds a feed to get OpenWRT to pull in the sudomesh/openwrt-packages feed from github. 
-The openwrt-packages contains references to the code for the actual sudo mesh openwrt-packages 
+3. Adds a feed to get OpenWRT to pull in the sudomesh/openwrt-packages feed from github.
+The openwrt-packages contains references to the code for the actual sudo mesh openwrt-packages
 (that each have their own github repositories).
 
 What the build_package script does:
 
 Builds a single package for the specified platform, e.g.:
 
-  build_package -a atheros internetisdownredirect 
+    build_package -a atheros internetisdownredirect
 
 The built packages will end up in the built_packages/ directory
 
 What the build script does:
 
-Nothing right now, but in the future it will build OpenWRT firmwares for the target platforms 
+Nothing right now, but in the future it will build OpenWRT firmwares for the target platforms
 as specified in the openwrt/architectures file.
