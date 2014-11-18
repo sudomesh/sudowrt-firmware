@@ -1,4 +1,3 @@
-
 ip
 iptables
 tc
@@ -39,4 +38,9 @@ luci-app-firewall
 luci-app-peopleswifi
 libdaemon
 ifplugd
-mini-snmpd
+tcpdump
+snmpd
+iputils-traceroute6
+bmx6 
+bmx6-uci-config
+
