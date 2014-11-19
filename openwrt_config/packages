@@ -7,7 +7,6 @@ kmod-lib-crc16
 kmod-l2tp
 kmod-l2tp-ip
 kmod-l2tp-eth
-kmod-batman-adv
 wireless-tools
 ntpclient
 hostapd
@@ -43,4 +42,4 @@ snmpd
 iputils-traceroute6
 bmx6 
 bmx6-uci-config
-
+netcat
