@@ -40,6 +40,7 @@ ifplugd
 tcpdump
 snmpd
 iputils-traceroute6
-bmx6 
-bmx6-uci-config
+babeld
+ahcpd
+babel-pinger
 netcat
