@@ -1,4 +1,3 @@
-
 ip
 iptables
 tc
@@ -8,7 +7,6 @@ kmod-lib-crc16
 kmod-l2tp
 kmod-l2tp-ip
 kmod-l2tp-eth
-kmod-batman-adv
 wireless-tools
 ntpclient
 hostapd
@@ -39,4 +37,10 @@ luci-app-firewall
 luci-app-peopleswifi
 libdaemon
 ifplugd
-mini_snmpd
+tcpdump
+snmpd
+iputils-traceroute6
+babeld
+ahcpd
+babel-pinger
+netcat

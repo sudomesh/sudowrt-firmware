@@ -220,18 +220,18 @@ openwrt_buildprep()
   fi
 
   echo "Installing tools"
-  make tools/install
-  make toolchain/install
+  make tools/install V=s
+  make toolchain/install V=s
 
   echo "Compile linux"
-  make target/compile
+  make target/compile V=s
 
   echo "Compiling packages"
-  make package/cleanup
-  make package/compile
+  make package/cleanup V=s
+  make package/compile V=s
 
   echo "Installing packages"
-  make package/install
+  make package/install V=s
 
 }
 
