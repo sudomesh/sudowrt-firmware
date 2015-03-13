@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Script for building antenna-node images with image-builder
+
+architectures=$(cat openwrt_config/architectures)
+all_packages=$(cat openwrt_config/packages.antenna-node)
+
+pkg_list = ""
+
+for pkg in $all_packages; do
+  pkg_list = "${pkg_list} ${pkg}"
+done
+
+
+openwrt_image_builder()
+{
+  local arch=$1
+  local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
+  mkdir -p $build_dir
+
+  make V=99 -C "${build_dir}" image PACKAGES="${pkg_list}" &> "${build_dir}/build.antenna-node.log"
+  if [ "$?" != "0" ]; then
+    log "Image build for antenna node for architecture '${arch}' has failed. See build.antenna-node.log for details!"
+    exit 1
+  fi
+}
+
+for arch in $architectures; do
+  openwrt_image_builder ${arch} &
+  bpid=$!o
+  builder_pids="${builder_pids} ${bpid}"
+
+  log " * ${arch} (${bpid})"
+done
+
+# Trap interruptions
+trap_handler()
+{
+  local pgid=$(ps -p $$ -o pgid="")
+  kill -- -${pgid}
+  exit
+}
+trap trap_handler INT QUIT TERM EXIT
+
+log "Waiting for builders to finish building..."
+wait ${builder_pids}

@@ -25,23 +25,6 @@ openwrt_verify_architecture()
   fi
 }
 
-openwrt_build_configure()
-{
-  local arch=$1
-  local kconfig=${workdir}/${BUILD_DIR}/openwrt/scripts/kconfig.pl
-  local config_dir=${workdir}/openwrt/configs
-  local config=${workdir}/${BUILD_DIR}/openwrt/config.${arch}
-  $kconfig 'm+' ${config_dir}/generic ${config_dir}/${arch} > ${config}
-
-  # Include all common packages
-  for pkg in ${all_packages}; do
-    echo "CONFIG_PACKAGE_${pkg}=y" >> ${config}
-  done
-
-  # Remove configuration file already present in the generic build dir
-  rm -f ${workdir}/${BUILD_DIR}/openwrt/.config
-}
-
 openwrt_builder_cleanup()
 {
   local build_dir=$1
@@ -60,14 +43,6 @@ openwrt_builder()
     log "Build for architecture '${arch}' has failed. See build.log for details!"
     exit 1
   fi
-
-  # Copy image builder and packages
-#  log "Copying image builder and packages for '${arch}'..."
-#  local release_dir=${workdir}/${BUILD_DIR}/release/${arch}
-#  mkdir -p ${release_dir}
-#  cp ${build_dir}/bin/${arch}/OpenWrt-ImageBuilder-*.tar.bz2 ${release_dir}/imagebuilder.${arch}.tar.bz2
-#  cp -a ${build_dir}/bin/${arch}/packages ${release_dir}
-
 }
 
 
