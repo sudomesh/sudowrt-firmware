@@ -35,15 +35,13 @@ openwrt_setup_imagebuilder()
 openwrt_image_builder()
 {
   local arch=$1
+  local parent_build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
   local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}.extender
-  mkdir -p $build_dir
 
   # Make hardlinks to avoid space duplication but to still isolate builds
-  cp -lr ${workdir}/${BUILD_DIR}/openwrt ${build_dir}
+  cp -lr ${parent_build_dir} ${build_dir}
 
-  cp -r files ${build_dir}/
-
-  cp -r ${workdir}/target/imagebuilder/files/* ${build_dir}
+  cp -r ${build_dir}/target/imagebuilder/files/* ${build_dir}
 
 #  make V=99 -C "${build_dir}" image PROFILE="UBNT" PACKAGES="${pkg_list}" NAME="extender_node" &> "${build_dir}/build.extender-node.log"
   make V=99 -C "${build_dir}" image PACKAGES="${pkg_list}" NAME="extender_node" &> "${build_dir}/build.extender-node.log"
