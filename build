@@ -7,7 +7,7 @@ BUILD_DIR=built_firmware
 
 log()
 {
-  echo "[sudomesh firmware] build: $*"
+  echo "[sudomesh home-node firmware] build: $*"
 }
 
 

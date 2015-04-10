@@ -2,15 +2,23 @@
 
 # Script for building antenna-node images with image-builder
 
+BUILD_DIR=built_firmware_extender
+workdir=$(pwd)
+
 architectures=$(cat openwrt_config/architectures)
 all_packages=$(cat openwrt_config/packages.antenna-node)
 
-pkg_list = ""
+pkg_list=""
 
 for pkg in $all_packages; do
-  pkg_list = "${pkg_list} ${pkg}"
+  pkg_list="${pkg_list} ${pkg}"
 done
 
+
+log()
+{
+  echo "[sudomesh extender-node firmware] build: $*"
+}
 
 openwrt_image_builder()
 {
