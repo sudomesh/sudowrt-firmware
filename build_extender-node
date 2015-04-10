@@ -26,7 +26,7 @@ openwrt_image_builder()
   local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
   mkdir -p $build_dir
 
-  make V=99 -C "${build_dir}" image PACKAGES="${pkg_list}" NAME="extender_node" &> "${build_dir}/build.extender-node.log"
+  make V=99 -C "${build_dir}" image PROFILE="UBNT" PACKAGES="${pkg_list}" NAME="extender_node" &> "${build_dir}/build.extender-node.log"
   if [ "$?" != "0" ]; then
     log "Image build for extender node for architecture '${arch}' has failed. See build.extender-node.log for details!"
     exit 1
