@@ -35,7 +35,7 @@ openwrt_image_builder()
 
 for arch in $architectures; do
   openwrt_image_builder ${arch} &
-  bpid=$!o
+  bpid=$!
   builder_pids="${builder_pids} ${bpid}"
 
   log " * ${arch} (${bpid})"
