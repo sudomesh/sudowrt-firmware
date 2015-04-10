@@ -40,6 +40,7 @@ openwrt_image_builder()
 
   # Make hardlinks to avoid space duplication but to still isolate builds
   cp -lr ${parent_build_dir} ${build_dir}
+  rm -rf ${build_dir}/bin/*
 
   cp -r ${build_dir}/target/imagebuilder/files/* ${build_dir}
 
