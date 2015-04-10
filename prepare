@@ -27,8 +27,6 @@ firmware_version=$(git describe --always)
 
 openwrt_version=$(cat openwrt_config/version)
 openwrt_path=$(echo $openwrt_version | cut -d ':' -f 1)
-openwrt_path_name="${openwrt_path//\//-}"
-openwrt_path_name="${openwrt_path_name//_/-}"
 openwrt_rev=$(echo $openwrt_version | cut -d ':' -f 2)
 
 echo "OpenWRT path: ${openwrt_path}"
@@ -37,10 +35,15 @@ echo "Checking out OpenWRT into ${BUILD_DIR}, this could take some time"
 
 OPENWRT_CHECKOUT_DIR=${workdir}/${BUILD_DIR}/openwrt
 if [ -f ${OPENWRT_CHECKOUT_DIR}/.success ]; then
-  echo "OpenWRT already checked out"
+  echo "OpenWRT already checked out, and I am not smart enought to re-prepare."
+  echo "If you want to start over, do rm -rf ${BUILD_DIR} and try prepare again."
+  echo "But know that this will delete anything you've compiled."
 else
   rm -rf ${OPENWRT_CHECKOUT_DIR}
-  svn co -q -r ${openwrt_rev} svn://svn.openwrt.org/openwrt/${openwrt_path} ${OPENWRT_CHECKOUT_DIR}
+#  svn co -q -r ${openwrt_rev} svn://svn.openwrt.org/openwrt/${openwrt_path} ${OPENWRT_CHECKOUT_DIR}
+  git clone git://git.openwrt.org/${openwrt_path}/openwrt.git ${OPENWRT_CHECKOUT_DIR}
+  git checkout ${openwrt_rev}
+
   if [ $? -ne 0 ]; then
     echo "Error during svn checkout of OpenWRT"
     exit $?
