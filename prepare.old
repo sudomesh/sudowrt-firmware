@@ -22,9 +22,6 @@ fi
 workdir=$(pwd)
 mkdir -p ${BUILD_DIR}
 
-# Get version identifier
-firmware_version=$(git describe --always)
-
 openwrt_version=$(cat openwrt_config/version)
 openwrt_path=$(echo $openwrt_version | cut -d ':' -f 1)
 openwrt_rev=$(echo $openwrt_version | cut -d ':' -f 2)
@@ -42,7 +39,9 @@ else
   rm -rf ${OPENWRT_CHECKOUT_DIR}
 #  svn co -q -r ${openwrt_rev} svn://svn.openwrt.org/openwrt/${openwrt_path} ${OPENWRT_CHECKOUT_DIR}
   git clone git://git.openwrt.org/${openwrt_path}/openwrt.git ${OPENWRT_CHECKOUT_DIR}
+  cd ${OPENWRT_CHECKOUT_DIR}
   git checkout ${openwrt_rev}
+  cd ${workdir}
 
   if [ $? -ne 0 ]; then
     echo "Error during svn checkout of OpenWRT"
@@ -51,8 +50,6 @@ else
     # make a file indicating that this is a successfully checked out openwrt dir
     touch ${OPENWRT_CHECKOUT_DIR}/.success
   fi
-  echo "Purging .svn files from repository"
-  find ${OPENWRT_CHECKOUT_DIR} -depth -name .svn -type d -exec rm -rf "{}" \; 2>/dev/null
 
   if [ -d "openwrt_addons" ] ; then
     echo "Adding extra files."

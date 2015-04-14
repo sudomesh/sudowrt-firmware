@@ -1,73 +1,80 @@
 #!/bin/bash
 
-# Script for building antenna-node images with image-builder
+# Script for building extender-node images with image-builder
 
 BUILD_DIR=built_firmware
 workdir=$(pwd)
+architecture="$*"
 
-architectures=$(cat openwrt_config/architectures)
+if [ -z "${architecture}" ]; then
+  echo "Usage: ./build_extender-node <architecture>"
+  echo " "
+  echo "Example:"
+  echo " "
+  echo "  ./build_extender-node ar71xx"
+  echo " "
+  exit 1
+fi
+
 all_packages=$(cat openwrt_config/packages.extender-node)
-
-pkg_list=""
-
-for pkg in $all_packages; do
-  pkg_list="${pkg_list} ${pkg}"
-done
-
-
-log()
-{
-  echo "[sudomesh extender-node firmware] build: $*"
-}
-
-
-# Need a different directory for the image builder
-openwrt_setup_imagebuilder()
-{
-  local arch=$1
-  local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}.extender
-
-
-
-}
 
 
 openwrt_image_builder()
 {
   local arch=$1
+  local files_dir=${workdir}/files_extender-node
   local parent_build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
-  local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}.extender
+  local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}.extender-node
+  local kconfig=${workdir}/${BUILD_DIR}/openwrt/scripts/kconfig.pl
+  local config_dir=${workdir}/openwrt_config/arch_configs
+  local config=${build_dir}/.config
 
-  # Make hardlinks to avoid space duplication but to still isolate builds
-  cp -lr ${parent_build_dir} ${build_dir}
-  rm ${build_dir}/bin/*
-
-  cp -r ${build_dir}/target/imagebuilder/files/* ${build_dir}
-
-#  make V=99 -C "${build_dir}" image PROFILE="UBNT" PACKAGES="${pkg_list}" NAME="extender_node" &> "${build_dir}/build.extender-node.log"
-  make V=99 -C "${build_dir}" image PACKAGES="${pkg_list}" NAME="extender_node" &> "${build_dir}/build.extender-node.log"
-  if [ "$?" != "0" ]; then
-    log "Image build for extender node for architecture '${arch}' has failed. See build.extender-node.log for details!"
+  if [ ! -d "${parent_build_dir}" ]; then
+    echo "No home-node build dir found. Please run ./build first."
     exit 1
   fi
+
+  # Make hardlinks to avoid space duplication but to still isolate builds
+  echo "Creating hardlinks to home-node build"
+  cp -lr ${parent_build_dir} ${build_dir}
+
+  # Delete hardlink to home-node config
+  rm $config 2> /dev/null
+
+  # Delete home-node files
+  rm -rf ${build_dir}/files
+  
+  # Copy extender-node files
+  cp -a ${files_dir} ${build_dir}
+
+  echo "Generating config file"
+  # Include generic and arch-specific config options in config file
+  $kconfig 'm+' ${config_dir}/generic ${config_dir}/${arch} > ${config}
+
+  # Add extender-node packages to config file
+  for pkg in ${all_packages}; do
+    echo "CONFIG_PACKAGE_${pkg}=y" >> ${config}
+  done
+
+  # Complete config file generation
+  cd ${build_dir}
+  make defconfig &> ${build_dir}/build.echo
+
+  # Delete hardlinks to previously built firmwares
+  rm ${build_dir}/bin/${arch}/*
+
+  echo "Building ${arch} for extender node in dir: ${build_dir}"  
+  make V=99 -C "${build_dir}" &> "${build_dir}/build.extender-node.log"
+  if [ "$?" != "0" ]; then
+    echo "Image build for extender node for architecture '${arch}' has failed. See build.extender-node.log for details!"
+    exit 1
+  fi
+
+  echo "Done!"
+  echo "Extender node firmware images should be in ${build_dir}/bin/"
 }
 
-for arch in $architectures; do
-  openwrt_image_builder ${arch} &
-  bpid=$!
-  builder_pids="${builder_pids} ${bpid}"
 
-  log " * ${arch} (${bpid})"
-done
 
-# Trap interruptions
-trap_handler()
-{
-  local pgid=$(ps -p $$ -o pgid="")
-  kill -- -${pgid}
-  exit
-}
-trap trap_handler INT QUIT TERM EXIT
-
-log "Waiting for builders to finish building..."
-wait ${builder_pids}
+echo "Generating extender-node image for ${architecture}"
+openwrt_image_builder ${architecture}

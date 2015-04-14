@@ -1,18 +1,6 @@
 The sudo mesh firmware builder.
 
-What the prepare script does:
-
-1. Downloads OpenWRT
-
-2. Patches OpenWRT with sudo mesh patches.
-
-3. Adds a feed to get OpenWRT to pull in the sudomesh/openwrt-packages feed from github.
-The openwrt-packages contains references to the code for the actual sudo mesh openwrt-packages
-(that each have their own github repositories).
-
-# Usage
-
-## Requirements
+# Requirements
 
 The openwrt wiki has some examples of requirements per distro:
 http://wiki.openwrt.org/doc/howto/buildroot.exigence#examples.of.package.installations
@@ -20,19 +8,50 @@ http://wiki.openwrt.org/doc/howto/buildroot.exigence#examples.of.package.install
 Their example for ubuntu 64-bit is:
     sudo apt-get install build-essential subversion libncurses5-dev zlib1g-dev gawk gcc-multilib flex git-core gettext quilt ccache libssl-dev xsltproc
 
-## Build All
+# Building home-node firmware
 
-Build firmware and all packages from scratch:
+Run:
 
-    git clone https://github.com/sudomesh/sudowrt-firmware.git
-    cd sudowrt-firmware
-    ./prepare
-    ./build
+```
+ ./build <arch>
+```
 
-Something magical will appear, this is the sudowrt-firmware, under e.g. `built_firmware/atheros/bin/`
+Where arch is either ar71xx or atheros e.g:
 
-## Build Packages
+```
+./build ar71xx
+```
 
-You can re-build individual packages more quickly and easily with `build_package`, such as:
+The build will happen in:
 
-    build_package -a atheros internetisdownredirect
+```
+built_firmware/builder.ar71xx/
+```
+
+The firmware images will be available in:
+
+```
+built_firmware/builder.ar71xx/bin/ar71xx/
+```
+
+# Building extender-node firmware
+
+Make sure you've already built the home-node firmware as the extender-node firmware will not build otherwise.
+
+Run:
+
+```
+./build_extender-node ar71xx
+```
+
+The build will happen in:
+
+```
+built_firmware/builder.ar71xx.extender-node/
+```
+
+The firmware images will be available in:
+
+```
+built_firmware/builder.ar71xx.extender-node/bin/ar71xx/
+```
