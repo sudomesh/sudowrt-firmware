@@ -45,3 +45,5 @@ ahcpd
 babel-pinger
 netcat
 polipo
+notdhcpserver
+notdhcpclient
