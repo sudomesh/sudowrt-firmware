@@ -47,3 +47,5 @@ netcat
 polipo
 notdhcpserver
 notdhcpclient
+uhttpd-mod-tls
+px5g
