@@ -137,7 +137,13 @@ openwrt_build_configure()
 
   # Include all common packages
   for pkg in ${all_packages}; do
-    echo "CONFIG_PACKAGE_${pkg}=y" >> ${config}
+    # Check if package name begins with a minus
+    if [[ ${pkg:0:1} == "-" ]]; then
+      pkg=${pkg:1:${#pkg}-1} # strip first character
+      echo "CONFIG_PACKAGE_${pkg}=n" >> ${config}
+    else
+      echo "CONFIG_PACKAGE_${pkg}=y" >> ${config}      
+    fi
   done
 }
 

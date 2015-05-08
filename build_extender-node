@@ -51,9 +51,15 @@ openwrt_image_builder()
   # Include generic and arch-specific config options in config file
   $kconfig 'm+' ${config_dir}/generic ${config_dir}/${arch} > ${config}
 
-  # Add extender-node packages to config file
+  # Include all common packages
   for pkg in ${all_packages}; do
-    echo "CONFIG_PACKAGE_${pkg}=y" >> ${config}
+    # Check if package name begins with a minus
+    if [[ ${pkg:0:1} == "-" ]]; then
+      pkg=${pkg:1:${#pkg}-1} # strip first character
+      echo "CONFIG_PACKAGE_${pkg}=n" >> ${config}
+    else
+      echo "CONFIG_PACKAGE_${pkg}=y" >> ${config}      
+    fi
   done
 
   # Complete config file generation

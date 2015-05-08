@@ -46,6 +46,8 @@ babel-pinger
 netcat
 polipo
 notdhcpserver
-notdhcpclient
 uhttpd-mod-tls
 px5g
+rpcd
+rpcd-mod-iwinfo
+netifd
