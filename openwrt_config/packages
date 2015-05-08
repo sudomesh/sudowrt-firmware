@@ -45,10 +45,10 @@ ahcpd
 babel-pinger
 netcat
 polipo
+libnl
 notdhcpserver
 uhttpd-mod-tls
 px5g
 rpcd
 rpcd-mod-iwinfo
 netifd
-libnl
