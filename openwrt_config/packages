@@ -51,3 +51,4 @@ px5g
 rpcd
 rpcd-mod-iwinfo
 netifd
+libnl

@@ -19,6 +19,7 @@ uhttpd-mod-ubus
 rpcd
 rpcd-mod-iwinfo
 netifd
+libnl
 -libiwinfo-lua
 -liblua
 -libubus-lua
