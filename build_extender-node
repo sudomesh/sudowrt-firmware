@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script for building extender-node images with image-builder
+# Script for building extender-node images based on home-node images
 
 BUILD_DIR=built_firmware
 workdir=$(pwd)

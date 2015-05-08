@@ -8,6 +8,9 @@ set -e
 BUILD_DIR=built_firmware
 architecture="$*"
 
+# Create list of packages to build
+all_packages="$(cat openwrt_config/packages)"
+
 if [ -z "${architecture}" ]; then
   echo "Usage: ./build <architecture>"
   echo " "
@@ -106,22 +109,18 @@ if [ ! -f "patches/series" ] ; then
 fi
 quilt push -f -a
 
-package_names=()
-packages_file="${workdir}/openwrt_config/packages"
-while read -r line
-do
-  package_names=("${package_names[@]}" "${line}")
-done < "$packages_file"
 
-echo "Changing work directory to openwrt"
 cd ${OPENWRT_CHECKOUT_DIR}
 
 # Importing feeds
 echo "Importing feeds"
 ./scripts/feeds update -a > /dev/null
 
-for package_name in "${package_names[@]}"; do
-  ./scripts/feeds install ${package_name}
+for pkg in ${all_packages}; do
+  # Check if package name begins with a minus
+  if [[ ${pkg:0:1} != "-" ]]; then
+    ./scripts/feeds install ${pkg}
+   fi
 done
 
 # change back to initial directory
@@ -207,14 +206,6 @@ fi
 
 
 echo "Configuring build for the following OpenWRT packages:"
-
-# Create list of packages to build
-# Right now we're including all sudo-wrt packages
-all_packages=$(grep 'Package:' ${workdir}/${BUILD_DIR}/openwrt/feeds/peopleswifi.index | cut -d ':' -f 2)
-all_packages="${all_packages} $(cat openwrt_config/packages)"
-for pkg in $all_packages; do
-  echo " * ${pkg}"
-done
 
 
 # Generate build configurations

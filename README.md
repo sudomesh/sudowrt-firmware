@@ -55,3 +55,9 @@ The firmware images will be available in:
 ```
 built_firmware/builder.ar71xx.extender-node/bin/ar71xx/
 ```
+
+# Rebuilding firmware
+
+The rebuild script is untested!
+
+You can use ./rebuild but we're not actually sure what you can safely change and still use the ./rebuild script successfully. Changing packages, feeds and stuff in files/ should work, but if you change the patches then you will have to do a full rebuild.
