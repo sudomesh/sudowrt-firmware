@@ -67,7 +67,7 @@ openwrt_image_builder()
   make defconfig &> ${build_dir}/build.echo
 
   # Delete hardlinks to previously built firmwares
-  rm ${build_dir}/bin/${arch}/*
+  rm ${build_dir}/bin/${arch}/* 2> /dev/null
 
   echo "Building ${arch} for extender node in dir: ${build_dir}"  
   make V=99 -C "${build_dir}" &> "${build_dir}/build.extender-node.log"
