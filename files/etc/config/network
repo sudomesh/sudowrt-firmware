@@ -7,7 +7,7 @@ config interface 'loopback'
 config interface 'lan'
 	option ifname 'eth0'
 	option proto 'static'
-        option ipaddr '192.168.13.37'
+        option ipaddr '172.22.0.1'
         option netmask '255.255.255.0'
 
 
