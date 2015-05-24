@@ -45,7 +45,7 @@ openwrt_image_builder()
   rm -rf ${build_dir}/files
   
   # Copy extender-node files
-  cp -a ${files_dir} ${build_dir}
+  cp -a ${files_dir} ${build_dir}/files
 
   echo "Generating config file"
   # Include generic and arch-specific config options in config file
