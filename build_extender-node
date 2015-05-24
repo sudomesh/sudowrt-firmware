@@ -64,6 +64,16 @@ openwrt_image_builder()
 
   # Complete config file generation
   cd ${build_dir}
+
+  # Install packages from feeds 
+  # (download the source to package/feeds/feed_name/package_name)
+  for pkg in ${all_packages}; do
+      # Check if package name begins with a minus
+      if [[ ${pkg:0:1} != "-" ]]; then
+          ./scripts/feeds install ${pkg}
+      fi
+  done
+
   make defconfig &> ${build_dir}/build.echo
 
   # Delete hardlinks to previously built firmwares
