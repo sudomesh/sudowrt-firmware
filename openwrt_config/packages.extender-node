@@ -20,6 +20,7 @@ rpcd
 rpcd-mod-iwinfo
 netifd
 libnl
+-dnsmasq
 -libiwinfo-lua
 -liblua
 -libubus-lua
