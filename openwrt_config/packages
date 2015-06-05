@@ -53,3 +53,4 @@ rpcd
 rpcd-mod-iwinfo
 netifd
 iperf
+libcurl
