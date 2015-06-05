@@ -92,7 +92,7 @@ if [ ! -f $network_config ]; then
   exit 1
 fi
 
-fi [ ! -f $wireless_config ]; then
+if [ ! -f $wireless_config ]; then
   echo "Wireless configuration file missing: $wireless_config"
   echo "Will try again on next reboot"
   exit 1
