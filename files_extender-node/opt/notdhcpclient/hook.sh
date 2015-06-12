@@ -4,15 +4,15 @@
 
 STATE=$1 # the string "up" or "down"
 IFACE=$2 # the interface that received an IP
-IP=$3 # the received IP
-NETMASK=$4 # the received netmask
-PASSWORD=$5 # the received password
-SSL_CERT_PATH=$6 # path to the received SSL cert
-SSL_KEY_PATH=$7 # path to the received SSL key
+MESH_VLAN=$3 # the received VLAN ID (0 if no VLAN)
+IP=$4 # the received IP
+NETMASK=$5 # the received netmask
+PASSWORD=$6 # the received password
+SSL_CERT_PATH=$7 # path to the received SSL cert
+SSL_KEY_PATH=$8 # path to the received SSL key
 
-# The VLAN and interface that carries the mesh network
+# The interface that carries the mesh network
 # a.k.a. the adhoc or node2node network
-MESH_VLAN="11"
 MESH_ETH="eth0.${MESH_VLAN}"
 
 # The VLAN and interface that carries the open network
@@ -24,8 +24,7 @@ OPEN_ETH="eth0.${OPEN_VLAN}"
 MESH_WLAN="adhoc0"
 OPEN_WLAN="open0"
 
-# The two bridges
-MESH_BRIDGE="br-adhoc"
+# The bridge for the open (SSID: peoplesopen.net) network
 OPEN_BRIDGE="br-open"
 
 # Takes an IP string as an argument
@@ -90,6 +89,12 @@ case $STATE in
         echo "Creating VLAN interfaces"
         ip link add link $IFACE name $MESH_ETH type vlan id $MESH_VLAN
         ip link add link $IFACE name $OPEN_ETH type vlan id $OPEN_VLAN
+
+        echo "Assigning IP ${IP}/32 to $MESH_WLAN"
+        ip addr add ${IP}/32 dev $MESH_WLAN
+
+        echo "Assigning IP ${IP}/32 to $MESH_ETH"
+        ip addr add ${IP}/32 dev $MESH_ETH
 
         echo "Setting VLAN interface link states to up"
         ip link set dev $MESH_ETH up
