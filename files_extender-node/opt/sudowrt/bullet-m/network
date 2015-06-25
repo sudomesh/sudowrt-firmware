@@ -6,7 +6,7 @@ config interface 'loopback'
 
 # TODO remove 
 # interface for developer access
-config interface 'dev'
+config interface 'lan'
   option ifname 'eth0'
 	option proto 'static'
 	option ipaddr '172.22.0.2'

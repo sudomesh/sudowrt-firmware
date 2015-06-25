@@ -1,0 +1,11 @@
+
+config interface 'wlan'
+	option ifname 'adhoc0'
+
+config interface 'lan'
+	option wired 'true'
+	option ifname 'eth0.1'
+
+config filter
+	option type 'redistribute'
+	option local 'true'

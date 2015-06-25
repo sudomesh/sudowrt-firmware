@@ -106,15 +106,10 @@ case $STATE in
         wifi
         sleep 5
 
-        # Use policy routing to forward:
-        #   everything from eth0.1 to adhoc0
-        #   everything from adhoc0 to eth0.1
-        # We're not using bridging here because it doesn't work for adhoc networks
-        echo "Initializing policy routing (layer 3 bridge)"
-        ip route add default dev $MESH_ETH table mesh_wlan
-        ip rule add iif $MESH_WLAN lookup mesh_wlan
-        ip route add default dev $MESH_WLAN table mesh_eth
-        ip rule add iif $MESH_ETH lookup mesh_eth
+        # Configure and start babeld    
+        echo "Starting babeld"                                                     
+        uci set babeld.lan.ifname="$MESH_ETH"
+        /etc/init.d/babeld start
 
         # Create the open (peoplesopen.net) bridge between ethernet and wifi
         echo "Creating bridge between $OPEN_ETH and $OPEN_WLAN"
@@ -147,6 +142,9 @@ case $STATE in
         brctl delif $OPEN_BRIDGE $OPEN_ETH
         brctl delif $OPEN_BRIDGE $OPEN_WLAN
         brctl delbr $OPEN_BRIDGE
+
+        echo "Stopping babeld"
+        /etc/init.d/babeld stop
 
         echo "Bringing down wifi"
         uci set wireless.@wifi-device[0].disabled=1
