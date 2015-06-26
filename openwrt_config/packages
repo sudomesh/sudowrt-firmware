@@ -40,7 +40,7 @@ ifplugd
 tcpdump
 snmpd
 iputils-traceroute6
-babeld
+babeld-sudowrt
 ahcpd
 babel-pinger
 netcat

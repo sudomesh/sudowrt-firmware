@@ -20,7 +20,7 @@ rpcd
 rpcd-mod-iwinfo
 netifd
 libnl
-babeld
+babeld-sudowrt
 avahi-daemon
 -dnsmasq
 -libiwinfo-lua
