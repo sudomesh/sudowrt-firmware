@@ -21,7 +21,6 @@ rpcd-mod-iwinfo
 netifd
 libnl
 babeld-sudowrt
-avahi-daemon
 -dnsmasq
 -libiwinfo-lua
 -liblua
