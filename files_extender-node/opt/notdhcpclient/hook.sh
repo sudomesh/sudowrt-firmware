@@ -90,6 +90,12 @@ case $STATE in
         ip link add link $IFACE name $MESH_ETH type vlan id $MESH_VLAN
         ip link add link $IFACE name $OPEN_ETH type vlan id $OPEN_VLAN
 
+        echo "Enabling wireless"
+        # This does not persist between reboots
+        uci set wireless.@wifi-device[0].disabled=0
+        wifi
+        sleep 5
+
         echo "Assigning IP ${IP}/32 to $MESH_WLAN"
         ip addr add ${IP}/32 dev $MESH_WLAN
 
@@ -99,12 +105,6 @@ case $STATE in
         echo "Setting VLAN interface link states to up"
         ip link set dev $MESH_ETH up
         ip link set dev $OPEN_ETH up
-
-        echo "Enabling wireless"
-        # This does not persist between reboots
-        uci set wireless.@wifi-device[0].disabled=0
-        wifi
-        sleep 5
 
         # Configure and start babeld    
         echo "Starting babeld"                                                     
