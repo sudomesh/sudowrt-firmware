@@ -3,6 +3,11 @@
 . /lib/functions/uci-defaults.sh
 . /lib/ar71xx.sh
 
+CHANNEL_2_4=1
+CHANNEL_5=36
+POWER_5=20
+POWER_2_4=20
+
 # returns 0 (success) if this device has a 2.4 ghz radio 
 has2point4radio() {
   local is2point4
@@ -104,5 +109,10 @@ cp $network_config /etc/config/network
 echo "Using wireless config: $wireless_config"
 cp $wireless_config /etc/config/wireless
 
+sed -i "/{2_4_CHANNEL}/c\  option channel $CHANNEL_2_4" /etc/config/wireless
+sed -i "/{5_CHANNEL}/c\  option channel $CHANNEL_5" /etc/config/wireless
+
+sed -i "/{2_4_POWER}/c\  option txpower $POWER_2_4" /etc/config/wireless
+sed -i "/{5_POWER}/c\  option txpower $POWER_5" /etc/config/wireless
 exit 0
 

@@ -5,9 +5,9 @@ config wifi-device 'radio0'
   option disabled 1 
 
   option type     mac80211
-  option channel  157
-  option txpower  '<%= tx_power %>'
-
+  option channel  {5_CHANNEL}
+  option txpower  {5_POWER}
+ 
   option path 'pci0000:00/0000:00:00.0'
 
   # hwmode now only accepts 11g or 11a

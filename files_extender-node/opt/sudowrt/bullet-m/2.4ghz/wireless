@@ -5,8 +5,8 @@ config wifi-device 'radio0'
   option disabled 1 
 
   option type     mac80211
-  option channel  6
-  option txpower  '<%= tx_power %>'
+  option channel  {2_4_CHANNEL}
+  option txpower  {2_4_POWER}
 
 	option path	'pci0000:00/0000:00:00.0'
 
