@@ -38,8 +38,8 @@ config wifi-iface
 # the adhoc interface for the mesh
 config wifi-iface
   option device 'radio0'
-  option ifname 'adhoc0'
-  option network 'adhoc'
+  option ifname 'mesh0'
+  option network 'mesh'
   option encryption 'none'
   option mode 'adhoc'
   option bssid 'CA:FE:C0:DE:F0:0D'
@@ -54,3 +54,14 @@ config wifi-iface
   option ssid 'pplsopen.net-node2node'
   #option hidden '1'
 
+# the private wpa2 interface
+# TODO we can't have this until notdhcpserver 
+# can securely send the pre-shared key
+#config wifi-iface
+#  option device 'radio0'
+#  option ifname 'priv0'
+#  option network 'priv'
+#  option encryption 'psk2'
+#  option key 'education'
+#  option mode 'ap'
+#  option ssid 'wdr3500-node1'
