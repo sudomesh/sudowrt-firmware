@@ -4,7 +4,7 @@
 . /lib/ar71xx.sh
 
 CHANNEL_2_4=1
-CHANNEL_5=36
+CHANNEL_5=149
 POWER_5=20
 POWER_2_4=20
 
