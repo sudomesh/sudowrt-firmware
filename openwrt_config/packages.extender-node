@@ -27,3 +27,11 @@ babeld-sudowrt
 -libubus-lua
 -libuci-lua
 -lua
+-odhcpd
+-odhcp6c
+-ppp
+-ppp-mod-pppoe
+-kmod-ppp
+-kmod-pppoe
+-dnsmasq
+
