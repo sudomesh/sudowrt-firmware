@@ -103,7 +103,7 @@ case $STATE in
         # This does not persist between reboots
         uci set wireless.@wifi-device[0].disabled=0
         wifi
-        sleep 5
+        sleep 10
 
         echo "Assigning IP ${IP}/32 to $MESH_WLAN"
         ip addr add ${IP}/32 dev $MESH_WLAN
