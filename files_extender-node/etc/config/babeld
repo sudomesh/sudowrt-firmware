@@ -1,6 +1,6 @@
 
 config interface 'wlan'
-	option ifname 'adhoc0'
+	option ifname 'mesh0'
 
 config interface 'lan'
 	option wired 'true'
