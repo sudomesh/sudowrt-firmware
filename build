@@ -31,33 +31,33 @@ workdir=$(pwd)
 mkdir -p ${BUILD_DIR}
 
 openwrt_version=$(cat openwrt_config/version)
-openwrt_path=$(echo $openwrt_version | cut -d ':' -f 1)
-openwrt_rev=$(echo $openwrt_version | cut -d ':' -f 2)
+openwrt_path=$(echo "${openwrt_version}" | cut -d ':' -f 1)
+openwrt_rev=$(echo "${openwrt_version}" | cut -d ':' -f 2)
 
 echo "OpenWRT path: ${openwrt_path}"
 echo "OpenWRT revision: ${openwrt_rev}"
 echo "Checking out OpenWRT into ${BUILD_DIR}, this could take some time"
 
-OPENWRT_CHECKOUT_DIR=${workdir}/${BUILD_DIR}/openwrt
-if [ -f ${OPENWRT_CHECKOUT_DIR}/.success ]; then
+OPENWRT_CHECKOUT_DIR="${workdir}/${BUILD_DIR}/openwrt"
+if [ -f "${OPENWRT_CHECKOUT_DIR}/.success" ]; then
   echo "OpenWRT already checked out."
   echo  "This script is not yet smart enought to be re-run without starting over."
   echo "If you want to start over, do rm -rf ${BUILD_DIR} and try prepare again."
   echo "But know that this will delete anything you've compiled."
   exit 1
 else
-  rm -rf ${OPENWRT_CHECKOUT_DIR}
-  git clone git://git.openwrt.org/${openwrt_path}/openwrt.git ${OPENWRT_CHECKOUT_DIR}
-  cd ${OPENWRT_CHECKOUT_DIR}
-  git checkout ${openwrt_rev}
-  cd ${workdir}
+  rm -rf "${OPENWRT_CHECKOUT_DIR}"
+  git clone "git://git.openwrt.org/${openwrt_path}/openwrt.git" "${OPENWRT_CHECKOUT_DIR}"
+  cd "${OPENWRT_CHECKOUT_DIR}"
+  git checkout "${openwrt_rev}"
+  cd "${workdir}"
 
   if [ $? -ne 0 ]; then
     echo "Error during svn checkout of OpenWRT"
     exit $?
   else
     # make a file indicating that this is a successfully checked out openwrt dir
-    touch ${OPENWRT_CHECKOUT_DIR}/.success
+    touch "${OPENWRT_CHECKOUT_DIR}/.success"
   fi
 
   if [ -d "openwrt_addons" ] ; then
@@ -67,7 +67,7 @@ else
 fi
 
 # Remove configuration file already present in the generic build dir
-rm -f ${workdir}/${BUILD_DIR}/openwrt/.config  
+rm -f "${workdir}/${BUILD_DIR}/openwrt/.config"
 
 # Inject feeds and configurations
 echo "Configuring feeds"
@@ -94,15 +94,15 @@ for feedline in "${feedlines[@]}"; do
   feed_sources=("${feed_sources[@]}" "${feed_source}")
 done
 
-cat /dev/null > ${OPENWRT_CHECKOUT_DIR}/feeds.conf
+cat /dev/null > "${OPENWRT_CHECKOUT_DIR}/feeds.conf"
 for feed_source in "${feed_sources[@]}"; do
-  echo "${feed_source}"  >> ${OPENWRT_CHECKOUT_DIR}/feeds.conf
+  echo "${feed_source}"  >> "${OPENWRT_CHECKOUT_DIR}/feeds.conf"
 done
 
 echo "Applying patches for OpenWRT base tree..."
-cd ${OPENWRT_CHECKOUT_DIR}
+cd "${OPENWRT_CHECKOUT_DIR}"
 if [ ! -h "patches" ] ; then
-  ln -s ${workdir}/openwrt_patches patches
+  ln -s "${workdir}/openwrt_patches" patches
 fi
 if [ ! -f "patches/series" ] ; then
   quilt import patches/*
@@ -110,7 +110,7 @@ fi
 quilt push -f -a
 
 
-cd ${OPENWRT_CHECKOUT_DIR}
+cd "${OPENWRT_CHECKOUT_DIR}"
 
 # Importing feeds
 echo "Importing feeds"
@@ -119,12 +119,12 @@ echo "Importing feeds"
 for pkg in ${all_packages}; do
   # Check if package name begins with a minus
   if [[ ${pkg:0:1} != "-" ]]; then
-    ./scripts/feeds install ${pkg}
+    ./scripts/feeds install "${pkg}"
    fi
 done
 
 # change back to initial directory
-cd ${workdir}
+cd "${workdir}"
 
 openwrt_build_configure()
 {
@@ -132,16 +132,16 @@ openwrt_build_configure()
   local kconfig=${workdir}/${BUILD_DIR}/openwrt/scripts/kconfig.pl
   local config_dir=${workdir}/openwrt_config/arch_configs
   local config=${workdir}/${BUILD_DIR}/openwrt/config.${arch}
-  $kconfig 'm+' ${config_dir}/generic ${config_dir}/${arch} > ${config}
+  $kconfig 'm+' "${config_dir}/generic" "${config_dir}/${arch}" > "${config}"
 
   # Include all common packages
   for pkg in ${all_packages}; do
     # Check if package name begins with a minus
     if [[ ${pkg:0:1} == "-" ]]; then
       pkg=${pkg:1:${#pkg}-1} # strip first character
-      echo "CONFIG_PACKAGE_${pkg}=n" >> ${config}
+      echo "CONFIG_PACKAGE_${pkg}=n" >> "${config}"
     else
-      echo "CONFIG_PACKAGE_${pkg}=y" >> ${config}      
+      echo "CONFIG_PACKAGE_${pkg}=y" >> "${config}"      
     fi
   done
 }
@@ -152,14 +152,14 @@ openwrt_buildprep()
   local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
 
   # Make hardlinks to avoid space duplication but to still isolate builds
-  cp -lr ${workdir}/${BUILD_DIR}/openwrt ${build_dir}
+  cp -lr "${workdir}/${BUILD_DIR}/openwrt" "${build_dir}"
 
-  cp -r files ${build_dir}/
+  cp -r files "${build_dir}/"
 
   # Prepare configuration file and build
-  cd ${build_dir}
-  cp config.${arch} .config
-  make defconfig &> ${build_dir}/build.echo
+  cd "${build_dir}"
+  cp "config.${arch}" .config
+  make defconfig &> "${build_dir}/build.echo"
   if [ "$?" != "0" ]; then
     echo "Default configuration preparation for '${arch}' has failed. See build.echo for details!"
     exit 1
@@ -187,12 +187,12 @@ for arch in $all_architectures; do
     break
   fi
 
-  if [ ! -d ${workdir}/${BUILD_DIR}/openwrt/target/linux/${arch} ]; then
+  if [ ! -d "${workdir}/${BUILD_DIR}/openwrt/target/linux/${arch}" ]; then
     echo "ERROR: OpenWRT itself does not support the architecture '${arch}'"
     exit 1
   fi
 
-  if [ ! -f ${workdir}/openwrt_config/arch_configs/${arch} ]; then
+  if [ ! -f "${workdir}/openwrt_config/arch_configs/${arch}" ]; then
     echo "ERROR: '${arch}' missing from openwrt_config/arch_configs/"
     exit 1
   fi
@@ -210,10 +210,10 @@ echo "Configuring build for the following OpenWRT packages:"
 
 # Generate build configurations
 echo "Generating build configurations..."
-openwrt_build_configure $architecture
+openwrt_build_configure "${architecture}"
 
 echo "Preparing for build"
-openwrt_buildprep $architecture
+openwrt_buildprep "${architecture}"
 
 echo "Building"
-openwrt_builder $architecture
+openwrt_builder "${architecture}"
