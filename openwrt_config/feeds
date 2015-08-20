@@ -3,4 +3,4 @@ luci:src-git luci https://github.com/openwrt/luci.git
 oldpackages:src-git oldpackages git://git.openwrt.org/14.07/openwrt.git
 openwrt:src-git openwrt https://github.com/openwrt/packages
 routing:src-git routing git://github.com/openwrt-routing/packages.git;for-14.07
-wlanslovenija:src-git wlanslovenija git://github.com/sudomesh/firmware-packages-opkg.git;master
+wlanslovenija:src-git wlanslovenija git://github.com/sudomesh/firmware-packages-opkg.git;sudomesh
