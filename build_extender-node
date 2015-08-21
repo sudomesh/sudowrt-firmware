@@ -52,19 +52,19 @@ openwrt_image_builder()
   # Check if var is set from:
   # http://stackoverflow.com/a/13864829/1787596
   if [ -z "${CHANNEL_2_4+x}" ]; then true; else 
-    sed -i "/CHANNEL_2_4/c\ CHANNEL_2_4=$CHANNEL_2_4" "${build_dir}/files/etc/uci-defaults/99_wireless"
+    sed -i /"CHANNEL_2_4="/c\ CHANNEL_2_4="$CHANNEL_2_4" "${build_dir}/files/etc/uci-defaults/99_wireless"
   fi
 
   if [ -z "${CHANNEL_5+x}" ]; then true; else
-    sed -i "/CHANNEL_5/c\ CHANNEL_5=$CHANNEL_5" "${build_dir}/files/etc/uci-defaults/99_wireless"
+    sed -i /"CHANNEL_5="/c\ CHANNEL_5="$CHANNEL_5" "${build_dir}/files/etc/uci-defaults/99_wireless"
   fi
 
   if [ -z "${POWER_2_4+x}" ]; then true; else
-    sed -i "/POWER_2_4/c\ 2_4_POWER=$POWER_2_4" "${build_dir}/files/etc/uci-defaults/99_wireless"
+    sed -i /"POWER_2_4="/c\ 2_4_POWER="$POWER_2_4" "${build_dir}/files/etc/uci-defaults/99_wireless"
   fi
 
   if [ -z "${POWER_5+x}" ]; then true; else 
-    sed -i "/POWER_5/c\ 5_POWER=$POWER_5" "${build_dir}/files/etc/uci-defaults/99_wireless"
+    sed -i /"POWER_5="/c\ 5_POWER="$POWER_5" "${build_dir}/files/etc/uci-defaults/99_wireless"
   fi
 
   echo "Generating config file"
