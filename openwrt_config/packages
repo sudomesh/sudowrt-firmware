@@ -44,7 +44,6 @@ babeld-sudowrt
 ahcpd
 babel-pinger
 netcat
-polipo
 libnl
 notdhcpserver
 uhttpd-mod-tls
