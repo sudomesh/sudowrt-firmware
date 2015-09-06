@@ -38,69 +38,69 @@ openwrt_image_builder()
 
   # Make hardlinks to avoid space duplication but to still isolate builds
   echo "Creating hardlinks to home-node build"
-  cp -lr ${parent_build_dir} ${build_dir}
+  cp -lr "${parent_build_dir}" "${build_dir}"
 
   # Delete hardlink to home-node config
-  rm $config 2> /dev/null
+  rm "$config" 2> /dev/null
 
   # Delete home-node files
-  rm -rf ${build_dir}/files
+  rm -rf "${build_dir}"/files
   
   # Copy extender-node files
-  cp -a ${files_dir} ${build_dir}/files
+  cp -a "${files_dir}" "${build_dir}/files"
 
   # Check if var is set from:
   # http://stackoverflow.com/a/13864829/1787596
-  if [ -z ${CHANNEL_2_4+x} ]; then true; else 
-    sed -i "/CHANNEL_2_4/c\ CHANNEL_2_4=$CHANNEL_2_4" ${build_dir}/files/etc/uci-defaults/99_wireless
+  if [ -z "${CHANNEL_2_4+x}" ]; then true; else 
+    sed -i /"CHANNEL_2_4="/c\ CHANNEL_2_4="$CHANNEL_2_4" "${build_dir}/files/etc/uci-defaults/99_wireless"
   fi
 
-  if [ -z ${CHANNEL_5+x} ]; then true; else
-    sed -i "/CHANNEL_5/c\ CHANNEL_5=$CHANNEL_5" ${build_dir}/files/etc/uci-defaults/99_wireless
+  if [ -z "${CHANNEL_5+x}" ]; then true; else
+    sed -i /"CHANNEL_5="/c\ CHANNEL_5="$CHANNEL_5" "${build_dir}/files/etc/uci-defaults/99_wireless"
   fi
 
-  if [ -z ${POWER_2_4+x} ]; then true; else
-    sed -i "/POWER_2_4/c\ 2_4_POWER=$POWER_2_4" ${build_dir}/files/etc/uci-defaults/99_wireless
+  if [ -z "${POWER_2_4+x}" ]; then true; else
+    sed -i /"POWER_2_4="/c\ 2_4_POWER="$POWER_2_4" "${build_dir}/files/etc/uci-defaults/99_wireless"
   fi
 
-  if [ -z ${POWER_5+x} ]; then true; else 
-    sed -i "/POWER_5/c\ 5_POWER=$POWER_5" ${build_dir}/files/etc/uci-defaults/99_wireless
+  if [ -z "${POWER_5+x}" ]; then true; else 
+    sed -i /"POWER_5="/c\ 5_POWER="$POWER_5" "${build_dir}/files/etc/uci-defaults/99_wireless"
   fi
 
   echo "Generating config file"
   # Include generic and arch-specific config options in config file
-  $kconfig 'm+' ${config_dir}/generic ${config_dir}/${arch} > ${config}
+  $kconfig 'm+' "${config_dir}/generic ${config_dir}/${arch}" > "${config}"
 
   # Include all common packages
   for pkg in ${all_packages}; do
     # Check if package name begins with a minus
     if [[ ${pkg:0:1} == "-" ]]; then
       pkg=${pkg:1:${#pkg}-1} # strip first character
-      echo "CONFIG_PACKAGE_${pkg}=n" >> ${config}
+      echo "CONFIG_PACKAGE_${pkg}=n" >> "${config}"
     else
-      echo "CONFIG_PACKAGE_${pkg}=y" >> ${config}      
+      echo "CONFIG_PACKAGE_${pkg}=y" >> "${config}"     
     fi
   done
 
   # Complete config file generation
-  cd ${build_dir}
+  cd "${build_dir}"
 
   # Install packages from feeds 
   # (download the source to package/feeds/feed_name/package_name)
   for pkg in ${all_packages}; do
       # Check if package name begins with a minus
       if [[ ${pkg:0:1} != "-" ]]; then
-          ./scripts/feeds install ${pkg}
+          ./scripts/feeds install "${pkg}"
       fi
   done
 
-  make defconfig &> ${build_dir}/build.echo
+  make defconfig &> "${build_dir}/build.echo"
 
   # Delete hardlinks to previously built firmwares
-  rm ${build_dir}/bin/${arch}/* 2> /dev/null
+  rm "${build_dir}/bin/${arch}/*" 2> /dev/null
 
   echo "Building ${arch} for extender node in dir: ${build_dir}"  
-  make V=99 -C "${build_dir}" &> "${build_dir}/build.extender-node.log"
+  make V=s -C "${build_dir}" &> "${build_dir}/build.extender-node.log"
   if [ "$?" != "0" ]; then
     echo "Image build for extender node for architecture '${arch}' has failed. See build.extender-node.log for details!"
     exit 1
@@ -113,4 +113,4 @@ openwrt_image_builder()
 
 
 echo "Generating extender-node image for ${architecture}"
-openwrt_image_builder ${architecture}
+openwrt_image_builder "${architecture}"

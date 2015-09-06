@@ -2,6 +2,8 @@
 
 # TODO check password, ssl_cert_path and ssl_key_path for malicious inputs
 
+LOG_TAG="notdhcpclient_hook"
+
 STATE=$1 # the string "up" or "down"
 IFACE=$2 # the interface that received an IP
 MESH_VLAN=$3 # the received VLAN ID (0 if no VLAN)
@@ -79,103 +81,116 @@ badNetmask() {
   return 1
 }
 
+# Takes a message string as an argument and logs with our log tag
+log() {
+
+  echo $1; logger -t $LOG_TAG $1
+ 
+}
+
 case $STATE in
     "up")
 
         # Check if the IP looks valid
         if badIP $IP; then
-          echo "notdhcpclient hook script received a bad IP: $IP" >&2
+          log "notdhcpclient hook script received a bad IP: $IP"
           exit 1
         fi
         
         # Check if the netmask looks valid
         if badNetmask $NETMASK; then
-          echo "notdhcpclient hook script received a bad netmask: $NETMASK" >&2
+          log "notdhcpclient hook script received a bad netmask: $NETMASK"
           exit 1
         fi
 
-        echo "Creating VLAN interfaces"
+        log "Creating VLAN interfaces"
         ip link add link $IFACE name $MESH_ETH type vlan id $MESH_VLAN
         ip link add link $IFACE name $OPEN_ETH type vlan id $OPEN_VLAN
         ip link add link $IFACE name $PRIV_ETH type vlan id $PRIV_VLAN
 
-        echo "Enabling wireless"
+        log "Enabling wireless"
         # This does not persist between reboots
         uci set wireless.@wifi-device[0].disabled=0
         wifi
         sleep 10
 
-        echo "Assigning IP ${IP}/32 to $MESH_WLAN"
+        log "Assigning IP ${IP}/32 to $MESH_WLAN"
         ip addr add ${IP}/32 dev $MESH_WLAN
 
-        echo "Assigning IP ${IP}/32 to $MESH_ETH"
+        log "Assigning IP ${IP}/32 to $MESH_ETH"
         ip addr add ${IP}/32 dev $MESH_ETH
 
-        echo "Setting VLAN interface link states to up"
+        log "Setting VLAN interface link states to up"
         ip link set dev $MESH_ETH up
         ip link set dev $OPEN_ETH up
         ip link set dev $PRIV_ETH up
 
         # Configure and start babeld    
-        echo "Starting babeld"
+        log "Starting babeld"
         uci set babeld.lan.ifname="$MESH_ETH"
         /etc/init.d/babeld start
 
         # Create the open (peoplesopen.net) bridge between ethernet and wifi
-        echo "Creating bridge between $OPEN_ETH and $OPEN_WLAN"
+        log "Creating bridge between $OPEN_ETH and $OPEN_WLAN"
         brctl addbr $OPEN_BRIDGE
         brctl addif $OPEN_BRIDGE $OPEN_ETH
+
+        # Looks like we might need a sleep in order to add open_wlan interface to bridge
+        sleep 10
         brctl addif $OPEN_BRIDGE $OPEN_WLAN
 
         # Create the private bridge between ethernet and wifi               
-        echo "Creating bridge between $PRIV_ETH and $PRIV_WLAN"
+        log "Creating bridge between $PRIV_ETH and $PRIV_WLAN"
         brctl addbr $PRIV_BRIDGE
         brctl addif $PRIV_BRIDGE $PRIV_ETH
+
+        # Looks like we might need a sleep in order to add priv_wlan interface to bridge
+        sleep 10
         brctl addif $PRIV_BRIDGE $PRIV_WLAN
 
-        echo "Assigning IP ${IP}/${NETMASK} to $OPEN_BRIDGE"
+        log "Assigning IP ${IP}/${NETMASK} to $OPEN_BRIDGE"
         ip addr add ${IP}/${NETMASK} dev $OPEN_BRIDGE
 
-        echo "Setting $OPEN_BRIDGE state to up"
+        log "Setting $OPEN_BRIDGE state to up"
         ip link set dev $OPEN_BRIDGE up
 
-        echo "Setting $PRIV_BRIDGE state to up"                             
+        log "Setting $PRIV_BRIDGE state to up"
         ip link set dev $PRIV_BRIDGE up
         ;;
 
 
     "down")
 
-        echo "Taking down bridge $OPEN_BRIDGE"
+        log "Taking down bridge $OPEN_BRIDGE"
         ip link set dev $OPEN_BRIDGE down
 
-        echo "Taking down bridge $PRIV_BRIDGE"
+        log "Taking down bridge $PRIV_BRIDGE"
         ip link set dev $PRIV_BRIDGE down
 
-        echo "Removing bridge $OPEN_BRIDGE"
+        log "Removing bridge $OPEN_BRIDGE"
         brctl delif $OPEN_BRIDGE $OPEN_ETH
         brctl delif $OPEN_BRIDGE $OPEN_WLAN
         brctl delbr $OPEN_BRIDGE
 
-        echo "Removing bridge $PRIV_BRIDGE"
+        log "Removing bridge $PRIV_BRIDGE"
         brctl delif $PRIV_BRIDGE $PRIV_ETH
         brctl delif $PRIV_BRIDGE $PRIV_WLAN
         brctl delbr $PRIV_BRIDGE
 
-        echo "Stopping babeld"
+        log "Stopping babeld"
         /etc/init.d/babeld stop
 
-        echo "Bringing down wifi"
+        log "Bringing down wifi"
         uci set wireless.@wifi-device[0].disabled=1
         wifi down
 
-        echo "Removing VLAN interfaces"
+        log "Removing VLAN interfaces"
         ip link del dev $MESH_ETH
         ip link del dev $OPEN_ETH
         ip link del dev $PRIV_ETH
         ;;
 
     *)
-        echo "Error: Unexpected state received" >&2
+        log "Error: Unexpected state received"
         
 esac

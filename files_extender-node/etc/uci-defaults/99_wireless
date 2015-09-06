@@ -8,6 +8,8 @@ CHANNEL_5=149
 POWER_5=20
 POWER_2_4=20
 
+LOG_TAG="sudomesh-extender-setup"
+
 # returns 0 (success) if this device has a 2.4 ghz radio 
 has2point4radio() {
   local is2point4
@@ -48,24 +50,26 @@ ethernetIfaceCount() {
 
   count=$(ip link show | grep 'eth[0-9][0-9]*' | wc -l)
  
-  echo $count 
+  msg="Counted $count ethernet interfaces"; echo $msg; logger -t $LOG_TAG $msg
 }
 
 ucidef_set_interface_loopback
 
 board=$(ar71xx_board_name)
 
-echo "This a device of type: $board"
-
+# busybox doesn't support process substition so the following does not work:
+# echo "This a device of type: $board" | tee >(logger -t sudomesh-extender-setup)
+msg="This a device of type: $board"; echo $msg; logger -t $LOG_TAG $msg
 band=""
 
 if has2point4radio; then
-  echo "This device has a 2.4 ghz radio"
+  msg="This device has a 2.4 ghz radio"; echo $msg; logger -t $LOG_TAG $msg
   band="2.4ghz"
 fi
 
 if has5radio; then 
-  echo "This device has a 5 ghz radio"
+  msg="This device has a 5 ghz radio"; echo $msg; logger -t $LOG_TAG $msg
+
   if [ "$band" == "2.4ghz" ]; then
     band="dual"
   else
@@ -75,44 +79,75 @@ fi
 
 ret=$( ethernetIfaceCount )
 if [ "$ret" == "1" ]; then
-  echo "This device has only one ethernet interface"
+  msg="This device has only one ethernet interface"; echo $msg; logger -t $LOG_TAG $msg
 elif [ "$ret" -gt "1" ]; then
-  echo "This device has multiple ethernet interfaces"
+  msg="This device has multiple ethernet interfaces"; echo $msg; logger -t $LOG_TAG $msg
 else
-  echo "This device has no ethernet interfaces"
+  msg="This device has no ethernet interfaces"; echo $msg; logger -t $LOG_TAG $msg
 fi
 
 if hasSwitch; then
-  echo "This device has an integrated switch"
+  msg="This device has an integrated switch"; echo $msg; logger -t $LOG_TAG $msg
 else
-  echo "This device does not have an integrated switch"
+  msg="This device does not have an integrated switch"; echo $msg; logger -t $LOG_TAG $msg
 fi
 
 network_config="/opt/sudowrt/${board}/network"
 wireless_config="/opt/sudowrt/${board}/${band}/wireless"
 
 if [ ! -f $network_config ]; then
-  echo "Network configuration file missing: $network_config"
-  echo "Will try again on next reboot"
+  msg="Network configuration file missing: $network_config"; echo $msg; logger -t $LOG_TAG $msg
+  msg="Will try again on next reboot"; echo $msg; logger -t $LOG_TAG $msg
   exit 1
 fi
 
 if [ ! -f $wireless_config ]; then
-  echo "Wireless configuration file missing: $wireless_config"
-  echo "Will try again on next reboot"
+  msg="Wireless configuration file missing: $wireless_config"; echo $msg; logger -t $LOG_TAG $msg
+  msg="Will try again on next reboot"; echo $msg; logger -t $LOG_TAG $msg
   exit 1
 fi
 
-echo "Using network config: $network_config"
+msg="Using network config: $network_config"; echo $msg; logger -t $LOG_TAG $msg
 cp $network_config /etc/config/network
 
-echo "Using wireless config: $wireless_config"
+msg="Using wireless config: $wireless_config"; echo $msg; logger -t $LOG_TAG $msg
 cp $wireless_config /etc/config/wireless
 
-sed -i "/{2_4_CHANNEL}/c\  option channel $CHANNEL_2_4" /etc/config/wireless
-sed -i "/{5_CHANNEL}/c\  option channel $CHANNEL_5" /etc/config/wireless
+if has2point4radio; then
+  sed -i "/{2_4_CHANNEL}/c\  option channel $CHANNEL_2_4" /etc/config/wireless 2>&1 | tee logger
+  retval=$?
+  if [ $retval -ne 0 ]; then
+    msg="sed command failed for 2.4ghz channel. Exited with $retval"; echo $msg; logger -t $LOG_TAG $msg
+    exit $retval
+  fi
+fi
 
-sed -i "/{2_4_POWER}/c\  option txpower $POWER_2_4" /etc/config/wireless
-sed -i "/{5_POWER}/c\  option txpower $POWER_5" /etc/config/wireless
+if has2point4radio; then
+  sed -i "/{2_4_POWER}/c\  option txpower $POWER_2_4" /etc/config/wireless 2>&1 | tee logger
+  retval=$?
+  if [ $retval -ne 0 ]; then
+    msg="sed command failed for 2.4ghz power. Exited with $retval"; echo $msg; logger -t $LOG_TAG $msg
+    exit $retval
+  fi
+fi
+
+if has5radio; then
+  sed -i "/{5_CHANNEL}/c\  option channel $CHANNEL_5" /etc/config/wireless 2>&1 | tee logger
+  retval=$?
+  if [ $retval -ne 0 ]; then
+    msg="sed command failed for 5ghz channel. Exited with $retval"; echo $msg; logger -t $LOG_TAG $msg
+    exit $retval
+  fi
+fi
+
+if has5radio; then
+  sed -i "/{5_POWER}/c\  option txpower $POWER_5" /etc/config/wireless 2>&1 | tee logger
+  retval=$?
+  if [ $retval -ne 0 ]; then
+    msg="sed command failed for 5ghz power. Exited with $retval"; echo $msg; logger -t $LOG_TAG $msg
+    exit $retval
+  fi
+fi
+
 exit 0
 

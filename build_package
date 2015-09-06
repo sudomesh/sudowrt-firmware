@@ -13,6 +13,6 @@ fi
 # currently only the package internetisdownredirect is available
 
 echo "Compiling package ${1}"
-make package/${1}/compile
-make package/${1}/install
+make "package/${1}/compile"
+make "package/${1}/install"
 make package/index

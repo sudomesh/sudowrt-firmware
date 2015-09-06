@@ -7,7 +7,6 @@ opkg
 coreutils
 coreutils-nohup
 libdaemon
-ifplugd
 tcpdump
 snmpd
 iputils-traceroute6
