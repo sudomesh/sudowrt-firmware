@@ -10,6 +10,13 @@ config interface 'lan'
 	option ipaddr '172.22.0.2'
 	option netmask '255.255.255.0'
 
+config interface 'lan2'
+  option ifname 'eth1'
+	option proto 'static'
+	option ipaddr '172.22.1.2'
+	option netmask '255.255.255.0'
+
+
 #config interface 'wlan'
 #  option ifname 'wlan0'
 
