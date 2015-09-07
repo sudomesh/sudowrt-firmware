@@ -69,7 +69,7 @@ openwrt_image_builder()
 
   echo "Generating config file"
   # Include generic and arch-specific config options in config file
-  $kconfig 'm+' "${config_dir}/generic ${config_dir}/${arch}" > "${config}"
+  $kconfig 'm+' "${config_dir}/generic" "${config_dir}/${arch}" > "${config}"
 
   # Include all common packages
   for pkg in ${all_packages}; do
