@@ -1,22 +1,38 @@
 #!/bin/bash
 set -e
+set -x
 
 # peopleswifi firmware prepare script
 # based on wlanslovenija prepare script
 
-
 BUILD_DIR=built_firmware
-architecture="$*"
+params=($*)
+
+reclone=0
+for param_index in "${!params[@]}"; do
+  echo "$param_index"
+  echo "${params[param_index]}"
+  if [ "${params[param_index]}" == "reclone" ]; then
+    reclone=1
+  else 
+    architecture="${params[param_index]}"
+  fi
+done
 
 # Create list of packages to build
 all_packages="$(cat openwrt_config/packages)"
 
 if [ -z "${architecture}" ]; then
-  echo "Usage: ./build <architecture>"
+  echo "Usage: ./build <architecture> [reclone]"
+  echo " "
+  echo "Including the reclone parameter will completely remove your existing buildroot and re-clone and build."
+  echo "Otherwise the script will skip these steps if you already have a successfully built buildroot"
   echo " "
   echo "Example:"
   echo " "
   echo "  ./build ar71xx"
+  echo "or"
+  echo "  ./build atheros reclone"
   echo " "
   exit 1
 fi
@@ -34,18 +50,24 @@ openwrt_version=$(cat openwrt_config/version)
 openwrt_path=$(echo "${openwrt_version}" | cut -d ':' -f 1)
 openwrt_rev=$(echo "${openwrt_version}" | cut -d ':' -f 2)
 
-echo "OpenWRT path: ${openwrt_path}"
-echo "OpenWRT revision: ${openwrt_rev}"
-echo "Checking out OpenWRT into ${BUILD_DIR}, this could take some time"
-
 OPENWRT_CHECKOUT_DIR="${workdir}/${BUILD_DIR}/openwrt"
+
+existing_build=0
 if [ -f "${OPENWRT_CHECKOUT_DIR}/.success" ]; then
+  existing_build=1
+fi
+echo "existing build=$existing_build"
+if [ "$existing_build" -eq 1 ]; then
   echo "OpenWRT already checked out."
-  echo  "This script is not yet smart enought to be re-run without starting over."
-  echo "If you want to start over, do rm -rf ${BUILD_DIR} and try prepare again."
-  echo "But know that this will delete anything you've compiled."
-  exit 1
-else
+fi
+if [[ "$existing_build" -eq 0 || "$reclone" -eq 1 ]]; then
+    
+  echo "Removing and re-cloning openwrt build root";
+
+  echo "OpenWRT path: ${openwrt_path}"
+  echo "OpenWRT revision: ${openwrt_rev}"
+  echo "Checking out OpenWRT into ${BUILD_DIR}, this could take some time"
+
   rm -rf "${OPENWRT_CHECKOUT_DIR}"
   git clone "git://git.openwrt.org/${openwrt_path}/openwrt.git" "${OPENWRT_CHECKOUT_DIR}"
   cd "${OPENWRT_CHECKOUT_DIR}"
@@ -107,8 +129,8 @@ fi
 if [ ! -f "patches/series" ] ; then
   quilt import patches/*
 fi
-quilt push -f -a
 
+quilt push -f -a -q || [ $? -eq 2 ] #quilt returns a 2 if there is nothing more to do
 
 cd "${OPENWRT_CHECKOUT_DIR}"
 
