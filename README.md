@@ -5,8 +5,16 @@ The sudo mesh firmware builder.
 The openwrt wiki has some examples of requirements per distro:
 http://wiki.openwrt.org/doc/howto/buildroot.exigence#examples.of.package.installations
 
-Their example for ubuntu 64-bit is:
-    sudo apt-get install build-essential subversion libncurses5-dev zlib1g-dev gawk gcc-multilib flex git-core gettext quilt ccache libssl-dev xsltproc unzip
+Unless you know what you are doing, you should build this on a Ubuntu 64bit box.
+
+Be aware that it won't build as root, so if you need to, follow [these instructions](https://www.digitalocean.com/community/tutorials/how-to-add-and-delete-users-on-an-ubuntu-14-04-vps) to create a non-root user, and give it the power to sudo.
+
+Once you're logged in as a non-root user with sudo ability, install the neccesary dependencies:
+
+```shell
+sudo apt-get update
+sudo apt-get install build-essential subversion libncurses5-dev zlib1g-dev gawk gcc-multilib flex git-core gettext quilt ccache libssl-dev xsltproc unzip
+```
 
 # Building home-node firmware
 
