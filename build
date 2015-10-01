@@ -156,6 +156,32 @@ openwrt_buildprep()
 
   cp -r files "${build_dir}/"
 
+  local toolchain_dir_bin
+  for file in ${build_dir}/staging_dir/*; do
+    if [[ "${file}" == *"toolchain"* ]]; then
+      toolchain_dir_bin="${file}/bin"
+    fi
+  done
+  local staging_dir_bin=${build_dir}/staging_dir/host/bin
+
+  if grep -q "^PATH=" ~/.bashrc
+  then
+    local path_line
+    path_line=$(grep "^PATH=" ~/.bashrc)
+    path=${path_line#'PATH='}
+    if [[ "${path}" != *"$staging_dir_bin"* ]]; then
+      path=${staging_dir_bin}":"$path
+    fi
+
+    if [[ "${path}" != *"$toolchain_dir_bin"* ]]; then
+      path=${toolchain_dir_bin}":"$path
+    fi
+    sed -i "/PATH=/c\PATH=${path}" ~/.bashrc
+    # code if found
+  else
+    echo "PATH=${staging_dir_bin}:${toolchain_dir_bin}" >> ~/.bashrc
+  fi
+
   # Prepare configuration file and build
   cd "${build_dir}"
   cp "config.${arch}" .config
