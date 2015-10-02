@@ -1,11 +1,18 @@
-
 config interface 'wlan'
-	option ifname 'mesh0'
+  option ifname 'mesh0'
 
 config interface 'lan'
-	option wired 'true'
-	option ifname 'eth0.1'
+  option wired 'true'
+  option ifname 'eth0.1'
+
+config filter 
+  option type 'redistribute'
+  option if 'mesh0'
+  option local 'true'
+  option action 'allow'
 
 config filter
-	option type 'redistribute'
-	option local 'true'
+  option type 'redistribute'
+  option local 'true'
+  option action 'deny'
+
