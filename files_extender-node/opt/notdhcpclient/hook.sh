@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. /usr/share/libubox/jshn.sh
+
 # TODO check password, ssl_cert_path and ssl_key_path for malicious inputs
 
 LOG_TAG="notdhcpclient_hook"
@@ -88,6 +90,51 @@ log() {
  
 }
 
+# Waits for wifi to be ready
+# TODO: accomodate multiple radios and have an eventual timeout
+waitForWifi() {
+  log "enters waitforwifi"
+  local status
+  local radios
+  local wifi_up
+
+  status=$(ubus call network.wireless status)
+  json_load "$status"
+  json_get_keys radios
+  radios=$(echo "$radios" | tr -d ' ')
+
+  while [ -z "$radios" ] ; do
+    log "No radio loaded yet"
+    status=$(ubus call network.wireless status)
+    json_load "$status"
+    json_get_keys radios
+    radios=$(echo "$radios" | tr -d ' ')
+    sleep 3
+  done
+  log "Radio is loaded: $radios"
+  
+  for radio in "$radios"; do
+    log "Checking wireless radio $radio status"
+    status=$(ubus call network.wireless status)
+    json_load "$status"
+    json_select $radio
+    json_get_var wifi_up up
+    log "$radio status $wifi_up"
+  
+    while [ "$wifi_up" != 1 ] ; do
+      log "Checking wireless radio $radio status"
+      status=$(ubus call network.wireless status)
+      json_load "$status"
+      json_select $radio
+      json_get_var wifi_up up
+      log "$radio status $wifi_up"
+
+      sleep 3
+    done
+  done
+}
+
+
 case $STATE in
     "up")
 
@@ -112,7 +159,7 @@ case $STATE in
         # This does not persist between reboots
         uci set wireless.@wifi-device[0].disabled=0
         wifi
-        sleep 10
+        waitForWifi
 
         log "Assigning IP ${IP}/32 to $MESH_WLAN"
         ip addr add ${IP}/32 dev $MESH_WLAN
