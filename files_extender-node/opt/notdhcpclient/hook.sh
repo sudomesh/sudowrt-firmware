@@ -112,7 +112,7 @@ case $STATE in
         # This does not persist between reboots
         uci set wireless.@wifi-device[0].disabled=0
         wifi
-        ubus -t 50 wait_for network.wireless
+        sleep 10
 
         log "Assigning IP ${IP}/32 to $MESH_WLAN"
         ip addr add ${IP}/32 dev $MESH_WLAN
@@ -138,7 +138,8 @@ case $STATE in
         brctl addbr $OPEN_BRIDGE
         brctl addif $OPEN_BRIDGE $OPEN_ETH
 
-        ubus -t 50 wait_for network.interface
+        # Looks like we might need a sleep in order to add open_wlan interface to bridge
+        sleep 10
         brctl addif $OPEN_BRIDGE $OPEN_WLAN
 
         # Create the private bridge between ethernet and wifi               
@@ -146,8 +147,8 @@ case $STATE in
         brctl addbr $PRIV_BRIDGE
         brctl addif $PRIV_BRIDGE $PRIV_ETH
 
-        ubus -t 50 wait_for network.interface
-        brctl addif $OPEN_BRIDGE $OPEN_WLAN
+        # Looks like we might need a sleep in order to add priv_wlan interface to bridge
+        sleep 10
         brctl addif $PRIV_BRIDGE $PRIV_WLAN
 
         log "Assigning IP ${IP}/${NETMASK} to $OPEN_BRIDGE"
