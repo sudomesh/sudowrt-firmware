@@ -128,7 +128,10 @@ case $STATE in
         # Configure and start babeld    
         log "Starting babeld"
         uci set babeld.lan.ifname="$MESH_ETH"
-        /etc/init.d/babeld start
+        MESH_CHANNEL=$(uci get wireless.radio0.channel)
+        uci set babeld.mesh.channel="$MESH_CHANNEL"
+
+        /etc/init.d/babeld start 
 
         # Create the open (peoplesopen.net) bridge between ethernet and wifi
         log "Creating bridge between $OPEN_ETH and $OPEN_WLAN"
