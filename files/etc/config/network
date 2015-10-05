@@ -5,9 +5,11 @@ config interface 'loopback'
 	option netmask '255.0.0.0'
 
 config interface 'lan'
-	option ifname 'eth0'
+	option ifname 'eth0 eth1'
+  option force_link '1'
 	option proto 'static'
-        option ipaddr '172.22.0.1'
-        option netmask '255.255.255.0'
+  option type 'bridge'
+  option ipaddr '172.22.0.1'
+  option netmask '255.255.255.0'
 
 
