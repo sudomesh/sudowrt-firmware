@@ -42,7 +42,6 @@ snmpd
 iputils-traceroute6
 babeld-sudowrt
 ahcpd
-babel-pinger
 netcat
 libnl
 notdhcpserver
