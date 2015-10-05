@@ -1,6 +1,7 @@
 #!/bin/sh
 
-. /usr/share/libubox/jshn.sh
+. /usr/share/sudomesh/wireless.sh
+. /usr/share/sudomesh/base.sh
 
 # TODO check password, ssl_cert_path and ssl_key_path for malicious inputs
 
@@ -82,58 +83,6 @@ badNetmask() {
 
   return 1
 }
-
-# Takes a message string as an argument and logs with our log tag
-log() {
-
-  echo $1; logger -t $LOG_TAG $1
- 
-}
-
-# Waits for wifi to be ready
-# TODO: accomodate multiple radios and have an eventual timeout
-waitForWifi() {
-  log "enters waitforwifi"
-  local status
-  local radios
-  local wifi_up
-
-  status=$(ubus call network.wireless status)
-  json_load "$status"
-  json_get_keys radios
-  radios=$(echo "$radios" | tr -d ' ')
-
-  while [ -z "$radios" ] ; do
-    log "No radio loaded yet"
-    status=$(ubus call network.wireless status)
-    json_load "$status"
-    json_get_keys radios
-    radios=$(echo "$radios" | tr -d ' ')
-    sleep 3
-  done
-  log "Radio is loaded: $radios"
-  
-  for radio in "$radios"; do
-    log "Checking wireless radio $radio status"
-    status=$(ubus call network.wireless status)
-    json_load "$status"
-    json_select $radio
-    json_get_var wifi_up up
-    log "$radio status $wifi_up"
-  
-    while [ "$wifi_up" != 1 ] ; do
-      log "Checking wireless radio $radio status"
-      status=$(ubus call network.wireless status)
-      json_load "$status"
-      json_select $radio
-      json_get_var wifi_up up
-      log "$radio status $wifi_up"
-
-      sleep 3
-    done
-  done
-}
-
 
 case $STATE in
     "up")

@@ -20,6 +20,7 @@ rpcd-mod-iwinfo
 netifd
 libnl
 babeld-sudowrt
+openwrt-firmware-config
 -dnsmasq
 -libiwinfo-lua
 -liblua
