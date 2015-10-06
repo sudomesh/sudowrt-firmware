@@ -41,7 +41,6 @@ tcpdump
 snmpd
 iputils-traceroute6
 babeld-sudowrt
-ahcpd
 netcat
 libnl
 notdhcpserver
