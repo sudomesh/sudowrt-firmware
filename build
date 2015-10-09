@@ -189,8 +189,8 @@ openwrt_buildprep()
   if grep -q "^export PATH=" ~/.bashrc
   then
     local path_line
-    path_line=$(grep "^PATH=" ~/.bashrc)
-    path=${path_line#'PATH='}
+    path_line=$(grep "^export PATH=" ~/.bashrc)
+    path=${path_line#'export PATH='}
     if [[ "${path}" != *"$staging_dir_bin"* ]]; then
       path=${staging_dir_bin}":"$path
     fi
