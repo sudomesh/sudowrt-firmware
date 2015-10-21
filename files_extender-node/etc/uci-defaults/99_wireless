@@ -68,6 +68,8 @@ ethernetIfaceCount() {
   count=$(ip link show | grep 'eth[0-9][0-9]*' | wc -l)
  
   msg="Counted $count ethernet interfaces"; echo "$msg"; logger -t "$LOG_TAG" "$msg"
+
+  return $count
 }
 
 # busybox doesn't support process substition so the following does not work:
