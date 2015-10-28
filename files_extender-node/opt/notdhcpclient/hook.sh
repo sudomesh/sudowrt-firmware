@@ -126,6 +126,7 @@ case $STATE in
         uci set babeld.lan.ifname="$MESH_ETH"
         MESH_CHANNEL=$(uci get wireless.radio0.channel)
         uci set babeld.mesh.channel="$MESH_CHANNEL"
+        uci commit
 
         /etc/init.d/babeld start 
 
