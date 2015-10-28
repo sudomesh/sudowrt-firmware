@@ -126,9 +126,9 @@ case $STATE in
         uci set babeld.lan.ifname="$MESH_ETH"
         MESH_CHANNEL=$(uci get wireless.radio0.channel)
         uci set babeld.mesh.channel="$MESH_CHANNEL"
-        uci commit
+        uci commit babeld
 
-        /etc/init.d/babeld start 
+        /etc/init.d/babeld restart 
 
         # Create the open (peoplesopen.net) bridge between ethernet and wifi
         log "Creating bridge between $OPEN_ETH and $OPEN_WLAN"
