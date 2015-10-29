@@ -7,6 +7,14 @@ kmod-lib-crc16
 kmod-l2tp
 kmod-l2tp-ip
 kmod-l2tp-eth
+kmod-usb-storage
+kmod-fs-vfat
+kmod-nls-utf8
+kmod-nls-cp437
+kmod-nls-iso8859-1
+kmod-fs-ext4
+block-mount
+block-hotplug
 wireless-tools
 ntpclient
 hostapd
