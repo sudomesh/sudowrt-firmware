@@ -40,8 +40,6 @@ luci-mod-admin-full
 luci-proto-core
 libiwinfo-lua
 luci-lib-httpclient 
-luci-theme-bootstrap
-luci-app-firewall
 luci-app-peopleswifi
 libdaemon
 ifplugd
