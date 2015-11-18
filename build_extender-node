@@ -2,6 +2,8 @@
 
 # Script for building extender-node images based on home-node images
 
+set -x
+
 
 BUILD_DIR=built_firmware
 workdir=$(pwd)
@@ -19,17 +21,17 @@ fi
 
 all_packages=$(cat openwrt_config/packages.extender-node)
 
-source ${workdir}/openwrt_config/extender-node-vars.cfg
+source "${workdir}/openwrt_config/extender-node-vars.cfg"
 
 openwrt_image_builder()
 {
   local arch=$1
-  local files_dir=${workdir}/files_extender-node
-  local parent_build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
-  local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}.extender-node
-  local kconfig=${workdir}/${BUILD_DIR}/openwrt/scripts/kconfig.pl
-  local config_dir=${workdir}/openwrt_config/arch_configs
-  local config=${build_dir}/.config
+  local files_dir="${workdir}/files_extender-node"
+  local parent_build_dir="${workdir}/${BUILD_DIR}/builder.${arch}"
+  local build_dir="${workdir}/${BUILD_DIR}/builder.${arch}.extender-node"
+  local kconfig="${workdir}/${BUILD_DIR}/openwrt/scripts/kconfig.pl"
+  local config_dir="${workdir}/openwrt_config/arch_configs"
+  local config="${build_dir}/.config"
 
   if [ ! -d "${parent_build_dir}" ]; then
     echo "No home-node build dir found. Please run ./build first."
@@ -44,7 +46,7 @@ openwrt_image_builder()
   rm "$config" 2> /dev/null
 
   # Delete home-node files
-  rm -rf "${build_dir}"/files
+  rm -rf "${build_dir}/files"
   
   # Copy extender-node files
   cp -a "${files_dir}" "${build_dir}/files"
@@ -97,7 +99,7 @@ openwrt_image_builder()
   make defconfig &> "${build_dir}/build.echo"
 
   # Delete hardlinks to previously built firmwares
-  rm "${build_dir}/bin/${arch}/*" 2> /dev/null
+  rm -rf "${build_dir}/bin/${arch}" 
 
   echo "Building ${arch} for extender node in dir: ${build_dir}"  
   make V=s -C "${build_dir}" &> "${build_dir}/build.extender-node.log"
