@@ -5,26 +5,16 @@ config wifi-device 'radio0'
   option disabled 1 
 
   option type     mac80211
-  option channel  {5_CHANNEL}
-  option txpower  {5_POWER}
- 
-  option path 'pci0000:00/0000:00:00.0'
+
+  option path     'platform/ar231x-wmac.0'
+  option htmode
+  option channel  {CHANNEL_5}
+  option txpower  {POWER_5}
 
   # hwmode now only accepts 11g or 11a
   # and only affects 2.4 vs 5 GHz operation
   # see https://dev.openwrt.org/ticket/17541
   option hwmode 11a
-
-  # This setting enables 802.11n and 40 MHz channel width
-  option htmode HT40+
-
-  # Greenfield enabled
-  list ht_capab GF
-
-  # RX-STBC1 means MIMO receive support for one spatial stream
-  # RX-STBC2 is for two streams, and so forth
-  # This should match the number of receive antennas
-  list ht_capab RX-STBC1
 
 # the open wifi ap 
 config wifi-iface
@@ -54,14 +44,3 @@ config wifi-iface
   option ssid 'pplsopen.net-node2node'
   #option hidden '1'
 
-# the private wpa2 interface
-# TODO we can't have this until notdhcpserver 
-# can securely send the pre-shared key
-#config wifi-iface
-#  option device 'radio0'
-#  option ifname 'priv0'
-#  option network 'priv'
-#  option encryption 'psk2'
-#  option key 'education'
-#  option mode 'ap'
-#  option ssid 'wdr3500-node1'
