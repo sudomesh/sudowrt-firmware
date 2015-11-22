@@ -62,11 +62,11 @@ openwrt_image_builder()
   fi
 
   if [ -z "${POWER_2_4+x}" ]; then true; else
-    sed -i /"POWER_2_4="/c\ 2_4_POWER="$POWER_2_4" "${build_dir}/files/etc/uci-defaults/99_wireless"
+    sed -i /"POWER_2_4="/c\ POWER_2_4="$POWER_2_4" "${build_dir}/files/etc/uci-defaults/99_wireless"
   fi
 
   if [ -z "${POWER_5+x}" ]; then true; else 
-    sed -i /"POWER_5="/c\ 5_POWER="$POWER_5" "${build_dir}/files/etc/uci-defaults/99_wireless"
+    sed -i /"POWER_5="/c\ POWER_5="$POWER_5" "${build_dir}/files/etc/uci-defaults/99_wireless"
   fi
 
   echo "Generating config file"
