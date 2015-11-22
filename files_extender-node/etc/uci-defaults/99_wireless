@@ -92,7 +92,7 @@ if has5radio; then
   fi
 fi
 
-ret=$( ethernetIfaceCount )
+ret=ethernetIfaceCount
 if [ "$ret" == "1" ]; then
   msg="This device has only one ethernet interface"; echo "$msg"; logger -t "$LOG_TAG" "$msg"
 elif [ "$ret" -gt "1" ]; then
