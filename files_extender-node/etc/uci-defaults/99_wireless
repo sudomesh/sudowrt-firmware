@@ -18,7 +18,7 @@ if [ -f /lib/ar71xx.sh ]; then
   board=$(ar71xx_board_name)
 else
   if grep -q "AR231" /proc/cpuinfo; then
-    board=$(ath25)
+    board="ath25"
   fi
 fi
 
