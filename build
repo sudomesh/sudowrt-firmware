@@ -190,7 +190,7 @@ openwrt_buildprep()
   then
     local path_line
     path_line=$(grep "^export PATH=" ~/.bashrc)
-    path=${path_line#'export PATH='}
+    path=${path_line#'export PATH='\'''}
     if [[ "${path}" != *"$staging_dir_bin"* ]]; then
       path=${staging_dir_bin}":"$path
     fi
@@ -198,16 +198,16 @@ openwrt_buildprep()
     if [[ "${path}" != *"$toolchain_dir_bin"* ]]; then
       path=${toolchain_dir_bin}":"$path
     fi
-    sed -i "/export PATH=/c\ export PATH='$PATH':${path}" ~/.bashrc
+    sed -i "/export PATH=/c\export PATH='$PATH:${path}" ~/.bashrc
     # code if found
   else
-    echo "export PATH='$PATH':${staging_dir_bin}:${toolchain_dir_bin}" >> ~/.bashrc
+    echo "export PATH='$PATH:${staging_dir_bin}:${toolchain_dir_bin}'" >> ~/.bashrc
   fi
 
   # Prepare configuration file and build
   cd "${build_dir}"
   cp "config.${arch}" .config
-  make defconfig &> "${build_dir}/build.echo"
+  make defconfig V=s &> "${build_dir}/build.echo"
   if [ "$?" != "0" ]; then
     echo "Default configuration preparation for '${arch}' has failed. See build.echo for details!"
     exit 1
