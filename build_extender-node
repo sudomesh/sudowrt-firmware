@@ -96,7 +96,7 @@ openwrt_image_builder()
       fi
   done
 
-  make defconfig &> "${build_dir}/build.echo"
+  make defconfig V=s &> "${build_dir}/build.echo"
 
   # Delete hardlinks to previously built firmwares
   rm -rf "${build_dir}/bin/${arch}" 

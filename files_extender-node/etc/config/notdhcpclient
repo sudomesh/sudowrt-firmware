@@ -4,3 +4,5 @@ config client
   option ssl_cert '/etc/uhttpd.crt'
   option ssl_key '/etc/uhttpd.key'
   option hook_script '/opt/notdhcpclient/hook.sh'
+  option timeout_length '180'
+  option heartbeat_period '5'
