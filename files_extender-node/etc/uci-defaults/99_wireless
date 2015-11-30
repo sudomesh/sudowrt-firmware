@@ -19,9 +19,6 @@ if [ -f /lib/ar71xx.sh ]; then
 else
   if grep -q "AR231" /proc/cpuinfo; then
     board="ath25"
-    # As good a place as any to do ath25 config stuff
-    uci set network.lan.type='bridge'
-    uci set notdhcpclient.@client[0].interface='br-lan'
   fi
 fi
 
