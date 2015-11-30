@@ -132,7 +132,7 @@ msg="Using wireless config: $wireless_config"; echo "$msg"; logger -t "$LOG_TAG"
 cp $wireless_config /etc/config/wireless
 
 if has2point4radio; then
-  sed -i "/{2_4_CHANNEL}/c\  option channel $CHANNEL_2_4" /etc/config/wireless 2>&1 | tee logger
+  sed -i "/{CHANNEL_2_4}/c\  option channel $CHANNEL_2_4" /etc/config/wireless 2>&1 | tee logger
   retval=$?
   if [ $retval -ne 0 ]; then
     msg="sed command failed for 2.4ghz channel. Exited with $retval"; echo "$msg"; logger -t "$LOG_TAG" "$msg"
@@ -141,7 +141,7 @@ if has2point4radio; then
 fi
 
 if has2point4radio; then
-  sed -i "/{2_4_POWER}/c\  option txpower $POWER_2_4" /etc/config/wireless 2>&1 | tee logger
+  sed -i "/{POWER_2_4}/c\  option txpower $POWER_2_4" /etc/config/wireless 2>&1 | tee logger
   retval=$?
   if [ $retval -ne 0 ]; then
     msg="sed command failed for 2.4ghz power. Exited with $retval"; echo "$msg"; logger -t "$LOG_TAG" "$msg"
@@ -150,7 +150,7 @@ if has2point4radio; then
 fi
 
 if has5radio; then
-  sed -i "/{5_CHANNEL}/c\  option channel $CHANNEL_5" /etc/config/wireless 2>&1 | tee logger
+  sed -i "/{CHANNEL_5}/c\  option channel $CHANNEL_5" /etc/config/wireless 2>&1 | tee logger
   retval=$?
   if [ $retval -ne 0 ]; then
     msg="sed command failed for 5ghz channel. Exited with $retval"; echo "$msg"; logger -t "$LOG_TAG" "$msg"
@@ -159,7 +159,7 @@ if has5radio; then
 fi
 
 if has5radio; then
-  sed -i "/{5_POWER}/c\  option txpower $POWER_5" /etc/config/wireless 2>&1 | tee logger
+  sed -i "/{POWER_5}/c\  option txpower $POWER_5" /etc/config/wireless 2>&1 | tee logger
   retval=$?
   if [ $retval -ne 0 ]; then
     msg="sed command failed for 5ghz power. Exited with $retval"; echo "$msg"; logger -t "$LOG_TAG" "$msg"
