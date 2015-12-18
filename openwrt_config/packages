@@ -13,6 +13,9 @@ kmod-nls-utf8
 kmod-nls-cp437
 kmod-nls-iso8859-1
 kmod-fs-ext4
+kmod-ebtables
+kmod-ebtables-ipv4
+kmod-ebtables-ipv6
 block-mount
 block-hotplug
 wireless-tools
@@ -44,6 +47,7 @@ luci-app-peopleswifi
 libdaemon
 ifplugd
 tcpdump
+ebtables
 snmpd
 iputils-traceroute6
 babeld-sudowrt

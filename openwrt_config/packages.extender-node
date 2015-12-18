@@ -34,4 +34,7 @@ openwrt-firmware-config
 -kmod-ppp
 -kmod-pppoe
 -dnsmasq
-
+-kmod-ebtables
+-kmod-ebtables-ipv4
+-kmod-ebtables-ipv6
+-ebtables
