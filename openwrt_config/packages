@@ -53,6 +53,7 @@ uhttpd-mod-tls
 px5g
 rpcd
 rpcd-mod-iwinfo
+rpcd-mod-file
 netifd
 iperf
 libcurl
