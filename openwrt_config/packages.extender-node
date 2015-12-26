@@ -38,3 +38,4 @@ openwrt-firmware-config
 -kmod-ebtables-ipv4
 -kmod-ebtables-ipv6
 -ebtables
+-sudowrt-web-ui
