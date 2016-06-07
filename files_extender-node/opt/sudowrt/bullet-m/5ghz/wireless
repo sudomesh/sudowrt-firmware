@@ -33,7 +33,7 @@ config wifi-iface
   option encryption 'none'
   option network 'open'
   option mode 'ap'
-  option ssid 'peoplesopen.net'
+  option ssid 'peoplesopen.net (fast)'
 
 # the adhoc interface for the mesh
 config wifi-iface
