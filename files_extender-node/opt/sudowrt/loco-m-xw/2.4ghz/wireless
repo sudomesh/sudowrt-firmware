@@ -1,0 +1,68 @@
+config wifi-device 'radio0'
+
+  # disabled on boot
+  # enabled by nothdcp hook script
+  option disabled 1 
+
+  option type     mac80211
+  option channel  {CHANNEL_2_4}
+  option txpower  {POWER_2_4}
+
+  option path     'platform/ar934x_wmac'
+
+  # hwmode now only accepts 11g or 11a
+  # and only affects 2.4 vs 5 GHz operation
+  # see https://dev.openwrt.org/ticket/17541
+  option hwmode 11g
+
+  # This setting enables 802.11n and 20 MHz channel width
+  option htmode HT20
+
+  # MIMO transmit support
+  # TODO not sure if this makes sense on a 1x1 system
+  list ht_capab TX-STBC
+
+  # RX-STBC1 means MIMO receive support for one spatial stream
+  # RX-STBC2 is for two streams, and so forth
+  # This should match the number of receive antennas
+  # TODO not sure this makes sense on a 1x1 system
+  list ht_capab RX-STBC1
+
+# the open wifi ap 
+config wifi-iface
+  option device 'radio0'
+  option ifname 'open0'
+  option encryption 'none'
+  option network 'open'
+  option mode 'ap'
+  option ssid 'peoplesopen.net'
+
+# the adhoc interface for the mesh
+config wifi-iface
+  option device 'radio0'
+  option ifname 'mesh0'
+  option network 'mesh'
+  option encryption 'none'
+  option mode 'adhoc'
+  option bssid 'CA:FE:C0:DE:F0:0D'
+        
+  # If bssid is set to the same for all nodes
+  # then ssid becomes irrelevant and there is no need to broadcast
+  # see: http://ml.ninux.org/pipermail/battlemesh/2013-June/002446.html
+
+  # HOWEVER: It makes debugging easier
+
+  option ssid 'pplsopen.net-node2node'
+  #option hidden '1'
+
+# the private wpa2 interface
+# TODO we can't have this until notdhcpserver 
+# can securely send the pre-shared key
+#config wifi-iface
+#  option device 'radio0'
+#  option ifname 'priv0'
+#  option network 'priv'
+#  option encryption 'psk2'
+#  option key 'education'
+#  option mode 'ap'
+#  option ssid 'wdr3500-node1'
