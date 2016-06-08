@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ "$#" -ne "1" ]; then
+  echo "Usage: $0 sudowrt-firmware-dir" > /dev/stderr
+  exit 1
+fi
+
+REMOTE_USER="root"
+REMOTE_HOST="exit.sudomesh.org"
+BASE_LOCAL="${1}/built_firmware"
+BASE_REMOTE="/var/www/html/builds/chaos_calmer"
+
+set +e
+
+echo "Copying ar71xx"
+ssh ${REMOTE_USER}@${REMOTE_HOST} 'mkdir -p ${BASE_REMOTE}/ar71xx'
+rsync -HPSavx ${BASE_LOCAL}/builder.ar71xx/bin/ar71xx/* ${REMOTE_USER}@${REMOTE_HOST}:${BASE_REMOTE}/ar71xx/
+
+echo "Copying ar71xx.extender-node"
+ssh ${REMOTE_USER}@${REMOTE_HOST} 'mkdir -p ${BASE_REMOTE}/ar71xx.extender-node'
+rsync -HPSavx ${BASE_LOCAL}/builder.ar71xx.extender-node/bin/ar71xx/* ${REMOTE_USER}@${REMOTE_HOST}:${BASE_REMOTE}/ar71xx.extender-node/
+
+echo "Copying ath25.extender-node"
+ssh ${REMOTE_USER}@${REMOTE_HOST} 'mkdir -p ${BASE_REMOTE}/ath25.extender-node'
+rsync -HPSavx ${BASE_LOCAL}/builder.ath25.extender-node/bin/ath25/* ${REMOTE_USER}@${REMOTE_HOST}:${BASE_REMOTE}/ath25.extender-node/
+
+set -e

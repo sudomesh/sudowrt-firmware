@@ -1,0 +1,6 @@
+#!/bin/bash
+
+./build ar71xx
+./build ath25
+./build_extender-node ar71xx
+./build_extender-node ath25
