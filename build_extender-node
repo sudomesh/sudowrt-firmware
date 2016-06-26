@@ -38,6 +38,11 @@ openwrt_image_builder()
     exit 1
   fi
 
+  # Add the git commit hash and build date to the firmware
+  build_number="$(git log --pretty=format:'%H' -n 1)"
+  mkdir -p files_extender-node/opt/sudowrt
+  echo "$build_number | built on $(date)" > files_extender-node/opt/sudowrt/build_version
+
   # Make hardlinks to avoid space duplication but to still isolate builds
   echo "Creating hardlinks to home-node build"
   cp -lr "${parent_build_dir}" "${build_dir}"

@@ -43,6 +43,11 @@ if [[ ! -d openwrt_config ]]; then
   exit 1
 fi
 
+# Add the git commit hash and build date to the firmware
+build_number="$(git log --pretty=format:'%H' -n 1)"
+mkdir -p files/opt/sudowrt
+echo "$build_number | built on $(date)" > files/opt/sudowrt/build_version
+
 workdir=$(pwd)
 mkdir -p ${BUILD_DIR}
 
