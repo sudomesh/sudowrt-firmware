@@ -21,10 +21,13 @@ config wifi-device 'radio0'
   # Greenfield enabled
   list ht_capab GF
 
+  # MIMO transmit support
+  list ht_capab TX-STBC
+
   # RX-STBC1 means MIMO receive support for one spatial stream
   # RX-STBC2 is for two streams, and so forth
   # This should match the number of receive antennas
-  list ht_capab RX-STBC1
+  list ht_capab RX-STBC2
 
 # the open wifi ap 
 config wifi-iface

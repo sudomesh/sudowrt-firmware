@@ -19,14 +19,13 @@ config wifi-device 'radio0'
   option htmode HT20
 
   # MIMO transmit support
-  # TODO not sure if this makes sense on a 1x1 system
   list ht_capab TX-STBC
 
   # RX-STBC1 means MIMO receive support for one spatial stream
   # RX-STBC2 is for two streams, and so forth
   # This should match the number of receive antennas
   # TODO not sure this makes sense on a 1x1 system
-  list ht_capab RX-STBC1
+  list ht_capab RX-STBC2
 
 # the open wifi ap 
 config wifi-iface
