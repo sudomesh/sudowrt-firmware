@@ -5,8 +5,6 @@ The sudo mesh firmware builder.
 The openwrt wiki has some examples of requirements per distro:
 http://wiki.openwrt.org/doc/howto/buildroot.exigence#examples.of.package.installations
 
-Unless you know what you are doing, you should build this on a Ubuntu 64bit box/container. At time of writing (Jan 2017), the [build script does not appear to work on Ubuntu 16.04](https://github.com/sudomesh/sudowrt-firmware/issues/103). 
-
 # the "easy" way
 If you'd like to build the firmware in a controlled/clean environment, you can use [docker](https://docker.io) with the provided [Dockerfile](./Dockerfile) to (a) rebuild the image using ```docker build -t sudomesh/sudowrt-firmware:dev .``` and then (b) run the image by ```docker run -v $PWD/built_firmware:/usr/local/sudowrt-firmware/built_firmware -t sudomesh/sudowrt-firmware:dev```. Depending on your network connect and hardware, the build takes a couple of hours. A successful build should put the built firmware image in [repo dir]/built_firmware and produce output like:
 ```
@@ -14,6 +12,8 @@ If you'd like to build the firmware in a controlled/clean environment, you can u
 ```
 # the "hard" way
 If you'd rather build the firmware without Docker, please keep reading.
+
+Unless you know what you are doing, you should build this on a Ubuntu 64bit box/container. At time of writing (Jan 2017), the [build script does not appear to work on Ubuntu 16.04](https://github.com/sudomesh/sudowrt-firmware/issues/103). 
 
 Be aware that it won't build as root, so if you need to, follow [these instructions](https://www.digitalocean.com/community/tutorials/how-to-add-and-delete-users-on-an-ubuntu-14-04-vps) to create a non-root user, and give it the power to sudo.
 
