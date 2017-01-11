@@ -26,6 +26,8 @@ A successful build should put the built firmware image in ./built_firmware of th
 ```
 (please add output)
 ```
+
+Now got to https://sudoroom.org/wiki/Mesh/WalkThrough to flash the firmware onto your router.
 # the "hard" way
 If you'd rather build the firmware without Docker, please keep reading.
 
