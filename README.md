@@ -8,8 +8,10 @@ http://wiki.openwrt.org/doc/howto/buildroot.exigence#examples.of.package.install
 Unless you know what you are doing, you should build this on a Ubuntu 64bit box/container. At time of writing (Jan 2017), the [build script does not appear to work on Ubuntu 16.04](https://github.com/sudomesh/sudowrt-firmware/issues/103). 
 
 # the "easy" way
-If you'd like to build the firmware in a controlled/clean environment, you can use the provided [Dockerfile](Dockerfile) to (a) rebuild the image using ```docker build -it sudomesh/sudowrt_firmware:dev``` and then (b) run the image by ```docker run sudomesh/sudowrt_firmware:dev```. This assumes that [docker](https://docker.io) is installed on your system.
- 
+If you'd like to build the firmware in a controlled/clean environment, you can use [docker](https://docker.io) with the provided [Dockerfile](./Dockerfile) to (a) rebuild the image using ```docker build -t sudomesh/sudowrt-firmware:dev .``` and then (b) run the image by ```docker run -v $PWD/built_firmware:/usr/local/sudowrt-firmware/built_firmware -t sudomesh/sudowrt-firmware:dev```. Depending on your network connect and hardware, the build takes a couple of hours. A successful build should put the built firmware image in [repo dir]/built_firmware and produce output like:
+```
+(please add output)
+```
 # the "hard" way
 If you'd rather build the firmware without Docker, please keep reading.
 
