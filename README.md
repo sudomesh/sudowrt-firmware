@@ -6,7 +6,6 @@ The openwrt wiki has some examples of requirements per distro:
 http://wiki.openwrt.org/doc/howto/buildroot.exigence#examples.of.package.installations
 
 # the "easy" way
-# the "easy" way
 If you'd like to build the firmware in a controlled/clean environment, you can use [docker](https://docker.io) with the provided [Dockerfile](./Dockerfile):
 
 First clone this repository:
