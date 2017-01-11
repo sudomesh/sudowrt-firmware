@@ -13,7 +13,7 @@ Once you're logged in as a non-root user with sudo ability, install the neccesar
 
 ```shell
 sudo apt-get update
-sudo apt-get install build-essential subversion libncurses5-dev zlib1g-dev gawk gcc-multilib flex git-core gettext quilt ccache libssl-dev xsltproc unzip
+sudo apt-get install build-essential subversion libncurses5-dev zlib1g-dev gawk gcc-multilib flex git-core gettext quilt ccache libssl-dev xsltproc unzip python wget
 ```
 
 # Building home-node firmware
