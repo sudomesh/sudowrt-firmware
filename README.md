@@ -6,7 +6,24 @@ The openwrt wiki has some examples of requirements per distro:
 http://wiki.openwrt.org/doc/howto/buildroot.exigence#examples.of.package.installations
 
 # the "easy" way
-If you'd like to build the firmware in a controlled/clean environment, you can use [docker](https://docker.io) with the provided [Dockerfile](./Dockerfile) after cloning this repository to (a) rebuild the image run the command ```docker build -t sudomesh/sudowrt-firmware:dev .``` in your repo directory and then (b) run the image by ```docker run -v $PWD/built_firmware:/usr/local/sudowrt-firmware/built_firmware -t sudomesh/sudowrt-firmware:dev```. Depending on your network connect and hardware, the build takes a couple of hours. A successful build should put the built firmware image in [repo dir]/built_firmware and produce output like:
+# the "easy" way
+If you'd like to build the firmware in a controlled/clean environment, you can use [docker](https://docker.io) with the provided [Dockerfile](./Dockerfile):
+
+First clone this repository:
+
+```
+git clone https://github.com/sudomesh/sudowrt-firmware
+cd sudowrt-firmware
+```
+
+To build and run the image (depending on your network connect and hardware, the build takes a couple of hours): 
+```
+docker build -t sudomesh/sudowrt-firmware:dev . 
+docker run -v $PWD/built_firmware:/usr/local/sudowrt-firmware/built_firmware -t sudomesh/sudowrt-firmware:dev
+``` 
+
+A successful build should put the built firmware image in ./built_firmware of the repo directory. The console output should look something like:
+
 ```
 (please add output)
 ```
