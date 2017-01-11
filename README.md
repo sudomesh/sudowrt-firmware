@@ -5,8 +5,12 @@ The sudo mesh firmware builder.
 The openwrt wiki has some examples of requirements per distro:
 http://wiki.openwrt.org/doc/howto/buildroot.exigence#examples.of.package.installations
 
-Unless you know what you are doing, you should build this on a Ubuntu 64bit box.
+Unless you know what you are doing, you should build this on a Ubuntu 64bit box/container. At time of writing (Jan 2017), the [build script does not appear to work on Ubuntu 16.04](https://github.com/sudomesh/sudowrt-firmware/issues/103). 
 
+# building the "easy" way
+If you'd like to build the firmware in a controlled/clean environment, you can use the provided [Dockerfile](../Dockerfile) to (a) rebuild the image using ```docker build -it sudomesh/sudowrt_firmware:dev``` and then (b) run the image by ```docker run sudomesh/sudowrt_firmware:dev```. This assumes that [docker](https://docker.io) is installed on your system.
+ 
+# building the "hard" way
 Be aware that it won't build as root, so if you need to, follow [these instructions](https://www.digitalocean.com/community/tutorials/how-to-add-and-delete-users-on-an-ubuntu-14-04-vps) to create a non-root user, and give it the power to sudo.
 
 Once you're logged in as a non-root user with sudo ability, install the neccesary dependencies:
