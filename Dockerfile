@@ -4,4 +4,4 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -yq build-essential subversio
 RUN apt-get clean
 RUN git clone https://github.com/sudomesh/sudowrt-firmware.git /usr/local/sudowrt-firmware
 WORKDIR /usr/local/sudowrt-firmware
-RUN ./build ar71xx
+ENTRYPOINT ["./build", "ar71xx"]

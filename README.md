@@ -17,7 +17,7 @@ cd sudowrt-firmware
 
 To build and run the image (depending on your network connect and hardware, the build takes a couple of hours): 
 ```
-docker build -t sudomesh/sudowrt-firmware:dev . 
+docker build --no-cache -t sudomesh/sudowrt-firmware:dev . 
 docker run -v $PWD/built_firmware:/usr/local/sudowrt-firmware/built_firmware -t sudomesh/sudowrt-firmware:dev
 ``` 
 
@@ -26,6 +26,8 @@ A successful build should put the built firmware image in ./built_firmware of th
 ```
 (please add output)
 ```
+
+If the build fails, capture the console output, yell loudly, talk to someone or create [a new issue](https://github.com/sudomesh/meshwrt-firmware/issues/new).
 
 Now go to https://sudoroom.org/wiki/Mesh/WalkThrough to flash the firmware onto your router.
 
