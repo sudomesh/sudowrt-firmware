@@ -16,15 +16,36 @@ cd sudowrt-firmware
 ```
 
 To build and run the image (depending on your network connect and hardware, the build takes a couple of hours): 
+
+Collect all the sudowrt-firmware dependencies into a docker image using:
 ```
-docker build --no-cache -t sudomesh/sudowrt-firmware:dev . 
+docker build --no-cache -t sudomesh/sudowrt-firmware:dev .
+```
+
+output should end with something like:
+```
+[...]
+Step 7 : ENTRYPOINT ./build ar71xx
+ ---> Running in 7ffb33764a73
+ ---> 348c604d4b97
+Removing intermediate container 7ffb33764a73
+Successfully built 348c604d4b97
+```
+
+After building the image, run it using: 
+```
 docker run -v $PWD/built_firmware:/usr/local/sudowrt-firmware/built_firmware -t sudomesh/sudowrt-firmware:dev
 ``` 
 
-A successful build should put the built firmware image in ./built_firmware of the repo directory. The console output should look something like:
+A successful run should put the built firmware image in ./built_firmware of the repo directory. The console output should look something like:
 
 ```
-(please add output)
+[...]
++ local build_dir=/usr/local/sudowrt-firmware/built_firmware/builder.ar71xx
++ echo 'Building ar71xx in dir: /usr/local/sudowrt-firmware/built_firmware/builder.ar71xx'
+Building ar71xx in dir: /usr/local/sudowrt-firmware/built_firmware/builder.ar71xx
++ make V=s -C /usr/local/sudowrt-firmware/built_firmware/builder.ar71xx
++ '[' 0 '!=' 0 ']'
 ```
 
 If the build fails, capture the console output, yell loudly, talk to someone or create [a new issue](https://github.com/sudomesh/meshwrt-firmware/issues/new).
