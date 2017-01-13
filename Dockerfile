@@ -18,6 +18,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -yq \
       python=2.7.5-5ubuntu3 \
       wget=1.15-1ubuntu1.14.04.2
 RUN apt-get clean
-RUN git clone https://github.com/sudomesh/sudowrt-firmware.git /usr/local/sudowrt-firmware
-WORKDIR /usr/local/sudowrt-firmware
+
+ENV FIRMWARE_DIR /usr/local/sudowrt-firmware
+WORKDIR $FIRMWARE_DIR
+COPY . $FIRMWARE_DIR
 ENTRYPOINT ["./build", "ar71xx"]
