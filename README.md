@@ -19,22 +19,18 @@ To build and run the image (depending on your network connect and hardware, the 
 
 Collect all the sudowrt-firmware dependencies into a docker image using:
 ```
-docker build --no-cache -t sudomesh/sudowrt-firmware:dev .
+docker build -t sudowrt .
 ```
 
 output should end with something like:
 ```
 [...]
-Step 7 : ENTRYPOINT ./build ar71xx
- ---> Running in 7ffb33764a73
- ---> 348c604d4b97
-Removing intermediate container 7ffb33764a73
-Successfully built 348c604d4b97
+
 ```
 
 After building the image, run it using: 
 ```
-docker run -v $PWD/built_firmware:/usr/local/sudowrt-firmware/built_firmware -t sudomesh/sudowrt-firmware:dev
+docker run -v $PWD/firmware_images:/firmware_images sudowrt [architecture]
 ``` 
 
 A successful run should put the built firmware image in ./built_firmware of the repo directory. The console output should look something like:

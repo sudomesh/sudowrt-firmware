@@ -22,4 +22,4 @@ RUN apt-get clean
 ENV FIRMWARE_DIR /usr/local/sudowrt-firmware
 WORKDIR $FIRMWARE_DIR
 COPY . $FIRMWARE_DIR
-ENTRYPOINT ["./build", "ar71xx"]
+ENTRYPOINT ["./docker_build.sh"]
