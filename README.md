@@ -22,18 +22,12 @@ Collect all the sudowrt-firmware dependencies into a docker image using:
 docker build -t sudowrt .
 ```
 
-output should end with something like:
-```
-[...]
-
-```
-
 After building the image, run it using: 
 ```
 docker run -v $PWD/firmware_images:/firmware_images sudowrt [architecture]
 ``` 
 
-A successful run should put the built firmware image in ./built_firmware of the repo directory. The console output should look something like:
+After running the container, the built firmware images will be in the `/firmware_images` directory of the repo. The console output should show:
 
 ```
 [...]
