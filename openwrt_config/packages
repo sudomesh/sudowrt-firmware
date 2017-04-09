@@ -38,7 +38,7 @@ librt
 libpthread
 uhttpd-mod-ubus
 libiwinfo-lua
-sudowrt-web-ui
+peoplesopen-dash
 libdaemon
 ifplugd
 tcpdump
