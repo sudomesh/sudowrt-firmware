@@ -107,6 +107,7 @@ case $STATE in
         log "Enabling wireless"
         # This does not persist between reboots
         uci set wireless.@wifi-device[0].disabled=0
+        uci set wireless.open.ssid="peoplesopen.net $(echo $IP | cut -d'.' -f2,3,4)"
         wifi
         waitForWifi
 

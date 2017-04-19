@@ -29,7 +29,7 @@ config wifi-device 'radio0'
   list ht_capab RX-STBC1
 
 # the open wifi ap 
-config wifi-iface
+config wifi-iface open
   option device 'radio0'
   option ifname 'open0'
   option encryption 'none'
@@ -38,7 +38,7 @@ config wifi-iface
   option ssid 'peoplesopen.net'
 
 # the adhoc interface for the mesh
-config wifi-iface
+config wifi-iface mesh
   option device 'radio0'
   option ifname 'mesh0'
   option network 'mesh'
