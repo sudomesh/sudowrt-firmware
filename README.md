@@ -27,16 +27,15 @@ After building the image, run it using:
 docker run -v $PWD/firmware_images:/firmware_images sudowrt [architecture]
 ``` 
 
-After running the container, the built firmware images will be in the `/firmware_images` directory of the repo. The console output should show:
+After running the container, the built firmware images will be in the `/firmware_images` directory of the repo.  
 
+In order to build the extender node firmware, you currently have to build home
+node firmware first (even if you just built it). To build the home node and 
+extender node within in the same docker container, run the following:  
 ```
-[...]
-+ local build_dir=/usr/local/sudowrt-firmware/built_firmware/builder.ar71xx
-+ echo 'Building ar71xx in dir: /usr/local/sudowrt-firmware/built_firmware/builder.ar71xx'
-Building ar71xx in dir: /usr/local/sudowrt-firmware/built_firmware/builder.ar71xx
-+ make V=s -C /usr/local/sudowrt-firmware/built_firmware/builder.ar71xx
-+ '[' 0 '!=' 0 ']'
-```
+docker run -v $PWD/firmware_images:/firmware_images sudowrt ar71xx; $PWD/firmware_images:/firmware_images sudowrt ar71xx.extender-node;
+```  
+(note: this has not be sufficiently tested)   
 
 If the build fails, capture the console output, yell loudly, talk to someone or create [a new issue](https://github.com/sudomesh/meshwrt-firmware/issues/new).
 
