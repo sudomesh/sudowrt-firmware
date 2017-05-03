@@ -11,6 +11,11 @@ then
   build="build_extender-node"
   directory="ar71xx.extender-node"
 fi
-time ./$build $architecture
+
+time ./build ar71xx
+time ./build_extender-node ar71xx
 mkdir -p ./firmware_images
-cp -r ./built_firmware/builder.$directory/bin/$directory/ /firmware_images
+read -p "Check for home node images"
+cp -r ./built_firmware/builder.ar71xx/bin/ar71xx/ /firmware_images
+read -p "Check for extender node images"
+cp -r ./built_firmware/builder.ar71xx.extender-node/bin/ /firmware_images
