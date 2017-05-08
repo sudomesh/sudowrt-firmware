@@ -33,9 +33,9 @@ In order to build the extender node firmware, you currently have to build home
 node firmware first (even if you just built it). To build the home node and 
 extender node within in the same docker container, run the following:  
 ```
-docker run -v $PWD/firmware_images:/firmware_images sudowrt ar71xx; $PWD/firmware_images:/firmware_images sudowrt ar71xx.extender-node;
+docker run -v $PWD/firmware_images:/firmware_images sudowrt ar71xx ar71xx.extender-node
 ```  
-(note: this has not be sufficiently tested)   
+(note: entrypoint currently hardcoded for building both the home node and extender node firmware)   
 
 If the build fails, capture the console output, yell loudly, talk to someone or create [a new issue](https://github.com/sudomesh/meshwrt-firmware/issues/new).
 
