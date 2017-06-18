@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# this is part is an attempt at generalizing, took too long to test 
 build="build"
 architecture=$1
 directory="ar71xx"
@@ -12,6 +13,7 @@ then
   directory="ar71xx.extender-node"
 fi
 
+# this is the current method which hardcoded, but works
 time ./build ar71xx
 time ./build_extender-node ar71xx
 mkdir -p ./firmware_images

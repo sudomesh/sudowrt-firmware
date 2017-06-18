@@ -38,7 +38,6 @@ librt
 libpthread
 uhttpd-mod-ubus
 libiwinfo-lua
-peoplesopen-dash
 libdaemon
 ifplugd
 tcpdump
@@ -57,3 +56,10 @@ rpcd-mod-file
 netifd
 iperf
 libcurl
+peoplesopen-dash
+uhttpd-mod-lua
+luarocks
+wifidog
+nodogsplash
+nginx
+luci-app-watchcat
