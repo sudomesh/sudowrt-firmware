@@ -12,8 +12,9 @@ then
   build="build_extender-node"
   directory="ar71xx.extender-node"
 fi
+#end of generalization attempt
 
-# this is the current method which hardcoded, but works
+# this is the current method which is hardcoded, but works
 time ./build ar71xx
 time ./build_extender-node ar71xx
 mkdir -p ./firmware_images

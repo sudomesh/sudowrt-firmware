@@ -57,9 +57,3 @@ netifd
 iperf
 libcurl
 peoplesopen-dash
-uhttpd-mod-lua
-luarocks
-wifidog
-nodogsplash
-nginx
-luci-app-watchcat
