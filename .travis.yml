@@ -1,5 +1,8 @@
 language: c
 compiler:
     - gcc
-# Change this to your needs
-script: ./build ar71xx
+services:
+    - docker
+script: 
+    - docker build -t sudowrt .
+    - docker run -v $PWD/firmware_images:/firmware_images sudowrt ar71xx
