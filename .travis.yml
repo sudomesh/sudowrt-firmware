@@ -1,8 +1,13 @@
+sudo: required
+
 language: c
+
 compiler:
     - gcc
+
 services:
     - docker
+
 script: 
     - docker build -t sudowrt .
     - docker run -v $PWD/firmware_images:/firmware_images sudowrt ar71xx
