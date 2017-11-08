@@ -22,24 +22,16 @@ Collect all the sudowrt-firmware dependencies into a docker image using:
 docker build -t sudowrt .
 ```
 
-After building the image, run it using: 
+After creating the container image, build the ar71xx and ar71xx.extender-node firmware using: 
 ```
-docker run -v $PWD/firmware_images:/firmware_images sudowrt [architecture]
+docker run -v $PWD/firmware_images:/firmware_images sudowrt
 ``` 
 
-After running the container, the built firmware images will be in the `/firmware_images` directory of the repo.  
-
-In order to build the extender node firmware, you currently have to build home
-node firmware first even if you just built it (someone should fix this). To build the home node and 
-extender node within in the same docker container, run the following:  
-```
-docker run -v $PWD/firmware_images:/firmware_images sudowrt ar71xx ar71xx.extender-node
-```  
-(note: entrypoint currently hardcoded for building both the home node and extender node firmware and it will stay this way until someone rewrites it to work properly within the docker container, if you would like to work on this, look at entrypoint-old.sh and [this](https://github.com/sudomesh/sudowrt-firmware/issues/105) issue)   
+This command executes [entrypoint.sh](../blob/master/entrypoint.sh) in the docker container. If the process completes successfully, the built firmware images `/firmware_images` directory of the repo. For some history on this topics please see https://github.com/sudomesh/sudowrt-firmware/issues/110 and https://github.com/sudomesh/sudowrt-firmware/issues/105 . 
 
 If the build fails, capture the console output, yell loudly, talk to someone or create [a new issue](https://github.com/sudomesh/meshwrt-firmware/issues/new).
 
-Now go to https://sudoroom.org/wiki/Mesh/WalkThrough to flash the firmware onto your router.
+Now go to https://peoplesopen.net/walkthrough and follow the instructions to flash the firmware onto your router.
 
 # the "hard" way
 If you'd rather build the firmware without Docker, please keep reading.
