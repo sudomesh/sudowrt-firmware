@@ -1,4 +1,4 @@
-The sudo mesh firmware builder.
+The sudomesh firmware builder.
 
 # Requirements
 
