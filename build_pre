@@ -1,0 +1,269 @@
+#!/bin/bash
+set -e
+set -x
+
+# peopleswifi firmware prepare script
+# based on wlanslovenija prepare script
+
+BUILD_DIR=built_firmware
+params=($*)
+
+reclone=0
+for param_index in "${!params[@]}"; do
+  echo "$param_index"
+  echo "${params[param_index]}"
+  if [ "${params[param_index]}" == "reclone" ]; then
+    reclone=1
+  else 
+    architecture="${params[param_index]}"
+  fi
+done
+
+# Create list of packages to build
+all_packages="$(cat openwrt_config/packages)"
+
+if [ -z "${architecture}" ]; then
+  echo "Usage: ./build <architecture> [reclone]"
+  echo " "
+  echo "Including the reclone parameter will completely remove your existing buildroot and re-clone and build."
+  echo "Otherwise the script will skip these steps if you already have a successfully built buildroot"
+  echo " "
+  echo "Example:"
+  echo " "
+  echo "  ./build ar71xx"
+  echo "or"
+  echo "  ./build atheros reclone"
+  echo " "
+  exit 1
+fi
+
+echo "Checking working directory"
+if [[ ! -d openwrt_config ]]; then
+  echo "Invalid working directory!"
+  exit 1
+fi
+
+# Add the git commit hash and build date to the firmware
+build_number="$(git log --pretty=format:'%H' -n 1)"
+mkdir -p files/opt/sudowrt
+echo "$build_number | built on $(date)" > files/opt/sudowrt/build_version
+
+workdir=$(pwd)
+mkdir -p ${BUILD_DIR}
+
+openwrt_version=$(cat openwrt_config/version)
+openwrt_path=$(echo "${openwrt_version}" | cut -d ':' -f 1)
+openwrt_rev=$(echo "${openwrt_version}" | cut -d ':' -f 2)
+
+OPENWRT_CHECKOUT_DIR="${workdir}/${BUILD_DIR}/openwrt"
+
+existing_build=0
+if [ -f "${OPENWRT_CHECKOUT_DIR}/.success" ]; then
+  existing_build=1
+fi
+echo "existing build=$existing_build"
+if [ "$existing_build" -eq 1 ]; then
+  echo "OpenWRT already checked out."
+fi
+if [[ "$existing_build" -eq 0 || "$reclone" -eq 1 ]]; then
+    
+  echo "Removing and re-cloning openwrt build root";
+
+  echo "OpenWRT path: ${openwrt_path}"
+  echo "OpenWRT revision: ${openwrt_rev}"
+  echo "Checking out OpenWRT into ${BUILD_DIR}, this could take some time"
+
+  rm -rf "${OPENWRT_CHECKOUT_DIR}"
+  git clone "git://git.openwrt.org/${openwrt_path}/openwrt.git" "${OPENWRT_CHECKOUT_DIR}"
+  cd "${OPENWRT_CHECKOUT_DIR}"
+  git checkout "${openwrt_rev}"
+  cd "${workdir}"
+
+  if [ $? -ne 0 ]; then
+    echo "Error during svn checkout of OpenWRT"
+    exit $?
+  else
+    # make a file indicating that this is a successfully checked out openwrt dir
+    touch "${OPENWRT_CHECKOUT_DIR}/.success"
+  fi
+
+  if [ -d "openwrt_addons" ] ; then
+    echo "Adding extra files."
+    cp -r openwrt_addons/* "${OPENWRT_CHECKOUT_DIR}"
+  fi
+fi
+
+# Remove configuration file already present in the generic build dir
+rm -f "${workdir}/${BUILD_DIR}/openwrt/.config"
+
+# Inject feeds and configurations
+echo "Configuring feeds"
+
+feedlines=()
+feed_file="${workdir}/openwrt_config/feeds"
+while read -r line
+do
+  feedlines=("${feedlines[@]}" "${line}")
+done < "$feed_file"
+
+feed_titles=()
+feed_sources=()
+for feedline in "${feedlines[@]}"; do
+  IFS=: read -a ARRAY <<< "${feedline}"
+  feed_title=${ARRAY[*]:0:1}
+  feed_titles=("${feed_titles[@]}" "${feed_title}")
+
+  SAVE_IFS=$IFS
+  IFS=":"
+  feed_source="${ARRAY[*]:1}"
+  IFS=$SAVE_IFS
+
+  feed_sources=("${feed_sources[@]}" "${feed_source}")
+done
+
+cat /dev/null > "${OPENWRT_CHECKOUT_DIR}/feeds.conf"
+for feed_source in "${feed_sources[@]}"; do
+  echo "${feed_source}"  >> "${OPENWRT_CHECKOUT_DIR}/feeds.conf"
+done
+
+echo "Applying patches for OpenWRT base tree..."
+cd "${OPENWRT_CHECKOUT_DIR}"
+if [ ! -h "patches" ] ; then
+  ln -s "${workdir}/openwrt_patches" patches
+fi
+if [ ! -f "patches/series" ] ; then
+  quilt import patches/*
+fi
+
+quilt push -f -a -q || [ $? -eq 2 ] #quilt returns a 2 if there is nothing more to do
+
+cd "${OPENWRT_CHECKOUT_DIR}"
+
+# Importing feeds
+echo "Importing feeds"
+./scripts/feeds update -a > /dev/null
+
+for pkg in ${all_packages}; do
+  # Check if package name begins with a minus
+  if [[ ${pkg:0:1} != "-" ]]; then
+    ./scripts/feeds install "${pkg}"
+   fi
+done
+
+# change back to initial directory
+cd "${workdir}"
+
+openwrt_build_configure()
+{
+  local arch=$1
+  local kconfig=${workdir}/${BUILD_DIR}/openwrt/scripts/kconfig.pl
+  local config_dir=${workdir}/openwrt_config/arch_configs
+  local config=${workdir}/${BUILD_DIR}/openwrt/config.${arch}
+  $kconfig 'm+' "${config_dir}/generic" "${config_dir}/${arch}" > "${config}"
+
+  # Include all common packages
+  for pkg in ${all_packages}; do
+    # Check if package name begins with a minus
+    if [[ ${pkg:0:1} == "-" ]]; then
+      pkg=${pkg:1:${#pkg}-1} # strip first character
+      echo "CONFIG_PACKAGE_${pkg}=n" >> "${config}"
+    else
+      echo "CONFIG_PACKAGE_${pkg}=y" >> "${config}"      
+    fi
+  done
+}
+
+openwrt_buildprep()
+{
+  local arch=$1
+  local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
+
+  # Make hardlinks to avoid space duplication but to still isolate builds
+  cp -lr "${workdir}/${BUILD_DIR}/openwrt" "${build_dir}"
+
+  cp -r files "${build_dir}/"
+
+  local toolchain_dir_bin
+  for file in ${build_dir}/staging_dir/*; do
+    if [[ "${file}" == *"toolchain"* ]]; then
+      toolchain_dir_bin="${file}/bin"
+    fi
+  done
+  local staging_dir_bin=${build_dir}/staging_dir/host/bin
+
+  if grep -q "^export PATH=" ~/.bashrc
+  then
+    local path_line
+    path_line=$(grep "^export PATH=" ~/.bashrc)
+    path=${path_line#'export PATH='\'''}
+    if [[ "${path}" != *"$staging_dir_bin"* ]]; then
+      path=${staging_dir_bin}":"$path
+    fi
+
+    if [[ "${path}" != *"$toolchain_dir_bin"* ]]; then
+      path=${toolchain_dir_bin}":"$path
+    fi
+    sed -i "/export PATH=/c\export PATH='$PATH:${path}" ~/.bashrc
+    # code if found
+  else
+    echo "export PATH='$PATH:${staging_dir_bin}:${toolchain_dir_bin}'" >> ~/.bashrc
+  fi
+
+  # Prepare configuration file and build
+  cd "${build_dir}"
+  cp "config.${arch}" .config
+  make defconfig V=s &> "${build_dir}/build.echo"
+  if [ "$?" != "0" ]; then
+    echo "Default configuration preparation for '${arch}' has failed. See build.echo for details!"
+    exit 1
+  fi
+}
+
+openwrt_builder()
+{
+  local arch=$1
+  local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
+
+  echo "Building ${arch} in dir: ${build_dir}"  
+  make V=s -C "${build_dir}" &> "${build_dir}/build.log"
+  if [ "$?" != "0" ]; then
+    echo "Build for architecture '${arch}' has failed. See ${build_dir}/build.log for details!"
+    exit 1
+  fi
+}
+
+# Check if architecture is valid
+all_architectures=$(cat openwrt_config/architectures)
+for arch in $all_architectures; do
+  if [[ "$architecture" == "$arch" ]]; then
+    found=1
+    break
+  fi
+
+  if [ ! -d "${workdir}/${BUILD_DIR}/openwrt/target/linux/${arch}" ]; then
+    echo "ERROR: OpenWRT itself does not support the architecture '${arch}'"
+    exit 1
+  fi
+
+  if [ ! -f "${workdir}/openwrt_config/arch_configs/${arch}" ]; then
+    echo "ERROR: '${arch}' missing from openwrt_config/arch_configs/"
+    exit 1
+  fi
+done
+
+if [[ $found == 0 ]]; then
+  echo "ERROR: Invalid architecture '${arch}' specified."
+  echo "  Architecture must be in openwrt_config/architectures"
+  exit 1
+fi
+
+
+echo "Configuring build for the following OpenWRT packages:"
+
+
+# Generate build configurations
+echo "Generating build configurations..."
+openwrt_build_configure "${architecture}"
+
+echo "Preparing for build"
+openwrt_buildprep "${architecture}"

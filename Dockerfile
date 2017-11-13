@@ -22,4 +22,5 @@ RUN apt-get clean
 ENV FIRMWARE_DIR /usr/local/sudowrt-firmware
 WORKDIR $FIRMWARE_DIR
 COPY . $FIRMWARE_DIR
+RUN ./build_pre ar71xx
 ENTRYPOINT ["./entrypoint.sh"]
