@@ -14,5 +14,11 @@ script:
 after_success:
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
     docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-    docker push sudowrt/sudomesh-firmware;
+    docker docker tag $BUILDING $DOCKER_IMAGE:$TRAVIS_TAG; 
+    docker push $DOCKER_IMAGE:$TRAVIS_TAG;
     fi
+env:
+  global:
+    - DOCKER_IMAGE=sudowrt/sudomesh-firmware
+    - BUILDING=$DOCKER_IMAGE:$TRAVIS_COMMIT
+
