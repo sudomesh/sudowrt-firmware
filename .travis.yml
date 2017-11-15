@@ -19,6 +19,6 @@ after_success:
     fi
 env:
   global:
-    - DOCKER_IMAGE=sudowrt/sudomesh-firmware
+    - DOCKER_IMAGE=sudomesh/sudomesh-firmware
     - BUILDING=$DOCKER_IMAGE:$TRAVIS_COMMIT
 
