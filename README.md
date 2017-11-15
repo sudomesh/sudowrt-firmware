@@ -1,4 +1,4 @@
-The sudomesh firmware builder.
+A sudomesh firmware builder.
 
 # Requirements
 
