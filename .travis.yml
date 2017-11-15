@@ -9,7 +9,7 @@ services:
     - docker
 
 script: 
-    - docker build -t sudowrt .
+    - docker build -t $BUILDING .
 #    - docker run -v $PWD/firmware_images:/firmware_images sudowrt ar71xx
 after_success:
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
@@ -19,6 +19,6 @@ after_success:
     fi
 env:
   global:
-    - DOCKER_IMAGE=sudomesh/sudomesh-firmware
+    - DOCKER_IMAGE=sudomesh/sudowrt-firmware
     - BUILDING=$DOCKER_IMAGE:$TRAVIS_COMMIT
 
