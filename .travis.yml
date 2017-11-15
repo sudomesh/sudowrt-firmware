@@ -10,12 +10,12 @@ services:
 
 script: 
     - docker build -t $BUILDING .
-#    - docker run -v $PWD/firmware_images:/firmware_images sudowrt ar71xx
+#    - docker run -v $PWD/firmware_images:/firmware_images $BUILDING ar71xx
 after_success:
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
     docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-    docker tag $BUILDING $DOCKER_IMAGE:$TRAVIS_TAG; 
-    docker push $DOCKER_IMAGE:$TRAVIS_TAG;
+    docker tag $BUILDING $DOCKER_IMAGE:$TRAVIS_BUILD_ID; 
+    docker push $DOCKER_IMAGE:$TRAVIS_BUILD_ID;
     fi
 env:
   global:
