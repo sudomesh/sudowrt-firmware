@@ -1,5 +1,7 @@
 A sudomesh firmware builder.
 
+[![Build Status](https://travis-ci.org/sudomesh/sudowrt-firmware.svg?branch=master)](https://travis-ci.org/sudomesh/sudowrt-firmware)
+
 # Requirements
 
 The openwrt wiki has some examples of requirements per distro:
@@ -19,12 +21,17 @@ To build and run the image (depending on your network connect and hardware, the 
 
 Collect all the sudowrt-firmware dependencies into a docker image using:
 ```
-docker build -t sudowrt .
+docker build -t sudowrt/firmware .
+```
+
+or re-use a pre-built one using
+```
+docker pull sudowrt/firmware
 ```
 
 After creating the container image, build the ar71xx and ar71xx.extender-node firmware using: 
 ```
-docker run -v $PWD/firmware_images:/firmware_images sudowrt
+docker run -v $PWD/firmware_images:/firmware_images sudowrt/firmware
 ``` 
 
 This command executes [entrypoint.sh](../blob/master/entrypoint.sh) in the docker container. If the process completes successfully, the built firmware images `/firmware_images` directory of the repo. For some history on this topics please see https://github.com/sudomesh/sudowrt-firmware/issues/110 and https://github.com/sudomesh/sudowrt-firmware/issues/105 . 

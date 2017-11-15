@@ -14,11 +14,12 @@ script:
 after_success:
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
     docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-    docker tag $BUILDING $DOCKER_IMAGE:$TRAVIS_BUILD_ID; 
-    docker push $DOCKER_IMAGE:$TRAVIS_BUILD_ID;
+    docker tag $BUILDING $DOCKER_PUSH; 
+    docker push $DOCKER_PUSH;
     fi
 env:
   global:
     - DOCKER_IMAGE=sudowrt/firmware
     - BUILDING=$DOCKER_IMAGE:$TRAVIS_COMMIT
+    - DOCKER_PUSH=$DOCKER_IMAGE:latest
 
