@@ -14,7 +14,7 @@ script:
 after_success:
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
     docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-    docker docker tag $BUILDING $DOCKER_IMAGE:$TRAVIS_TAG; 
+    docker tag $BUILDING $DOCKER_IMAGE:$TRAVIS_TAG; 
     docker push $DOCKER_IMAGE:$TRAVIS_TAG;
     fi
 env:
