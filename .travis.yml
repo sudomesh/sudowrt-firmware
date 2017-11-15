@@ -11,3 +11,8 @@ services:
 script: 
     - docker build -t sudowrt .
 #    - docker run -v $PWD/firmware_images:/firmware_images sudowrt ar71xx
+after_success:
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+    docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+    docker push sudowrt/sudomesh-firmware;
+    fi
