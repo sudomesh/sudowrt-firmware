@@ -3,6 +3,34 @@
 # Used by build_pre and build scripts.
 #
 
+validate_architecture() {
+  arch_requested=$1
+  # Check if architecture is valid
+  all_architectures=$(cat openwrt_config/architectures)
+  for arch in $all_architectures; do
+    if [[ "$arch_requested" == "$arch" ]]; then
+      found=1
+      break
+    fi
+
+    if [ ! -d "${workdir}/${BUILD_DIR}/openwrt/target/linux/${arch}" ]; then
+      echo "ERROR: OpenWRT itself does not support the architecture '${arch}'"
+      exit 1
+    fi
+
+    if [ ! -f "${workdir}/openwrt_config/arch_configs/${arch}" ]; then
+      echo "ERROR: '${arch}' missing from openwrt_config/arch_configs/"
+      exit 1
+    fi
+  done
+
+  if [[ $found == 0 ]]; then
+    echo "ERROR: Invalid architecture '${arch_requested}' specified."
+    echo "  Architecture must be in openwrt_config/architectures"
+    exit 1
+  fi
+}
+
 openwrt_build_configure()
 {
   local arch=$1

@@ -162,30 +162,7 @@ cd "${workdir}"
 # import build functions
 source build_lib
 
-# Check if architecture is valid
-all_architectures=$(cat openwrt_config/architectures)
-for arch in $all_architectures; do
-  if [[ "$architecture" == "$arch" ]]; then
-    found=1
-    break
-  fi
-
-  if [ ! -d "${workdir}/${BUILD_DIR}/openwrt/target/linux/${arch}" ]; then
-    echo "ERROR: OpenWRT itself does not support the architecture '${arch}'"
-    exit 1
-  fi
-
-  if [ ! -f "${workdir}/openwrt_config/arch_configs/${arch}" ]; then
-    echo "ERROR: '${arch}' missing from openwrt_config/arch_configs/"
-    exit 1
-  fi
-done
-
-if [[ $found == 0 ]]; then
-  echo "ERROR: Invalid architecture '${arch}' specified."
-  echo "  Architecture must be in openwrt_config/architectures"
-  exit 1
-fi
+validate_architecture $architecture
 
 echo "Configuring build for the following OpenWRT packages:"
 
