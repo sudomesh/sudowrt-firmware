@@ -1,0 +1,83 @@
+#
+# Library of functions to help build sudowrt firmware.
+# Used by build_pre and build scripts.
+#
+
+openwrt_build_configure()
+{
+  local arch=$1
+  local kconfig=${workdir}/${BUILD_DIR}/openwrt/scripts/kconfig.pl
+  local config_dir=${workdir}/openwrt_config/arch_configs
+  local config=${workdir}/${BUILD_DIR}/openwrt/config.${arch}
+  $kconfig 'm+' "${config_dir}/generic" "${config_dir}/${arch}" > "${config}"
+
+  # Include all common packages
+  for pkg in ${all_packages}; do
+    # Check if package name begins with a minus
+    if [[ ${pkg:0:1} == "-" ]]; then
+      pkg=${pkg:1:${#pkg}-1} # strip first character
+      echo "CONFIG_PACKAGE_${pkg}=n" >> "${config}"
+    else
+      echo "CONFIG_PACKAGE_${pkg}=y" >> "${config}"      
+    fi
+  done
+}
+
+openwrt_buildprep()
+{
+  local arch=$1
+  local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
+
+  # Make hardlinks to avoid space duplication but to still isolate builds
+  cp -lr "${workdir}/${BUILD_DIR}/openwrt" "${build_dir}"
+
+  cp -r files "${build_dir}/"
+
+  local toolchain_dir_bin
+  for file in ${build_dir}/staging_dir/*; do
+    if [[ "${file}" == *"toolchain"* ]]; then
+      toolchain_dir_bin="${file}/bin"
+    fi
+  done
+  local staging_dir_bin=${build_dir}/staging_dir/host/bin
+
+  if grep -q "^export PATH=" ~/.bashrc
+  then
+    local path_line
+    path_line=$(grep "^export PATH=" ~/.bashrc)
+    path=${path_line#'export PATH='\'''}
+    if [[ "${path}" != *"$staging_dir_bin"* ]]; then
+      path=${staging_dir_bin}":"$path
+    fi
+
+    if [[ "${path}" != *"$toolchain_dir_bin"* ]]; then
+      path=${toolchain_dir_bin}":"$path
+    fi
+    sed -i "/export PATH=/c\export PATH='$PATH:${path}" ~/.bashrc
+    # code if found
+  else
+    echo "export PATH='$PATH:${staging_dir_bin}:${toolchain_dir_bin}'" >> ~/.bashrc
+  fi
+
+  # Prepare configuration file and build
+  cd "${build_dir}"
+  cp "config.${arch}" .config
+  make defconfig V=s &> "${build_dir}/build.echo"
+  if [ "$?" != "0" ]; then
+    echo "Default configuration preparation for '${arch}' has failed. See build.echo for details!"
+    exit 1
+  fi
+}
+
+openwrt_builder()
+{
+  local arch=$1
+  local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
+
+  echo "Building ${arch} in dir: ${build_dir}"  
+  make V=s -C "${build_dir}" &> "${build_dir}/build.log"
+  if [ "$?" != "0" ]; then
+    echo "Build for architecture '${arch}' has failed. See ${build_dir}/build.log for details!"
+    exit 1
+  fi
+}
