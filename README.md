@@ -34,12 +34,12 @@ After creating the container image, build the ar71xx and ar71xx.extender-node fi
 docker run -v $PWD/firmware_images:/firmware_images sudowrt/firmware
 ``` 
 
-This command executes [entrypoint.sh](../blob/master/entrypoint.sh) in the docker container. If the process completes successfully, the built firmware images `/firmware_images` directory of the repo. For some history on this topics please see https://github.com/sudomesh/sudowrt-firmware/issues/110 and https://github.com/sudomesh/sudowrt-firmware/issues/105 . 
+This command executes [entrypoint.sh](./entrypoint.sh) in the docker container. If the process completes successfully, the built firmware images `/firmware_images` directory of the repo. For some history on this topics please see https://github.com/sudomesh/sudowrt-firmware/issues/110 and https://github.com/sudomesh/sudowrt-firmware/issues/105 . 
 
 If the build fails, capture the console output, yell loudly, talk to someone or create [a new issue](https://github.com/sudomesh/meshwrt-firmware/issues/new).
 
 ## Docker debugging
-The [entrypoint.sh](../blob/master/entrypoint.sh) should make it easy to automate the build process. However, when debugging the build scripts, it might be useful to poke around a build machine container using ```docker run -it --entrypoint=/bin/bash sudowrt/firmware:latest -i``` . This will start an interactive terminal which allows for manually running/debugging scripts like ./build_only .
+The [entrypoint.sh](./entrypoint.sh) should make it easy to automate the build process. However, when debugging the build scripts, it might be useful to poke around a build machine container using ```docker run -it --entrypoint=/bin/bash sudowrt/firmware:latest -i``` . This will start an interactive terminal which allows for manually running/debugging scripts like ./build_only .
 
 Now go to https://peoplesopen.net/walkthrough and follow the instructions to flash the firmware onto your router.
 
