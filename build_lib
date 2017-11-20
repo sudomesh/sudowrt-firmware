@@ -6,7 +6,8 @@
 set -e
 set -x
 
-BUILD_DIR=$PWD/built_firmware
+BUILD_DIR=built_firmware
+workdir=$(pwd)
 params=($*)
 
 validate_architecture() {
@@ -71,8 +72,7 @@ openwrt_clone_and_patch() {
   mkdir -p files/opt/sudowrt
   echo "$build_number | built on $(date)" > files/opt/sudowrt/build_version
 
-  workdir=$(pwd)
-  mkdir -p ${BUILD_DIR}
+  mkdir -p "${workdir}/${BUILD_DIR}
 
   openwrt_version=$(cat openwrt_config/version)
   openwrt_path=$(echo "${openwrt_version}" | cut -d ':' -f 1)
