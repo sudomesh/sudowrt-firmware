@@ -1,9 +1,11 @@
 #!/bin/bash
 #
-#  Builds sudowrt-firmware. Assumes that build_pre has successfully run.
+#  Builds sudowrt-firmware. Assumes that build_pre has successfully ran.
 #
 
 source build_lib
+
+validate_architecture $architecture
 
 echo "Building firmware for [${architecture}]..."
 openwrt_builder "${architecture}"
