@@ -6,7 +6,7 @@
 set -e
 set -x
 
-BUILD_DIR=built_firmware
+BUILD_DIR=$PWD/built_firmware
 params=($*)
 
 validate_architecture() {
