@@ -38,6 +38,9 @@ This command executes [entrypoint.sh](../blob/master/entrypoint.sh) in the docke
 
 If the build fails, capture the console output, yell loudly, talk to someone or create [a new issue](https://github.com/sudomesh/meshwrt-firmware/issues/new).
 
+## Docker debugging
+The [entrypoint.sh](../blob/master/entrypoint.sh) should make it easy to automate the build process. However, when debugging the build scripts, it might be useful to poke around a build machine container using ```docker run -it --entrypoint=/bin/bash sudowrt/firmware:latest -i``` . This will start an interactive terminal which allows for manually running/debugging scripts like ./build_only .
+
 Now go to https://peoplesopen.net/walkthrough and follow the instructions to flash the firmware onto your router.
 
 # the "hard" way
