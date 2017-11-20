@@ -38,7 +38,6 @@ validate_architecture() {
 }
 
 validate() {
-  reclone=0
   architecture=$1
 
   if [ -z "${architecture}" ]; then
@@ -65,7 +64,6 @@ validate $params
 
 # Create list of packages to build
 all_packages="$(cat openwrt_config/packages)"
-
 
 openwrt_clone_and_patch() {
   # Add the git commit hash and build date to the firmware
@@ -235,7 +233,7 @@ openwrt_builder()
 {
   local arch=$1
   local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
-
+  mkdir -p ${build_dir}
   echo "Building ${arch} in dir: ${build_dir}"  
   make V=s -C "${build_dir}" &> "${build_dir}/build.log"
   if [ "$?" != "0" ]; then
