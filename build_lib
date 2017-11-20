@@ -234,10 +234,12 @@ openwrt_builder()
   local arch=$1
   local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
   mkdir -p ${build_dir}
-  echo "Building ${arch} in dir: ${build_dir}"  
-  make V=s -C "${build_dir}" &> "${build_dir}/build.log"
+  echo "Building [${arch}] in dir: ${build_dir}..."  
+  make V=s -C "${build_dir}" 2>&1 | tee -a "${build_dir}/build.log"
   if [ "$?" != "0" ]; then
-    echo "Build for architecture '${arch}' has failed. See ${build_dir}/build.log for details!"
+    echo "Building [${arch}] failed. See ${build_dir}/build.log for details!"
     exit 1
   fi
+  echo "Building [${arch}] done."
+
 }
