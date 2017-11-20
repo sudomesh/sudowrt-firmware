@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Retrieves and configures resources needed for a build of sudowrt firmware.
 #
@@ -11,6 +11,8 @@
 source build_lib
 
 openwrt_clone_and_patch
+
+validate_architecture $architecture
 
 echo "Generating build configurations for [${architecture}]..."
 openwrt_build_configure "${architecture}"

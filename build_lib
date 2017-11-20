@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/bash 
 # Library of functions to help build sudowrt firmware.
 # Used by build_pre and build scripts.
 #
@@ -8,37 +8,6 @@ set -x
 
 BUILD_DIR=built_firmware
 params=($*)
-
-validate() {
-  reclone=0
-  architecture=$1
-
-  if [ -z "${architecture}" ]; then
-    echo "Usage: ./build <architecture>"
-    echo " "
-    echo " "
-    echo "Example:"
-    echo " "
-    echo "  ./build ar71xx"
-    echo "or"
-    echo "  ./build atheros"
-    echo " "
-    exit 1
-  fi
-
-  echo "Checking working directory"
-  if [[ ! -d openwrt_config ]]; then
-    echo "Invalid working directory!"
-    exit 1
-  fi
-
-  validate_architecture $architecture
-}
-
-validate params
-
-# Create list of packages to build
-all_packages="$(cat openwrt_config/packages)"
 
 validate_architecture() {
   arch_requested=$1
@@ -67,6 +36,36 @@ validate_architecture() {
     exit 1
   fi
 }
+
+validate() {
+  reclone=0
+  architecture=$1
+
+  if [ -z "${architecture}" ]; then
+    echo "Usage: ./build <architecture>"
+    echo " "
+    echo " "
+    echo "Example:"
+    echo " "
+    echo "  ./build ar71xx"
+    echo "or"
+    echo "  ./build atheros"
+    echo " "
+    exit 1
+  fi
+
+  echo "Checking working directory"
+  if [[ ! -d openwrt_config ]]; then
+    echo "Invalid working directory!"
+    exit 1
+  fi
+}
+
+validate params
+
+# Create list of packages to build
+all_packages="$(cat openwrt_config/packages)"
+
 
 openwrt_clone_and_patch() {
   # Add the git commit hash and build date to the firmware
