@@ -15,7 +15,6 @@ after_success:
     docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
     docker tag $BUILDING $DOCKER_PUSH; 
     docker push $DOCKER_PUSH;
-    docker run -v $PWD/firmware_images:/firmware_images $BUILDING;
     fi
 env:
   global:
