@@ -61,7 +61,7 @@ validate() {
   fi
 }
 
-validate params
+validate $params
 
 # Create list of packages to build
 all_packages="$(cat openwrt_config/packages)"
