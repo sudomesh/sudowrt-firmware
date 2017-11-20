@@ -42,14 +42,14 @@ validate() {
   architecture=$1
 
   if [ -z "${architecture}" ]; then
-    echo "Usage: $0 <architecture>"
+    echo "Usage: ${0} <architecture>"
     echo " "
     echo " "
     echo "Example:"
     echo " "
-    echo "  $0 ar71xx"
+    echo "  ${0} ar71xx"
     echo "or"
-    echo "  $0 atheros"
+    echo "  ${0} atheros"
     echo " "
     exit 1
   fi
