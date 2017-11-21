@@ -262,7 +262,9 @@ clean_confdir3_leftover() {
 
 openwrt_builder()
 {
-  # Entierly arbitrary multiplier
+  # According to https://github.com/jkilpatr 
+  # in https://github.com/sudomesh/sudowrt-firmware/pull/115#discussion_r152340787 : 
+  # in my experience highly parallel make runs get stuck on disk IO and you get better cpu saturation with a multiplier.
   BUILD_CORES=$(($SYSTEM_CORES * 2))
   if [ -v $SUDOWRT_DEBUG ]; then
     BUILD_CORES=1
@@ -272,7 +274,7 @@ openwrt_builder()
   local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
   mkdir -p ${build_dir}
   echo "Building [${arch}] in dir: ${build_dir}..."  
-  make -j$SYSTEM_CORES V=s -C "${build_dir}" 2>&1 | tee -a "${build_dir}/build.log"
+  make -j$BUILD_CORES V=s -C "${build_dir}" 2>&1 | tee -a "${build_dir}/build.log"
   if [ "$?" != "0" ]; then
     echo "Building [${arch}] failed. See ${build_dir}/build.log for details!"
     exit 1
