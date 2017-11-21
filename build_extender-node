@@ -1,29 +1,15 @@
 #!/bin/bash
-
+#
 # Script for building extender-node images based on home-node images
+#
 
-set -x
-
-
-BUILD_DIR=built_firmware
-workdir=$(pwd)
-architecture="$*"
-
-if [ -z "${architecture}" ]; then
-  echo "Usage: ./build_extender-node <architecture>"
-  echo " "
-  echo "Example:"
-  echo " "
-  echo "  ./build_extender-node ar71xx"
-  echo " "
-  exit 1
-fi
+source build_lib
 
 all_packages=$(cat openwrt_config/packages.extender-node)
 
 source "${workdir}/openwrt_config/extender-node-vars.cfg"
 
-openwrt_image_builder()
+openwrt_extender_node_image_builder()
 {
   local arch=$1
   local files_dir="${workdir}/files_extender-node"
@@ -124,7 +110,6 @@ openwrt_image_builder()
   echo "Extender node firmware images should be in ${build_dir}/bin/"
 }
 
-
-
-echo "Generating extender-node image for ${architecture}"
-openwrt_image_builder "${architecture}"
+echo "Generating extender-node image for [${params}]..."
+openwrt_extender_node_image_builder "${params}"
+echo "Generating extender-node image for [${params}] done."
