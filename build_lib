@@ -246,6 +246,9 @@ openwrt_buildprep()
     echo "Default configuration preparation for '${arch}' has failed. See build.echo for details!"
     exit 1
   fi
+
+  # download dependencies (tools, toolchain, packages, feeds)
+  make download
 }
 
 # adapted from https://bugzilla.yoctoproject.org/show_bug.cgi?id=7338#c7
