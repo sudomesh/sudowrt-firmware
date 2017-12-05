@@ -31,10 +31,12 @@ docker pull sudowrt/firmware
 
 After creating the container image, build the ar71xx and ar71xx.extender-node firmware using: 
 ```
-docker run -v $PWD/firmware_images:/firmware_images sudowrt/firmware
+docker run --net=none -v $PWD/firmware_images:/firmware_images sudowrt/firmware
 ``` 
 
 This command executes [entrypoint.sh](./entrypoint.sh) in the docker container. If the process completes successfully, the built firmware images `/firmware_images` directory of the repo. For some history on this topics please see https://github.com/sudomesh/sudowrt-firmware/issues/110 and https://github.com/sudomesh/sudowrt-firmware/issues/105 . 
+
+Note that ```--net=none``` disables network connections and prevents (uncontrolled) external resources from getting pulled into the build process. Necessary external resources are pulled into the build image when building the sudowrt/firmware image.
 
 If the build fails, capture the console output, yell loudly, talk to someone or create [a new issue](https://github.com/sudomesh/meshwrt-firmware/issues/new).
 
