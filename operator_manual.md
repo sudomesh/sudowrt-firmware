@@ -114,7 +114,7 @@ ip route
 babeld -i
 
 # ping public ip through mesh5 interface
-ping -I mesh5 
+ping -I mesh5 8.8.8.8
 ```
 
 ## Mesh Network Components
