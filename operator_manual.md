@@ -1,4 +1,4 @@
-# Sudo Mesh operator manual
+# Sudo Mesh Operator Manual
 
 This manual should help operators to:
 
@@ -7,6 +7,23 @@ This manual should help operators to:
  * create and maintain home, extender and exit nodes
  * train new operators
 
+# Getting Started
+
+To get started with meshing nodes, you can do the following:
+
+prequisites - 
+1. access to internet connection (for makenode, mesh testing)
+1. ubuntu computer (other operating system probably also works)
+1. two home nodes (mynet n600 / n750)
+
+steps -
+1. configure both nodes using https://peoplesopen.net/walkthrough
+1. ssh into both nodes from computer using hardwired port 3 connection
+1. identify mesh ip addresses for both 
+1. verify that private/open and adhoc wifi ssids are present 
+1. verify that each of the local nodes can ping each other
+1. turn off one node, and verify that other node can no longer ping 
+1. turn both nodes on, connect one to the internet using hardwired internet port. Then, on the node that is not hardwired to internet, try to ping a public ip address like 8.8.8.8 .
 
 # Troubleshooting
 
