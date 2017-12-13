@@ -45,8 +45,11 @@ ip route show table public
 # show private routing table
 ip route
 
-# show babeld status
+# show babeld status (only for sudomesh babeld?)
 babeld -i
+
+# ping public ip through mesh5 interface
+ping -I mesh5 
 ```
 
 ## Mesh Network Components
