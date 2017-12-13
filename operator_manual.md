@@ -1,4 +1,4 @@
-Sudo Mesh operator manual
+# Sudo Mesh operator manual
 
 This manual should help operators to:
 
@@ -26,8 +26,6 @@ This manual should help operators to:
 
 # Tips and Tricks
 
-## ip address on commandline
-
 ```bash
 # show devices
 ip addr
@@ -40,17 +38,16 @@ ip addr del 172.30.0.9/24 dev enp0s25
 
 # change ip address 
 ip addr change 172.30.0.9/24 dev enp0s25
+
+# show public routing table
+ip route show table public
+
+# show private routing table
+ip route
+
+# show babeld status
+babeld -i
 ```
-
-## monitor babeld traffic
-
-Show babeld traffic by running ```babeld -i``` on the home node.
-
-## show mesh routing table
-
-Home Node has two routing tables: private (default) and public. The public one is used to keep mesh routing tables around. To show public routing table run:
-
-```ip route show table public```
 
 ## Mesh Network Components
 
