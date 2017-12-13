@@ -146,8 +146,8 @@ Home nodes have:
  * five physical ports (1-4 + yellow internet)
  * ethernet port 1 - eth0.1 (mesh) 
  * ethernet port 2 - eth0.2 (mesh)
- * ethernet port 3 - eth0.11 (open)
- * ethernet port 4 - eth0.10 (private)
+ * ethernet port 3 - eth0.11 (private)
+ * ethernet port 4 - eth0.10 (open)
  * ethernet yellow-internet - eth0.5
 
  Makenode configures these networks after flashing the firmware. (see https://peoplesopen.net/walkthrough)
