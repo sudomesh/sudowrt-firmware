@@ -7,14 +7,16 @@
     :/    |______/   :/    :/       :/ |. ||______/|___|    |___| :/ |. |
     :                      :        :   :/                        :   :/ 
                                         :                             : 
+TODO update ASCII art
  -------------------------------------------------------------------------
- sudo mesh v0.2 (fledgling)
+ sudo mesh v0.3 (left hand of darkness)
  UNCONFIGURED - see https://github.com/sudomesh/makenode
                 for configurator. 
 
                               based on OpenWRT 15.05 (Chaos Calmer)
  -------------------------------------------------------------------------
- “When your rage is choking you, it is best to say nothing.” 
-                                            - Octavia E. Butler, Fledgling
+ “Light is the left hand of darkness and darkness the right hand of light.
+ Two are one...like the end and the way.” 
+                              - Ursula K. LeGuin, The Left Hand of Darkness 
  -------------------------------------------------------------------------
 
