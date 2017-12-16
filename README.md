@@ -36,12 +36,12 @@ docker run -v $PWD/firmware_images:/firmware_images sudomesh/sudowrt-firmware:0.
 
 This command executes [entrypoint.sh](./entrypoint.sh) in the docker container. If the process completes successfully, the built firmware images `/firmware_images` directory of the repo. For some history on this topics please see https://github.com/sudomesh/sudowrt-firmware/issues/110 and https://github.com/sudomesh/sudowrt-firmware/issues/105 . 
 
-Note that building with ```docker run -v $PWD/firmware_images:/firmware_images sudowrt/firmware``` disables network connections and prevents (uncontrolled) external resources from getting pulled into the build process. Necessary external resources are pulled into the build image when building the sudowrt/firmware image. Ideally, the container images contains all external dependencies, however some works needs to be done to make this a reality (see https://github.com/sudomesh/sudowrt-firmware/issues/116).
+Note that building with ```docker run --net=none -v $PWD/firmware_images:/firmware_images sudomesh/sudowrt-firmware``` disables network connections and prevents (uncontrolled) external resources from getting pulled into the build process. Necessary external resources are pulled into the build image when building the sudowrt/firmware image. Ideally, the container images contains all external dependencies, however some works needs to be done to make this a reality (see https://github.com/sudomesh/sudowrt-firmware/issues/116).
 
 If the build fails, capture the console output, yell loudly, talk to someone or create [a new issue](https://github.com/sudomesh/meshwrt-firmware/issues/new).
 
 ## Docker debugging
-The [entrypoint.sh](./entrypoint.sh) should make it easy to automate the build process. However, when debugging the build scripts, it might be useful to poke around a build machine container using ```docker run -it --entrypoint=/bin/bash sudowrt/firmware:latest -i``` . This will start an interactive terminal which allows for manually running/debugging scripts like ./build_only .  
+The [entrypoint.sh](./entrypoint.sh) should make it easy to automate the build process. However, when debugging the build scripts, it might be useful to poke around a build machine container using ```docker run -it --entrypoint=/bin/bash sudomesh/sudowrt-firmware:latest -i``` . This will start an interactive terminal which allows for manually running/debugging scripts like ./build_only .  
 
 ## Docker clean-up
 After finishing a build or before rerunning the build, it may be a good idea to remove any old docker containers and images. To remove all old containers and images, run the following commands:  
