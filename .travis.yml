@@ -12,6 +12,7 @@ script:
     - docker build -t $BUILDING .
 after_success:
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+  deploy:
     - provider: script
       script: docker tag $BUILDING $DOCKER_IMAGE:$TRAVIS_TAG; docker push $DOCKER_IMAGE:$TRAVIS_TAG
       on: tags: true
