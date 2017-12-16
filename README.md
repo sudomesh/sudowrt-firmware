@@ -21,12 +21,12 @@ To build and run the image (depending on your network connect and hardware, the 
 
 Collect all the sudowrt-firmware dependencies into a docker image using:
 ```
-docker build -t sudowrt/firmware .
+docker build -t sudomesh/sudowrt-firmware .
 ```
 
 or re-use a pre-built one using
 ```
-docker pull sudowrt/firmware:0.2.1
+docker pull sudomesh/sudowrt-firmware:0.2.1
 ```
 
 After creating the container image, build the ar71xx and ar71xx.extender-node firmware using: 

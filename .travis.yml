@@ -26,5 +26,5 @@ deploy:
 
 env:
   global:
-    - DOCKER_IMAGE=sudowrt/firmware
+    - DOCKER_IMAGE=sudomesh/sudowrt-firmware
     - BUILDING=$DOCKER_IMAGE:$TRAVIS_COMMIT
