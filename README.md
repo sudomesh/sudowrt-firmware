@@ -26,7 +26,7 @@ docker build -t sudowrt/firmware .
 
 or re-use a pre-built one using
 ```
-docker pull sudowrt/firmware
+docker pull sudowrt/firmware:0.2.1
 ```
 
 After creating the container image, build the ar71xx and ar71xx.extender-node firmware using: 

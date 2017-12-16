@@ -20,9 +20,9 @@ deploy:
     on: 
       tags: true
   - provider: script
-    script: docker tag $BUILDING $DOCKER_IMAGE:$TRAVIS_BRANCH; docker push $DOCKER_IMAGE:$TRAVIS_BRANCH
+    script: docker tag $BUILDING $DOCKER_IMAGE:latest; docker push $DOCKER_IMAGE:latest
     on:
-      all_branches: true
+      branch: master
 
 env:
   global:
