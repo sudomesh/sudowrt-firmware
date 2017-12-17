@@ -106,17 +106,21 @@ PING 8.8.8.8 (8.8.8.8): 56 data bytes
 1. reset router, try again
 
 
-## digging a tunnel to exit node to check that you can 
-
-To check whether tunnel to exit node can be made, you can start a tunneldigger client on your laptop. No need for router. (tested on ubuntu 16.04).
+## digging a tunnel
+Home nodes dig tunnels to exit node using ```tunneldigger```. To check whether tunnel to exit node can be made, you can start a tunneldigger client and check the results. No need for a openwrt-based router. (tested on ubuntu 16.04).
 
 1. get tunneldigger ```git clone git@github.com:wlanslovenija/tunneldigger.git``` . Note that the sudomesh tunneldigger fork does not compile on ubuntu as far as I know.
 2. install packages if needed (see http://tunneldigger.readthedocs.io/en/latest/server.html#prerequisites)
-3. compile tunneldigger client ```tunneldigger/client$cmake . && make 
+3. compile tunneldigger client 
+```
+cd tunneldigger/client
+cmake .
+make 
+```
 4. prior to digging a tunnel, check interfaces using ```ip addr```, udp ports using ```netstat -u``` and syslog using ```cat /var/log/syslog | grep td-client```
 5. dig a tunnel using ```sudo ./tunneldigger -b exit.sudomesh.org:8942 -u 07105c7f-681f-4476-b5aa-5146c6e579de  -i l2tp0```
-5. also, check ```ip addr``` and verify that an interface ```l2tp0``` now exists. 
-6. also, open udp ports ```netstat -u``` and verify that a something like:
+6. also, check ```ip addr``` and verify that an interface ```l2tp0``` now exists. 
+7. also, open udp ports ```netstat -u``` and verify that a something like:
 ```
 Active Internet connections (w/o servers)
 Proto Recv-Q Send-Q Local Address           Foreign Address         State      
@@ -131,7 +135,6 @@ Dec 17 13:24:08 xx td-client: Selected exit.sudomesh.org:8942 as the best broker
 Dec 17 13:24:12 xx td-client: Tunnel successfully established.
 Dec 17 13:24:21 xx td-client: Setting MTU to 1446
 ```
-
 
 # Tips and Tricks
 
