@@ -128,8 +128,8 @@ cmake may provide an output like:
 -- Generating done
 -- Build files have been written to: /home/user/tunneldigger/client
 ```
-Do not worry about the missing package, the libasyncns source is included in the tunneldigger repository, so it does not need to be installed globally.  
-Now you can run make, 
+do not worry about the missing package, the libasyncns source is included in the tunneldigger repository, so it does not need to be installed globally.  
+now you can run make, 
 ```
 make 
 ```
@@ -142,16 +142,16 @@ Scanning dependencies of target tunneldigger
 [100%] Built target tunneldigger
 ```
 
-4. prior to digging a tunnel, check interfaces using ```ip addr```, there should be no l2tp interface yet. Check udp ports using ```netstat -u```, this hould be empty. Check syslog using ```cat /var/log/syslog | grep td-client```, this should also be empty. 
+4. prior to digging a tunnel, check interfaces using ```ip addr```, there should be no l2tp interface yet. Check udp ports using ```netstat -u```, this should be empty. Check syslog using ```cat /var/log/syslog | grep td-client```, this should also be empty. 
 5. dig a tunnel using ```sudo ./tunneldigger -b exit.sudomesh.org:8942 -u 07105c7f-681f-4476-b5aa-5146c6e579de  -i l2tp0```  
-6. Leaving the tunnel running, open another terminal and run ```ip addr``` and verify that an interface ```l2tp0``` now exists. 
+6. leaving the tunnel running, open another terminal and run ```ip addr``` and verify that an interface ```l2tp0``` now exists. 
 7. also, open udp ports ```netstat -u``` and verify you see something like this:
 ```
 Active Internet connections (w/o servers)
 Proto Recv-Q Send-Q Local Address           Foreign Address         State      
 udp        0      0 xxxx:42862         unassigned.psychz.:8942 ESTABLISHED
 ```
-7. verify syslog entries using ```cat /var/log/syslog | grep td-client``` - expecting something like:
+8. verify syslog entries using ```cat /var/log/syslog | grep td-client``` - expecting something like:
 
 ```
 Dec 17 13:24:06 xx td-client: Performing broker selection...
@@ -160,6 +160,7 @@ Dec 17 13:24:08 xx td-client: Selected exit.sudomesh.org:8942 as the best broker
 Dec 17 13:24:12 xx td-client: Tunnel successfully established.
 Dec 17 13:24:21 xx td-client: Setting MTU to 1446
 ```
+9. the tunnel can be closed using CRTL-C in the original, or can be run in the background like any shell command.
 
 # Tips and Tricks
 
