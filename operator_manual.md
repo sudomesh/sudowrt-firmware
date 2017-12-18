@@ -110,17 +110,42 @@ PING 8.8.8.8 (8.8.8.8): 56 data bytes
 Home nodes dig tunnels to exit node using ```tunneldigger```. To check whether tunnel to exit node can be made, you can start a tunneldigger client and check the results. No need for a openwrt-based router. (tested on ubuntu 16.04).
 
 1. get tunneldigger ```git clone git@github.com:wlanslovenija/tunneldigger.git``` . Note that the sudomesh tunneldigger fork does not compile on ubuntu as far as I know.
-2. install packages if needed (see http://tunneldigger.readthedocs.io/en/latest/server.html#prerequisites)
+2. install packages if needed (see http://tunneldigger.readthedocs.io/en/latest/server.html#prerequisites), you may also need the following packages:
+```
+sudo apt update
+sudo apt install cmake libnl-3-dev libnl-genl-3-dev 
+```
 3. compile tunneldigger client 
 ```
 cd tunneldigger/client
 cmake .
+```
+cmake may provide an output like:
+```
+-- Checking for module 'libasyncns'
+--   No package 'libasyncns' found
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/user/tunneldigger/client
+```
+Do not worry about the missing package, the libasyncns source is included in the tunneldigger repository, so it does not need to be installed globally.  
+Now you can run make, 
+```
 make 
 ```
-4. prior to digging a tunnel, check interfaces using ```ip addr```, udp ports using ```netstat -u``` and syslog using ```cat /var/log/syslog | grep td-client```
-5. dig a tunnel using ```sudo ./tunneldigger -b exit.sudomesh.org:8942 -u 07105c7f-681f-4476-b5aa-5146c6e579de  -i l2tp0```
-6. also, check ```ip addr``` and verify that an interface ```l2tp0``` now exists. 
-7. also, open udp ports ```netstat -u``` and verify that a something like:
+which should produce and output like:
+```
+Scanning dependencies of target tunneldigger
+[ 33%] Building C object CMakeFiles/tunneldigger.dir/l2tp_client.c.o
+[ 66%] Building C object CMakeFiles/tunneldigger.dir/libasyncns/asyncns.c.o
+[100%] Linking C executable tunneldigger
+[100%] Built target tunneldigger
+```
+
+4. prior to digging a tunnel, check interfaces using ```ip addr```, there should be no l2tp interface yet. Check udp ports using ```netstat -u```, this hould be empty. Check syslog using ```cat /var/log/syslog | grep td-client```, this should also be empty. 
+5. dig a tunnel using ```sudo ./tunneldigger -b exit.sudomesh.org:8942 -u 07105c7f-681f-4476-b5aa-5146c6e579de  -i l2tp0```  
+6. Leaving the tunnel running, open another terminal and run ```ip addr``` and verify that an interface ```l2tp0``` now exists. 
+7. also, open udp ports ```netstat -u``` and verify you see something like this:
 ```
 Active Internet connections (w/o servers)
 Proto Recv-Q Send-Q Local Address           Foreign Address         State      
