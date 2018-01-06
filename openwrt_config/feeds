@@ -1,6 +1,6 @@
 peopleswifi:src-git peopleswifi git://github.com/sudomesh/sudowrt-packages.git
 luci:src-git luci https://github.com/openwrt/luci.git
-oldpackages:src-git oldpackages git://github.com/openwrt/chaos_calmer.git
+oldpackages:src-git oldpackages git://git.openwrt.org/15.05/openwrt.git
 openwrt:src-git openwrt https://github.com/openwrt/packages;for-15.05
 routing:src-git routing git://github.com/openwrt-routing/packages.git;for-15.05
 wlanslovenija:src-git wlanslovenija git://github.com/sudomesh/firmware-packages-opkg.git;sudomesh
