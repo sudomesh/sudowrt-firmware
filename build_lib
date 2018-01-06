@@ -140,7 +140,7 @@ openwrt_clone_and_patch() {
     cd "${OPENWRT_CHECKOUT_DIR}"
     git clean -f
   else
-    git clone "git://git.openwrt.org/${openwrt_path}/openwrt.git" "${OPENWRT_CHECKOUT_DIR}"
+    git clone "git://github.com/openwrt/${openwrt_path}.git" "${OPENWRT_CHECKOUT_DIR}"
   fi
 
   cd "${OPENWRT_CHECKOUT_DIR}"
