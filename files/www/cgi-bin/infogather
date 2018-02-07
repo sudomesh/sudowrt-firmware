@@ -15,7 +15,8 @@ iw dev mesh2 station dump
 
 printf "\n ---\n\n"
 
-arp
+# see https://dev.openwrt.org/ticket/1203
+cat /proc/net/arp
 
 printf "\n ---\n\n"
 

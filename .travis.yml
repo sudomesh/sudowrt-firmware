@@ -3,22 +3,28 @@ sudo: required
 language: c
 
 compiler:
-    - gcc
+  - gcc
 
 services:
-    - docker
+  - docker
 
 script: 
-    - docker build -t $BUILDING .
+  - docker build -t $BUILDING .
+
 after_success:
-  - if [ "$TRAVIS_BRANCH" == "master" ]; then
-    docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-    docker tag $BUILDING $DOCKER_PUSH; 
-    docker push $DOCKER_PUSH;
-    fi
+  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+  
+deploy:
+  - provider: script
+    script: docker tag $BUILDING $DOCKER_IMAGE:$TRAVIS_TAG; docker push $DOCKER_IMAGE:$TRAVIS_TAG
+    on: 
+      tags: true
+  - provider: script
+    script: docker tag $BUILDING $DOCKER_IMAGE:latest; docker push $DOCKER_IMAGE:latest
+    on:
+      branch: master
+
 env:
   global:
-    - DOCKER_IMAGE=sudowrt/firmware
+    - DOCKER_IMAGE=sudomesh/sudowrt-firmware
     - BUILDING=$DOCKER_IMAGE:$TRAVIS_COMMIT
-    - DOCKER_PUSH=$DOCKER_IMAGE:latest
-
