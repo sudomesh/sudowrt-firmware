@@ -8,7 +8,8 @@ The openwrt wiki has some examples of requirements per distro:
 http://wiki.openwrt.org/doc/howto/buildroot.exigence#examples.of.package.installations
 
 # the "easy" way
-If you'd like to build the firmware in a controlled/clean environment, you can use [docker](https://docker.io) with the provided [Dockerfile](./Dockerfile):
+If you'd like to build the firmware in a controlled/clean environment, you can use [docker](https://docker.io) with the provided [Dockerfile](./Dockerfile) or a prebuilt image hosted on [our docker-hub](https://hub.docker.com/r/sudomesh/sudowrt-firmware/tags/).  
+Docker provides good instructions for [installing docker-ce on Ubuntu](https://docs.docker.com/install/linux/docker-ce/ubuntu/) or [Debian](https://docs.docker.com/install/linux/docker-ce/debian/) as well as other operating systems.  
 
 First clone this repository:
 
@@ -26,12 +27,12 @@ docker build -t sudomesh/sudowrt-firmware .
 
 or re-use a pre-built one using
 ```
-docker pull sudomesh/sudowrt-firmware:0.2.1
+docker pull sudomesh/sudowrt-firmware:0.2.2
 ```
 
 After creating the container image, build the ar71xx and ar71xx.extender-node firmware using: 
 ```
-docker run -v $PWD/firmware_images:/firmware_images sudomesh/sudowrt-firmware:0.2.1
+docker run -v $PWD/firmware_images:/firmware_images sudomesh/sudowrt-firmware:0.2.2
 ``` 
 
 This command executes [entrypoint.sh](./entrypoint.sh) in the docker container. If the process completes successfully, the built firmware images `/firmware_images` directory of the repo. For some history on this topics please see https://github.com/sudomesh/sudowrt-firmware/issues/110 and https://github.com/sudomesh/sudowrt-firmware/issues/105 . 
