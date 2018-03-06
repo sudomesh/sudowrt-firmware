@@ -1,0 +1,44 @@
+#!/bin/sh 
+LOG=/root/test.log
+MESHNODEDB="secrets.peoplesopen.net"
+MESHNODEDB_IP="138.68.252.190"
+USER="deployer"
+PASS="praisebob"
+POSTURL="https://$USER:$PASS@$MESHNODEDB:3000/nodes"
+#SSL not yet working need to copy certs into /etc/ssl/certs
+#works with unsecure test meshnode-db, such as 165.227.44.64
+
+echo 'running 99_meship to retrieve an IP address from $MESHNODEDB' >>$LOG
+
+if ping -q -c 1 -W 1 8.8.8.8 >/dev/null; then
+  echo "IPv4 is up" >>$LOG
+else
+  echo "IPv4 is down" >>$LOG
+  exit 1
+fi
+
+if ping -q -c 1 -W 1 google.com >/dev/null; then
+  echo "DNS is working" >>$LOG
+else
+  echo "DNS is not working" >>$LOG
+  exit 1
+fi
+
+if ping -q -c 1 -W 1 $MESHNODEDB >/dev/null; then
+  echo $MESHNODEDB "is reachable" >>$LOG
+else
+  echo $MESHNODEDB "is not reachable" >>$LOG
+  echo "trying by IP" $MESHNODEDB_IP >>$LOG
+  if ping -q -c 1 -W 1  $MESHNODEDB_IP >/dev/null; then
+    echo $MESHNODEDB_IP "is reachable" >>$LOG
+  else
+    echo $MESHNODEDB_IP "is not reachable" >>$LOG
+    exit 1
+  fi
+fi
+
+echo "posting to " $POSTURL >>$LOG
+
+curl -X POST -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode data='{"type":"node"}' $POSTURL >>$LOG
+
+exit 0
