@@ -17,7 +17,6 @@ kmod-ebtables
 kmod-ebtables-ipv4
 kmod-ebtables-ipv6
 block-mount
-block-hotplug
 wireless-tools
 ntpclient
 hostapd
@@ -39,7 +38,6 @@ libpthread
 uhttpd-mod-ubus
 libiwinfo-lua
 libdaemon
-ifplugd
 tcpdump
 ebtables
 snmpd
