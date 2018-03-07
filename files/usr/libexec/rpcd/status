@@ -1,0 +1,19 @@
+#!/bin/sh
+
+case "$1" in
+	list)
+		echo '{ "all": { } }'
+	;;
+	call)
+		case "$2" in
+			all)
+				
+        echo '{ "notdhcpserver": '
+				notdhcpserver -i # returns json object
+        echo ','
+        echo ' "babeld": {}'
+        echo '}'
+			;;
+		esac
+	;;
+esac

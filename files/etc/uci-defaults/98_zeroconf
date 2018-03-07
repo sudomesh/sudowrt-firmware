@@ -1,0 +1,42 @@
+#!/bin/sh
+
+# adhoc_addr_ipv4=open_addr_ipv4=MESHIPfrom99
+# last three of MESHIPfrom99=ssid_unique_part
+# extender_node_ips related to MESHIP
+# generate a unique uuid
+
+EXIT_NODE_MESH_IPv4_ADDR='100.64.0.42'
+ADHOC_SUBNET_IPv4_MASK='255.255.255.255'
+ADHOC_SUBNET_IPv4_BITMASK='32'
+OPEN_SUBNET_IPv4_MASK='255.255.255.192'
+OPEN_SUBNET_IPv4_BITMASK='26'
+MESH_SUBNET_IPv4='100.64.0.0'
+MESH_SUBNET_IPv4_BITMASK='10'
+
+CHANNEL_2_4='6'
+CHANNEL_5='157'
+TX_POWER='23'
+STREAMS_2G='2'
+STREAMS_5G='2'
+
+PRIVATE_WIFI_KEY='meshtheworld'
+PRIVATE_WIFI_SSID='pplsopen-admin'
+RPCD_USER_NAME='admin'
+
+DOWNSTREAM_BW=4096
+UPSTREAM_BW=4096
+
+uci set network.ext1mesh.dns=$EXIT_NODE_MESH_IPv4
+uci set network.ext1mesh.netmask=$ADHOC_SUBNET_IPv4_BITMASK
+uci set network.ext2mesh.dns=$EXIT_NODE_MESH_IPv4
+uci set network.ext2mesh.netmask=$ADHOC_SUBNET_IPv4_BITMASK
+uci set network.mesh2.dns=$EXIT_NODE_MESH_IPv4
+uci set network.mesh2.netmask=$ADHOC_SUBNET_IPv4_MASK
+uci set network.mesh5.dns=$EXIT_NODE_MESH_IPv4
+uci set network.mesh5.netmask=$ADHOC_SUBNET_IPv4_MASK
+uci set network.open.dns=$EXIT_NODE_MESH_IPv4
+uci set network.open.netmask=$OPEN_SUBNET_IPv4_MASK
+
+uci commit network
+
+exit 1
