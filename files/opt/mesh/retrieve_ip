@@ -57,14 +57,14 @@ json_select data
 json_get_var MESHIP mesh_addr_ipv4 
 echo "recieved mesh IP:" $MESHIP >>$LOG
 
-#uci set network.ext1mesh.ipaddr=$MESHIP
-#uci set network.ext2mesh.ipaddr=$MESHIP
-#uci set network.mesh2.ipaddr=$MESHIP
-#uci set network.mesh5.ipaddr=$MESHIP
-#uci set network.open.ipaddr=$MESHIP
+uci set network.ext1mesh.ipaddr=$MESHIP
+uci set network.ext2mesh.ipaddr=$MESHIP
+uci set network.mesh2.ipaddr=$MESHIP
+uci set network.mesh5.ipaddr=$MESHIP
+uci set network.open.ipaddr=$MESHIP
 
 echo "committing new mesh IP" $MESHIP "to uci settings" >>$LOG
-#uci commit network
+uci commit network
 
 # remove cron job and delete yourself
 sed -i '/retrieve_ip/d' /etc/crontabs/root
