@@ -97,6 +97,9 @@ uci set wireless.@wifi-iface[0].ssid='peoplesopen.net '$LAST_3_OF_IP
 uci set wireless.@wifi-iface[3].ssid='peoplesopen.net fast '$LAST_3_OF_IP 
 uci commit wireless
 
+# must get mesh IP before executing zeroconf
+/opt/mesh/zeroconf
+
 # remove cron job and delete yourself
 sed -i '/retrieve_ip/d' /etc/crontabs/root
 rm -- "$0"
