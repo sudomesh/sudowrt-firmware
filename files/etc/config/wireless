@@ -24,7 +24,6 @@ config wifi-device 'radio0'
   # RX-STBC1 means MIMO receive support for one spatial stream
   # RX-STBC2 is for two streams, and so forth
   # This should match the number of receive antennas
-  list ht_capab	RX-STBC<%= streams_2g %>
 
 # the open wifi ap 
 config wifi-iface
@@ -86,7 +85,6 @@ config wifi-device 'radio1'
   # RX-STBC1 means MIMO receive support for one spatial stream
   # RX-STBC2 is for two streams, and so forth
   # This should match the number of receive antennas
-  list ht_capab	RX-STBC<%= streams_5g %>
 
 # the open wifi ap on 5 ghz                                                
 config wifi-iface                                                          

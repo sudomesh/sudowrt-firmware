@@ -57,14 +57,45 @@ json_select data
 json_get_var MESHIP mesh_addr_ipv4 
 echo "recieved mesh IP:" $MESHIP >>$LOG
 
+LAST_3_OF_IP=${MESHIP#*.} # removes everything before first dot
+
+nextip(){
+  IP=$1
+  IP_HEX=$(printf '%.2X%.2X%.2X%.2X\n' `echo $IP | sed -e 's/\./ /g'`)
+  NEXT_IP_HEX=$(printf %.8X `echo $(( 0x$IP_HEX + 1 ))`)
+  NEXT_IP=$(printf '%d.%d.%d.%d\n' `echo $NEXT_IP_HEX | sed -r 's/(..)/0x\1 /g'`)
+  echo $NEXT_IP
+}
+
+EXTENDER_NODE_IP_1=$(nextip $MESHIP)
+EXTENDER_NODE_IP_2=$(nextip $EXTENDER_NODE_IP_1)
+
+echo "committing new mesh IP" $MESHIP "to uci settings" >>$LOG
+
+uci set babeld.@filter[0].ip=$MESHIP'/32'
+uci commit babeld
+
+uci delete dhcp.openpool.dhcp_option
+uci add_list dhcp.openpool.dhcp_option='1,255.255.255.192'
+uci add_list dhcp.openpool.dhcp_option='3,'$MESHIP
+uci add_list dhcp.openpool.dhcp_option='6,'$MESHIP
+uci commit dhcp
+
 uci set network.ext1mesh.ipaddr=$MESHIP
 uci set network.ext2mesh.ipaddr=$MESHIP
 uci set network.mesh2.ipaddr=$MESHIP
 uci set network.mesh5.ipaddr=$MESHIP
 uci set network.open.ipaddr=$MESHIP
-
-echo "committing new mesh IP" $MESHIP "to uci settings" >>$LOG
 uci commit network
+
+uci delete notdhcpserver.@server[0].addresses
+uci add_list notdhcpserver.@server[0].addresses='eth0.1='$EXTENDER_NODE_IP_1'/32'
+uci add_list notdhcpserver.@server[0].addresses='eth0.2='$EXTENDER_NODE_IP_2'/32'
+uci commit notdhcpserver
+
+uci set wireless.@wifi-iface[0].ssid='peoplesopen.net '$LAST_3_OF_IP
+uci set wireless.@wifi-iface[3].ssid='peoplesopen.net fast '$LAST_3_OF_IP 
+uci commit wireless
 
 # remove cron job and delete yourself
 sed -i '/retrieve_ip/d' /etc/crontabs/root

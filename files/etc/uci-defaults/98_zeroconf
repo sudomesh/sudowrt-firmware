@@ -1,8 +1,7 @@
 #!/bin/sh
 
-# adhoc_addr_ipv4=open_addr_ipv4=MESHIPfrom99
-# last three of MESHIPfrom99=ssid_unique_part
-# extender_node_ips related to MESHIP
+# this is file sets all peoplesopen network settings
+# expect the node's unique MESH IP, this is set by /opt/mesh/retrieve_ip 
 # generate a unique uuid
 
 EXIT_NODE_MESH_IPv4_ADDR='100.64.0.42'
@@ -23,8 +22,12 @@ PRIVATE_WIFI_KEY='meshtheworld'
 PRIVATE_WIFI_SSID='pplsopen-admin'
 RPCD_USER_NAME='admin'
 
+UUID=$(cat /proc/sys/kernel/random/uuid)
 DOWNSTREAM_BW=4096
 UPSTREAM_BW=4096
+
+uci set dhcp.@dnsmasq[0].server='/sudomesh.org/'$EXIT_NODE_MESH_IPv4_ADDR
+uci commit dhcp
 
 uci set network.ext1mesh.dns=$EXIT_NODE_MESH_IPv4
 uci set network.ext1mesh.netmask=$ADHOC_SUBNET_IPv4_BITMASK
@@ -36,7 +39,41 @@ uci set network.mesh5.dns=$EXIT_NODE_MESH_IPv4
 uci set network.mesh5.netmask=$ADHOC_SUBNET_IPv4_MASK
 uci set network.open.dns=$EXIT_NODE_MESH_IPv4
 uci set network.open.netmask=$OPEN_SUBNET_IPv4_MASK
-
 uci commit network
 
-exit 1
+uci delete polipo.general.allowedClients
+uci add_list polipo.general.allowedClients='172.30.0.0/24'
+uci add_list polipo.general.allowedClients='127.0.0.1'
+uci add_list polipo.general.allowedClients=$MESH_SUBNET_IPv4'/'$MESH_SUBNET_IPv4_BITMASK
+uci commit polipo
+
+uci set rpcd.@login[0].username=$RPCD_USER_NAME
+uci set rpcd.@login[0].password='$p$'$RPCD_USER_NAME
+uci commit rpcd
+
+uci set tunneldigger.main.uuid=$UUID
+uci set tunneldigger.main.limit_bw_down=$DOWNSTREAM_BW'kbit'
+uci set tunneldigger.main.limit_bw_up=$UPSTREAM_BW'kbit'
+uci commit tunneldigger
+
+uci set wireless.radio0.channel=$CHANNEL_2_4
+uci set wireless.radio0.txpower=$TX_POWER
+uci delete wireless.radio0.ht_capab
+uci add_list wireless.radio0.ht_capab='TX-STBC'
+uci add_list wireless.radio0.ht_capab='TX-STBC-2BY1'
+uci add_list wireless.radio0.ht_capab='RX-STBC'$STREAMS_2G
+uci set wireless.@wifi-iface[1].key=$PRIVATE_WIFI_KEY
+uci set wireless.@wifi-iface[1].ssid=$PRIVATE_WIFI_SSID
+
+uci set wireless.radio1.channel=$CHANNEL_5
+uci set wireless.radio1.txpower=$TX_POWER
+uci delete wireless.radio1.ht_capab
+uci add_list wireless.radio1.ht_capab='GF'
+uci add_list wireless.radio1.ht_capab='TX-STBC'
+uci add_list wireless.radio1.ht_capab='RX-STBC'$STREAMS_5G
+uci set wireless.@wifi-iface[4].key=$PRIVATE_WIFI_KEY
+uci set wireless.@wifi-iface[4].ssid=$PRIVATE_WIFI_SSID
+
+uci commit wireless
+
+exit 0
