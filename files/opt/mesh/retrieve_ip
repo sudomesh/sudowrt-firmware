@@ -1,7 +1,16 @@
 #!/bin/sh 
+# This script retrieves an IP address
+# from a meshnode-database, running some version of
+# https://github.com/sudomesh/meshnode-database
+# Once an IP is retrieved, this script triggers 
+# the configuration of this node with the correct
+# MESH IP and other related settings stored in
+# /opt/mesh/zeroconf
 
+# import json parser
 . /usr/share/libubox/jshn.sh
 
+# default configs for People's Open Network
 LOG=/var/log/retrieve_ip.log
 MESHNODEDB="secrets.peoplesopen.net"
 MESHNODEDB_IP="138.68.252.190"
@@ -9,14 +18,9 @@ USER="deployer"
 PASS="praisebob"
 POSTURL="https://$USER:$PASS@$MESHNODEDB/nodes"
 
-# before running you'll need to install curl and ca-certificates with
-# opkg update
-# opkg install curl
-# opkg install ca-certificates
-
 echo "running 99_meship to retrieve an IP address from" $MESHNODEDB >>$LOG
 
-# check for internet connection for every 10s
+# check for internet connection for every every 10s 
 for i in 1 2 3 4 5;
 do
   if ping -q -c 1 -W 1 8.8.8.8 >/dev/null; then
@@ -48,14 +52,17 @@ else
   fi
 fi
 
+# make a post request to meshnode-databse
 echo "posting to" $POSTURL >>$LOG
-
 MESHNODE_DATA=$(curl -X POST -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode data='{"type":"node"}' $POSTURL )
 
+# parse the json response
 json_load "$MESHNODE_DATA"
 json_select data 
 json_get_var MESHIP mesh_addr_ipv4 
 echo "recieved mesh IP:" $MESHIP >>$LOG
+
+# create some other MESH IP dependent info
 
 LAST_3_OF_IP=${MESHIP#*.} # removes everything before first dot
 
@@ -70,17 +77,22 @@ nextip(){
 EXTENDER_NODE_IP_1=$(nextip $MESHIP)
 EXTENDER_NODE_IP_2=$(nextip $EXTENDER_NODE_IP_1)
 
-echo "committing new mesh IP" $MESHIP "to uci settings" >>$LOG
+# copy template configs to /etc/
+cp -r /opt/mesh/templates/etc/* /etc/.
 
+echo "committing new mesh IP" $MESHIP "to uci settings" >>$LOG
+# config babeld
 uci set babeld.@filter[0].ip=$MESHIP'/32'
 uci commit babeld
 
+# config dhcp
 uci delete dhcp.openpool.dhcp_option
 uci add_list dhcp.openpool.dhcp_option='1,255.255.255.192'
 uci add_list dhcp.openpool.dhcp_option='3,'$MESHIP
 uci add_list dhcp.openpool.dhcp_option='6,'$MESHIP
 uci commit dhcp
 
+# config network settings
 uci set network.ext1mesh.ipaddr=$MESHIP
 uci set network.ext2mesh.ipaddr=$MESHIP
 uci set network.mesh2.ipaddr=$MESHIP
@@ -88,18 +100,20 @@ uci set network.mesh5.ipaddr=$MESHIP
 uci set network.open.ipaddr=$MESHIP
 uci commit network
 
+# config notdhcp
 uci delete notdhcpserver.@server[0].addresses
 uci add_list notdhcpserver.@server[0].addresses='eth0.1='$EXTENDER_NODE_IP_1'/32'
 uci add_list notdhcpserver.@server[0].addresses='eth0.2='$EXTENDER_NODE_IP_2'/32'
 uci commit notdhcpserver
 
+# config wireless settings
 uci set wireless.@wifi-iface[0].ssid='peoplesopen.net '$LAST_3_OF_IP
 uci set wireless.@wifi-iface[3].ssid='peoplesopen.net fast '$LAST_3_OF_IP 
 uci commit wireless
 
-# must get mesh IP before executing zeroconf
+# complete rest of configurations in a reusable script
 /opt/mesh/zeroconf
 
-# remove cron job and delete yourself
+# remove cron job and delete this script 
 sed -i '/retrieve_ip/d' /etc/crontabs/root
 rm -- "$0"

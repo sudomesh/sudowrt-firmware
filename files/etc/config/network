@@ -1,110 +1,37 @@
 
-config switch
-  option name 'switch0'
-  option reset '1'
-  option enable_vlan '1'
-      
-# Note: LAN ports (as written on the back of the router)
-#       and switch ports are the same, such that 
-#       LAN port 1 is switch port 1      
-#       yellow WAN port (labeled "internet") is switch port 5
-
-# physical lan port 1 (switch port 1)
-# is on vlan 1 (eth0.1) untagged
-config switch_vlan
-  option device 'switch0'
-  option vlan '1'
-  option ports '0t 1'
-
-# physical lan port 2 (switch port 2)
-# is on vlan 2 (eth0.2) untagged
-config switch_vlan
-  option device 'switch0'
-  option vlan '2'
-  option ports '0t 2'
-
-# physical lan port 4 (switch port 4)
-# is on vlan 10 (eth0.10) untagged
-# vlan 10 is used for the public network
-config switch_vlan
-  option device 'switch0'
-  option vlan '10'
-
-  # port 0 is the internal CPU port
-  # and 't' denotes that it is vlan tagged
-  # http://wiki.openwrt.org/doc/uci/network/switch
-  option ports '0t 4'
-
-# physical lan port 3 (switch port 3)
-# is on vlan 11 (eth0.11) untagged
-# vlan 11 is used for the private network         
-config switch_vlan                
-  option device 'switch0'
-  option vlan '11'
-  option ports '0t 3'
-
 config interface 'loopback'
-  option ifname 'lo'
-  option proto 'static'
-  option ipaddr '127.0.0.1'
-  option netmask '255.0.0.0'
+	option ifname 'lo'
+	option proto 'static'
+	option ipaddr '127.0.0.1'
+	option netmask '255.0.0.0'
+
+config globals 'globals'
+	option ula_prefix 'fdba:a4ce:2c79::/48'
+
+config interface 'lan'
+	option ifname 'eth0'
+	option force_link '1'
+	option type 'bridge'
+	option proto 'static'
+	option netmask '255.255.255.0'
+	option ip6assign '60'
+	option ipaddr '172.22.0.1'
 
 config interface 'wan'
-  option ifname 'eth1'
-  option proto 'dhcp'
-
-# This is for development only
-# TODO We should remove the static IP before beta launch
-config interface 'wan2' 
-  option ifname 'eth1'
-  option proto 'static'
-  option ipaddr '172.22.0.1'
-  option netmask '255.255.255.0'
+	option ifname 'eth1'
+	option proto 'dhcp'
 
 config interface 'wan6'
-  option ifname '@wan'
-  option proto 'dhcpv6'
+	option ifname 'eth1'
+	option proto 'dhcpv6'
 
-config interface 'ext1mesh'
-  option ifname 'eth0.1'
-  option proto 'static'
-  option ipaddr '<%= adhoc_addr_ipv4 %>'
-  option dns '<%= exit_node_mesh_ipv4_addr %>'
-  option netmask '<%= adhoc_subnet_ipv4_bitmask %>'
+config switch
+	option name 'switch0'
+	option reset '1'
+	option enable_vlan '1'
 
-config interface 'ext2mesh'
-  option ifname 'eth0.2'
-  option proto 'static'
-  option ipaddr '<%= adhoc_addr_ipv4 %>'
-  option dns '<%= exit_node_mesh_ipv4_addr %>'
-  option netmask '<%= adhoc_subnet_ipv4_bitmask %>'
+config switch_vlan
+	option device 'switch0'
+	option vlan '1'
+	option ports '0 1 2 3 4'
 
-config interface 'mesh2'
-  option ifname 'mesh2'
-  option proto 'static'
-  option ipaddr '<%= adhoc_addr_ipv4 %>'
-  option dns '<%= exit_node_mesh_ipv4_addr %>'
-  option netmask '<%= adhoc_subnet_ipv4_mask %>'
-
-config interface 'mesh5'
-  option ifname 'mesh5'
-  option proto 'static'
-  option ipaddr '<%= adhoc_addr_ipv4 %>'
-  option dns '<%= exit_node_mesh_ipv4_addr %>'
-  option netmask '<%= adhoc_subnet_ipv4_mask %>'
-
-# This will be our "peoplesopen.net" bridge
-config interface 'open'
-  option type 'bridge'
-  option ifname 'open2 open5 eth0.10'
-  option proto 'static'
-  option ipaddr '<%= open_addr_ipv4 %>'
-  option dns '<%= exit_node_mesh_ipv4_addr %>'
-  option netmask '<%= open_subnet_ipv4_mask %>'
-
-config interface 'priv'
-  option type 'bridge'
-  option ifname 'priv2 priv5 eth0.11'                   
-  option proto 'static'
-  option ipaddr '172.30.0.1'
-  option netmask '16'
