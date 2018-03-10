@@ -1,0 +1,5 @@
+config login
+  option username '<%= user_name %>'
+  option password '$p$<%= user_name %>'
+  list read '*'
+  list write '*'

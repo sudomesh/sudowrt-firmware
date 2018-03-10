@@ -1,0 +1,19 @@
+
+# Changed by Maxb
+
+# mesh tables
+20 public
+
+
+# reserved values
+
+255	local
+254	main
+253	default
+0	unspec
+
+#
+# local
+#
+#1	inr.ruhep
+

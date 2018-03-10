@@ -1,0 +1,36 @@
+config dnsmasq
+  option domainneeded 0
+  option boguspriv 1
+  option localise_queries 1
+  option rebind_protection 1 # disable if upstream must serve RFC1918 addresses
+  option rebind_localhost 1 # enable for RBL checking and similar services
+  option local '/local.sudomesh.org/'
+  option domain 'local.sudomesh.org'
+  option expandhosts 1
+  option nonegcache 0
+  option authoritative 1
+  option readethers 1
+  option leasefile '/tmp/dhcp.leases'
+  option resolvfile '/etc/resolv.conf.dnsmasq'
+  list interface 'br-open'
+  list interface 'br-priv'
+  list server '/sudomesh.org/<%= exit_node_mesh_ipv4_addr %>' # sudomesh exit server for sudomesh.org dns names
+
+config 'dhcp' 'openpool'
+  option interface 'open'
+  option networkid 'br-open'
+  option start 7
+  option limit 55
+  option leasetime 5m
+  list dhcp_option '1,<%= open_subnet_ipv4_mask %>' # subnet mask
+  list dhcp_option '3,<%= open_addr_ipv4 %>' # gateway
+  list dhcp_option '6,<%= open_addr_ipv4 %>' # dns server
+
+config 'dhcp' 'privatepool'
+  option interface 'priv'
+  option networkid 'br-priv'
+  option start 10
+  option limit 240
+  option leasetime 30m
+  list dhcp_option '1,255.255.255.0' # subnet mask
+  list dhcp_option '3,172.30.0.1' # gateway
