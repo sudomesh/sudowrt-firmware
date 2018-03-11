@@ -60,12 +60,11 @@ MESHNODE_DATA=$(curl -X POST -H "Content-Type: application/x-www-form-urlencoded
 json_load "$MESHNODE_DATA"
 json_select data 
 json_get_var MESHIP mesh_addr_ipv4 
-json get var MESHBLOCK open_subnet_ipv4
+json_get_var MESHBLOCK open_subnet_ipv4 
 echo "recieved mesh IP:" $MESHIP >>$LOG
-echo "recieved mesh block:" $MESHBLOCK"/26" #>>$LOG
+echo "recieved mesh block:" $MESHBLOCK"/26" >>$LOG
 
 # create some other MESH IP dependent info
-
 LAST_3_OF_IP=${MESHIP#*.} # removes everything before first dot
 
 nextip(){
@@ -123,5 +122,6 @@ echo "LANNET="$MESHBLOCK"/26" >>$HOME_NODE
 echo "NODEIP="$MESHIP >>$HOME_NODE
 
 # remove cron job and delete this script 
+echo "deleting cronjob and removing /opt/mesh/retrieve_ip" >>$LOG
 sed -i '/retrieve_ip/d' /etc/crontabs/root
 rm -- "$0"
