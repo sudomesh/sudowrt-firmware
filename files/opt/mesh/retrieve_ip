@@ -60,7 +60,9 @@ MESHNODE_DATA=$(curl -X POST -H "Content-Type: application/x-www-form-urlencoded
 json_load "$MESHNODE_DATA"
 json_select data 
 json_get_var MESHIP mesh_addr_ipv4 
+json get var MESHBLOCK open_subnet_ipv4
 echo "recieved mesh IP:" $MESHIP >>$LOG
+echo "recieved mesh block:" $MESHBLOCK"/26" #>>$LOG
 
 # create some other MESH IP dependent info
 
@@ -113,6 +115,12 @@ uci commit wireless
 
 # complete rest of configurations in a reusable script
 /opt/mesh/zeroconf
+
+# deal with old shell config file
+# TODO move this to a uci config
+HOME_NODE=/etc/sudomesh/home_node
+echo "LANNET="$MESHBLOCK"/26" >>$HOME_NODE
+echo "NODEIP="$MESHIP >>$HOME_NODE
 
 # remove cron job and delete this script 
 sed -i '/retrieve_ip/d' /etc/crontabs/root

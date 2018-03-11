@@ -1,0 +1,6 @@
+WAN=eth1 # The internet connection
+
+EXT1=eth0.1 # Extender node 1
+EXT2=eth0.2 # Extender node 2
+EXT3=eth0.3 # Extender node 3
+EXT4=eth0.4 # Extender node 4

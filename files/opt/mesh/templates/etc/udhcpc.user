@@ -1,0 +1,79 @@
+#!/bin/sh
+
+for file in /etc/sudomesh/*; do
+  depends="$depends $file"
+done
+
+for file in $depends; do
+  if [ -f "$file" ] 
+  then
+    . "$file"
+  else
+    logger "$file does not exist. meshrouting depends on it"
+    exit 2
+  fi
+done
+
+
+ip_calc=$(ipcalc.sh "$ip" "$subnet")
+cidr_prefix=$(echo "$ip_calc" | grep -o 'PREFIX=\([0-9]\+\)' | sed -n -e 's/PREFIX=//p');
+network=$(echo "$ip_calc" | grep -o 'NETWORK=\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)' | sed -n -e 's/NETWORK=//p');
+
+setup_rules() {
+  # To keep from continuously adding the same rule, we delete first
+  ip rule del from "$network"/"$cidr_prefix" prio 13000 table main
+  ip rule del to "$network"/"$cidr_prefix" prio 13000 table main
+  ip rule add from "$network"/"$cidr_prefix" prio 13000 table main
+  ip rule add to "$network"/"$cidr_prefix" prio 13000 table main
+
+  ip route flush cache
+
+  test_connection
+}
+
+clear_rules() {
+  ip rule del from "$network"/"$cidr_prefix" prio 13000 table main
+  ip rule del to "$network"/"$cidr_prefix" prio 13000 table main
+}
+
+test_connection() {
+  local tries
+  local ping_time
+  local retry_pause
+  local max_tries
+  local connected
+  tries=0
+  ping_time=5
+  retry_pause=5
+  max_tries=20
+  connected=false
+
+  while [ "$tries" -lt "$max_tries" ]; do
+    logger "pinging $MESHEXITIP"
+    if /bin/ping -c 1 -w "$ping_time" -I "$TUN" "$MESHEXITIP" > /dev/null; then
+      logger "Got pong back from $MESHEXITIP"
+      connected=true
+      break
+    fi
+
+    sleep $retry_pause
+    tries=`expr $tries + 1`
+  done
+
+  if [ "$connected" = false ]; then
+    # Do we just want to run /etc/init.d/tunneldigger restart here?
+    logger "Cannot connect to exit server. Restarting meshrouting"
+    /etc/init.d/meshrouting restart
+  else
+    logger "Successfully connected to exit server."
+  fi
+}
+
+case "$1" in
+  deconfig)
+    clear_rules
+  ;;
+  renew|bound)
+    setup_rules
+  ;;
+esac

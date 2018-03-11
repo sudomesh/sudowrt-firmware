@@ -118,6 +118,25 @@ The firmware images will be available in:
 built_firmware/builder.ar71xx.extender-node/bin/ar71xx/
 ```
 
+# Developing on this firmware
+
+If you like to make additions to the sudowrt-firmware, there a few ways in which to integrate your desired changes. First, firgure out what change you are trying to make by testing it out on a live node.
+
+## Adding an OpenWrt package
+Maybe you'd like to expose a feature by installing an OpenWrt package. If you find yourself needing to run on your home node,
+```
+opkg update
+opkg install <package-name>
+```
+You can build this into the firmware by adding to the package feeds, located in /openwrt_configs/feeds.
+
+## Adding `/etc/` configurations
+Changes that need to be made in the `/etc` directory can be added to in two places.
+
+1. `files/etc/` this is where you should put files that may be neccessary at very first boot or during uci-defaults scripts. Any changes to this directory may be overwritten by the second location.
+
+2. `files/opt/mesh/templates/etc/` this is the directory that is copied in after you recieve an IP on the mesh, any mesh dependent configurations should be made here. This directory supersedes `files/etc`
+
 # Rebuilding firmware
 
 The untested rebuild script was removed in [this commit](https://github.com/sudomesh/sudowrt-firmware/commit/78c7293bc4ac1d39d28311234a6a1ddb72f9c2c3).
