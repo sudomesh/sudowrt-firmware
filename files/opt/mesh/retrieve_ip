@@ -121,6 +121,10 @@ HOME_NODE=/etc/sudomesh/home_node
 echo "LANNET="$MESHBLOCK"/26" >>$HOME_NODE
 echo "NODEIP="$MESHIP >>$HOME_NODE
 
+# start some services
+/etc/init.d/babeld start
+/etc/init.d/meshrouting start
+
 # remove cron job and delete this script 
 echo "deleting cronjob and removing /opt/mesh/retrieve_ip" >>$LOG
 sed -i '/retrieve_ip/d' /etc/crontabs/root
