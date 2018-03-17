@@ -26,12 +26,12 @@ docker build -t sudomesh/sudowrt-firmware .
 
 or re-use a pre-built one using
 ```
-docker pull sudomesh/sudowrt-firmware:0.2.1
+docker pull sudomesh/sudowrt-firmware:0.2.3
 ```
 
 After creating the container image, build the ar71xx and ar71xx.extender-node firmware using: 
 ```
-docker run --rm -v $PWD/firmware_images:/firmware_images sudomesh/sudowrt-firmware:0.2.1
+docker run --rm -v $PWD/firmware_images:/firmware_images sudomesh/sudowrt-firmware:0.2.3
 ``` 
 
 This command executes [entrypoint.sh](./entrypoint.sh) in the docker container. If the process completes successfully, the built firmware images `/firmware_images` directory of the repo. For some history on this topics please see https://github.com/sudomesh/sudowrt-firmware/issues/110 and https://github.com/sudomesh/sudowrt-firmware/issues/105 . 
