@@ -1,4 +1,5 @@
 #!/bin/sh
+# This callback is activated on dhcp events from wan interface
 
 for file in /etc/sudomesh/*; do
   depends="$depends $file"
@@ -19,54 +20,46 @@ ip_calc=$(ipcalc.sh "$ip" "$subnet")
 cidr_prefix=$(echo "$ip_calc" | grep -o 'PREFIX=\([0-9]\+\)' | sed -n -e 's/PREFIX=//p');
 network=$(echo "$ip_calc" | grep -o 'NETWORK=\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)' | sed -n -e 's/NETWORK=//p');
 
-setup_rules() {
-  # To keep from continuously adding the same rule, we delete first
-  ip rule del from "$network"/"$cidr_prefix" prio 13000 table main
-  ip rule del to "$network"/"$cidr_prefix" prio 13000 table main
-  ip rule add from "$network"/"$cidr_prefix" prio 13000 table main
-  ip rule add to "$network"/"$cidr_prefix" prio 13000 table main
-
-  ip route flush cache
-
-  test_connection
-}
-
 clear_rules() {
   ip rule del from "$network"/"$cidr_prefix" prio 13000 table main
   ip rule del to "$network"/"$cidr_prefix" prio 13000 table main
 }
 
-test_connection() {
-  local tries
-  local ping_time
-  local retry_pause
-  local max_tries
-  local connected
-  tries=0
-  ping_time=5
-  retry_pause=5
-  max_tries=20
-  connected=false
+setup_rules() {
+  # To keep from continuously adding the same rule, we delete first
+  clear_rules
+  ip rule add from "$network"/"$cidr_prefix" prio 13000 table main
+  ip rule add to "$network"/"$cidr_prefix" prio 13000 table main
 
-  while [ "$tries" -lt "$max_tries" ]; do
-    logger "pinging $MESHEXITIP"
-    if /bin/ping -c 1 -w "$ping_time" -I "$TUN" "$MESHEXITIP" > /dev/null; then
-      logger "Got pong back from $MESHEXITIP"
-      connected=true
+  ip route flush cache
+}
+
+
+check_mesh_routes() {
+  local try_count=0
+  local try_max=400
+  local try_sleep=5
+  local try_restart_interval=20
+
+  while [ "$try_count" -lt "$try_max" ]; do
+    # extract gateway ip from babeld managed routing table "public"
+    local exitnode_mesh_ip=$(ip route show table public | grep $TUN | grep via | awk -F ' ' '{print $3
+}' | uniq | head -n1)
+    if [ -n "$exitnode_mesh_ip" ]; then  
+      logger "found a mesh route to [$exitnode_mesh_ip] via [$TUN]."
       break
     fi
+    try_count=`expr $try_count + 1`
 
-    sleep $retry_pause
-    tries=`expr $tries + 1`
+    # restart every once in a while
+    if [ `expr $try_count % $try_restart_interval` -eq 0 ]; then
+      logger "no mesh routes available yet via [$TUN] on try [$try_count]: restarting meshrouting..."    
+      /etc/init.d/meshrouting restart
+    else 
+      logger "no mesh routes available yet via [$TUN] on try [$try_count]: checking again in [$try_sleep]s..."    
+      sleep $try_sleep
+    fi
   done
-
-  if [ "$connected" = false ]; then
-    # Do we just want to run /etc/init.d/tunneldigger restart here?
-    logger "Cannot connect to exit server. Restarting meshrouting"
-    /etc/init.d/meshrouting restart
-  else
-    logger "Successfully connected to exit server."
-  fi
 }
 
 case "$1" in
@@ -75,5 +68,7 @@ case "$1" in
   ;;
   renew|bound)
     setup_rules
+    check_mesh_routes
   ;;
 esac
+

@@ -153,7 +153,6 @@ start() {
     ip rule add to $PRIVNET prio 14000 table main
 
     ip rule add iif $PRIV prio 15000 table main
-    ip rule add to $INETEXITIP/32 prio 15000 table main
 
     ip rule add from all prio 16000 table public
 

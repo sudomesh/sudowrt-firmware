@@ -1,6 +1,7 @@
 # These are the upstream DNS servers used by dnsmasq
 
-nameserver 104.236.181.226 # sudomesh exit server
+nameserver 100.64.0.43 # sudomesh exit server
+nameserver 100.64.0.42 # sudomesh exit server
 nameserver 209.244.0.3 # Level3 primary DNS
 nameserver 209.244.0.4 # Level3 secondary DNS
 nameserver 84.200.69.80 # dns.watch primary DNS

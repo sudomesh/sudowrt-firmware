@@ -1,9 +1,6 @@
 # shell variables imported by /etc/init.d/meshrouting and /etc/udhcp.user
 # TODO turn these into UCI configs
 
-MESHEXITIP=100.64.0.42
-INETEXITIP=45.34.140.42
-
 OPEN=br-open # The open peoplesopen.net SSID and ethernet ports
 PRIV=br-priv # The private WPA2 wifi SSID
 TUN=l2tp0 # The tunnel
