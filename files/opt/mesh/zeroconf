@@ -2,7 +2,6 @@
 
 # this is file sets all peoplesopen network settings
 # expect the node's unique MESH IP, this is set by /opt/mesh/retrieve_ip 
-# generate a unique uuid
 
 EXIT_NODE_MESH_IPv4_ADDR='100.64.0.42'
 ADHOC_SUBNET_IPv4_MASK='255.255.255.255'
@@ -76,4 +75,6 @@ uci set wireless.@wifi-iface[4].ssid=$PRIVATE_WIFI_SSID
 
 uci commit wireless
 
-exit 0
+cp /opt/mesh/zeroconf_succeeded /home/root/. 
+
+reboot now
