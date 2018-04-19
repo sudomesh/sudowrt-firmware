@@ -77,4 +77,6 @@ uci commit wireless
 
 cp /opt/mesh/zeroconf_succeeded /home/root/. 
 
-reboot now
+#reboot now
+
+exit 0
