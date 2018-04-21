@@ -1,3 +1,39 @@
 config system
 	option hostname	sudomesh-node
 	option timezone	PST8PDT,M3.2.0,M11.1.0
+
+        option log_size 500
+        option log_file /var/log/messages
+
+config led 'led_wan'
+        option name 'WAN'
+        option sysfs 'wd:blue:internet'
+        option trigger 'netdev'
+        option dev 'eth1'
+        option mode 'link tx rx'
+
+config led 'led_lan1'
+        option name 'LAN1'
+        option sysfs 'wd:green:lan1'
+        option trigger 'switch0'
+        option port_mask '0x02'
+
+config led 'led_lan2'
+        option name 'LAN2'
+        option sysfs 'wd:green:lan2'
+        option trigger 'switch0'
+        option port_mask '0x10'
+
+config led 'led_lan3'
+        option name 'LAN3'
+        option sysfs 'wd:green:lan3'
+        option trigger 'switch0'
+        option port_mask '0x08'
+
+config led 'led_lan4'
+        option name 'LAN4'
+        option sysfs 'wd:green:lan4'
+        option trigger 'switch0'
+        option port_mask '0x04'
+
+
