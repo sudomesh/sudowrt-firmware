@@ -1,1 +1,2 @@
 */1 * * * * /opt/mesh/retrieve_ip
+* */12 * * * /opt/mesh/pw_reset

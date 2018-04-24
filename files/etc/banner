@@ -6,9 +6,8 @@
  |___/  \___/\____/\_|    \___/\____/\____/\____/\____/\____/\____/|___/  
                                                                          
  -------------------------------------------------------------------------
- sudo mesh v0.3.0 (dispossessed)
- ZEROCONFIGURED - see https://github.com/sudomesh/patches
-                for updates. 
+ sudowrt v0.3.0 (dispossessed)
+ ZEROCONFIGURED - for updates, check https://github.com/sudomesh/patches 
 
                               based on OpenWRT 15.05 (Chaos Calmer)
  -------------------------------------------------------------------------

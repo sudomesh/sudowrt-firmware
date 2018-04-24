@@ -1,0 +1,7 @@
+#!/bin/sh
+
+rm /etc/shadow
+echo "password deleted, to set new password run, 'passwd username'" >  /root/pw_reset_succeeded
+sed -i '/pw_reset/d' /etc/crontabs/root
+rm -- "$0"
+

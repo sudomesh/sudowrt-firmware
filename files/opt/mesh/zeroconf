@@ -75,8 +75,7 @@ uci set wireless.@wifi-iface[4].ssid=$PRIVATE_WIFI_SSID
 
 uci commit wireless
 
-cp /opt/mesh/zeroconf_succeeded /home/root/. 
+cp /opt/mesh/zeroconf_succeeded /root/. 
 
-#reboot now
-
-exit 0
+# reboot OpenWrt gently to prevent boot loop
+sleep 60 && touch /etc/banner && reboot
