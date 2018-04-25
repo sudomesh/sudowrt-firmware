@@ -186,9 +186,9 @@ openwrt_build_configure()
   local config_dir=${workdir}/openwrt_config/arch_configs
   local config=${workdir}/${BUILD_DIR}/openwrt/config.${arch}
   $kconfig 'm+' "${config_dir}/generic" "${config_dir}/${arch}" > "${config}"
-  echo "CONFIG_TARGET_ar71xx_generic_MYNETN600=y" >> "${config}"
+  #echo "CONFIG_TARGET_ar71xx_generic_MYNETN600=y" >> "${config}"
   #echo "CONFIG_TARGET_ar71xx_generic_MYNETN750=y" >> "${config}"
-  echo "CONFIG_HAS_SUBTARGETS=y" >> "${config}"
+  #echo "CONFIG_HAS_SUBTARGETS=y" >> "${config}"
 
   # Include all common packages
   for pkg in ${all_packages}; do
