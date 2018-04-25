@@ -77,5 +77,4 @@ uci commit wireless
 
 cp /opt/mesh/zeroconf_succeeded /root/. 
 
-# reboot OpenWrt gently to prevent boot loop
-sleep 60 && touch /etc/banner && reboot
+exit 0

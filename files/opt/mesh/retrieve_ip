@@ -18,7 +18,7 @@ USER="deployer"
 PASS="praisebob"
 POSTURL="https://$USER:$PASS@$MESHNODEDB/nodes"
 
-echo "running 99_meship to retrieve an IP address from" $MESHNODEDB >>$LOG
+echo "retrieving an IP address from" $MESHNODEDB >>$LOG
 
 # check for internet connection for every every 10s 
 for i in 1 2 3 4 5;
@@ -129,7 +129,8 @@ echo "NODEIP="$MESHIP >>$HOME_NODE
 /etc/init.d/babeld start
 /etc/init.d/meshrouting start
 
-# remove cron job and delete this script 
+# remove cron job, set to reboot, and delete this script 
 echo "deleting cronjob and removing /opt/mesh/retrieve_ip" >>$LOG
 sed -i '/retrieve_ip/d' /etc/crontabs/root
+reboot -d 10
 rm -- "$0"
