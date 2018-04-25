@@ -1,14 +1,19 @@
-Hey there! Your node was successfully configured with the MESH IP <insert-mesh-ip>
+Hey there! Your node was successfully configured with the 
+MESH IP <ins.ert.mes.hip>
 
-The default root and admin passwords are "meshtheplanet", but you probably already know that, since you found this file.
+The default root and admin passwords are "meshtheplanet", 
+but you probably already know that, since you found this file.
 
 Be sure to change these passwords by ssh'ing into the node as root and running, 
 `passwd root`
 `passwd admin`
 
-Additionally, you can add your public key to `/etc/dropbear/authorized_keys` if you prefer to log in with your ssh keys.
+Additionally, you can add your public key to `/etc/dropbear/authorized_keys` 
+if you prefer to log in with your ssh keys.
 
-You should also remove the cronjob that automatically deletes the root password after a day, 
-you can do this by running, `crontab -e` and deleting the line that reads "* * */1 * * rm /etc/shawdow"
+You should also remove the cronjob that automatically deletes 
+the root password after 12hrs of uptime, you can do this by running, 
+`crontab -e` and deleting the line that reads "* */12 * * * /opt/mesh/pw_reset"
 
-P.S. this is a really hacky way of removing default root/admin access, someone should make it better!
+P.S. this is a really hacky way of removing default root/admin access, 
+     someone should make it better!

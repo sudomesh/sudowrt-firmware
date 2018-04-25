@@ -11,7 +11,7 @@
 . /usr/share/libubox/jshn.sh
 
 # default configs for People's Open Network
-LOG=/var/log/retrieve_ip.log
+LOG="/var/log/retrieve_ip.log"
 MESHNODEDB="secrets.peoplesopen.net"
 MESHNODEDB_IP="138.68.252.190"
 USER="deployer"
@@ -64,73 +64,15 @@ json_get_var MESHBLOCK open_subnet_ipv4
 echo "recieved mesh IP:" $MESHIP >>$LOG
 echo "recieved mesh block:" $MESHBLOCK"/26" >>$LOG
 
-# create some other MESH IP dependent info
-LAST_3_OF_IP=${MESHIP#*.} # removes everything before first dot
-
-nextip(){
-  IP=$1
-  IP_HEX=$(printf '%.2X%.2X%.2X%.2X\n' `echo $IP | sed -e 's/\./ /g'`)
-  NEXT_IP_HEX=$(printf %.8X `echo $(( 0x$IP_HEX + 1 ))`)
-  NEXT_IP=$(printf '%d.%d.%d.%d\n' `echo $NEXT_IP_HEX | sed -r 's/(..)/0x\1 /g'`)
-  echo $NEXT_IP
-}
-
-EXTENDER_NODE_IP_1=$(nextip $MESHIP)
-EXTENDER_NODE_IP_2=$(nextip $EXTENDER_NODE_IP_1)
-
-# copy template configs to /etc/
-cp -r /opt/mesh/templates/etc/* /etc/.
-
-echo "committing new mesh IP" $MESHIP "to uci settings" >>$LOG
-
-# TODO move all UCI configs to zeroconf script and just return an IP from this script
-# that way zeroconf can be reusable to reconfig your node with any IP you choose
-
-# config babeld
-uci set babeld.@filter[0].ip=$MESHIP'/32'
-uci commit babeld
-
-# config dhcp
-uci delete dhcp.openpool.dhcp_option
-uci add_list dhcp.openpool.dhcp_option='1,255.255.255.192'
-uci add_list dhcp.openpool.dhcp_option='3,'$MESHIP
-uci add_list dhcp.openpool.dhcp_option='6,'$MESHIP
-uci commit dhcp
-
-# config network settings
-uci set network.ext1mesh.ipaddr=$MESHIP
-uci set network.ext2mesh.ipaddr=$MESHIP
-uci set network.mesh2.ipaddr=$MESHIP
-uci set network.mesh5.ipaddr=$MESHIP
-uci set network.open.ipaddr=$MESHIP
-uci commit network
-
-# config notdhcp
-uci delete notdhcpserver.@server[0].addresses
-uci add_list notdhcpserver.@server[0].addresses='eth0.1='$EXTENDER_NODE_IP_1'/32'
-uci add_list notdhcpserver.@server[0].addresses='eth0.2='$EXTENDER_NODE_IP_2'/32'
-uci commit notdhcpserver
-
-# config wireless settings
-uci set wireless.@wifi-iface[0].ssid='peoplesopen.net '$LAST_3_OF_IP
-uci set wireless.@wifi-iface[3].ssid='peoplesopen.net fast '$LAST_3_OF_IP 
-uci commit wireless
-
 # complete rest of configurations in a reusable script
-/opt/mesh/zeroconf
-
-# deal with old shell config file
-# TODO move this to a uci config
-HOME_NODE=/etc/sudomesh/home_node
-echo "LANNET="$MESHBLOCK"/26" >>$HOME_NODE
-echo "NODEIP="$MESHIP >>$HOME_NODE
+/opt/mesh/zeroconf $MESHIP
 
 # start some services
 /etc/init.d/babeld start
 /etc/init.d/meshrouting start
 
 # remove cron job, set to reboot, and delete this script 
-echo "deleting cronjob and removing /opt/mesh/retrieve_ip" >>$LOG
+echo "deleting cronjob, removing /opt/mesh/retrieve_ip, and rebooting" >>$LOG
 sed -i '/retrieve_ip/d' /etc/crontabs/root
 reboot -d 10
 rm -- "$0"

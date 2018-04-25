@@ -1,7 +1,9 @@
 #!/bin/sh
 
 # this is file sets all peoplesopen network settings
-# expect the node's unique MESH IP, this is set by /opt/mesh/retrieve_ip 
+# it takes a desired MESH IP as its only input, 
+# this is can _carefully_ be chosen manually 
+# or retrieved automatically by /opt/mesh/retrieve_ip 
 
 EXIT_NODE_MESH_IPv4_ADDR='100.64.0.42'
 ADHOC_SUBNET_IPv4_MASK='255.255.255.255'
@@ -25,35 +27,104 @@ UUID=$(cat /proc/sys/kernel/random/uuid)
 DOWNSTREAM_BW=4096
 UPSTREAM_BW=4096
 
+MESHIP=$1
+
+# create some other MESH IP dependent info
+LAST_3_OF_IP=${MESHIP#*.} # removes everything before first dot
+
+previp(){
+    IP=$1
+    IP_HEX=$(printf '%.2X%.2X%.2X%.2X\n' `echo $IP | sed -e 's/\./ /g'`)
+    PREV_IP_HEX=$(printf %.8X `echo $(( 0x$IP_HEX - 1 ))`)
+    PREV_IP=$(printf '%d.%d.%d.%d\n' `echo $PREV_IP_HEX | sed -r 's/(..)/0x\1 /g'`)
+    echo $PREV_IP
+}
+
+nextip(){
+    IP=$1
+    IP_HEX=$(printf '%.2X%.2X%.2X%.2X\n' `echo $IP | sed -e 's/\./ /g'`)
+    NEXT_IP_HEX=$(printf %.8X `echo $(( 0x$IP_HEX + 1 ))`)
+    NEXT_IP=$(printf '%d.%d.%d.%d\n' `echo $NEXT_IP_HEX | sed -r 's/(..)/0x\1 /g'`)
+    echo $NEXT_IP
+}
+ 
+MESHBLOCK=$(previp $MESHIP)
+EXTENDER_NODE_IP_1=$(nextip $MESHIP)
+EXTENDER_NODE_IP_2=$(nextip $EXTENDER_NODE_IP_1)
+ 
+
+# copy template configs to /etc/
+cp -r /opt/mesh/templates/etc/* /etc/.
+
+
+# config babeld
+uci set babeld.@filter[0].ip=$MESHIP'/32'
+uci commit babeld
+
+
+# config dhcp
+uci delete dhcp.openpool.dhcp_option
+uci add_list dhcp.openpool.dhcp_option='1,255.255.255.192'
+uci add_list dhcp.openpool.dhcp_option='3,'$MESHIP
+uci add_list dhcp.openpool.dhcp_option='6,'$MESHIP
 uci set dhcp.@dnsmasq[0].server='/sudomesh.org/'$EXIT_NODE_MESH_IPv4_ADDR
 uci commit dhcp
 
+
+# config network settings
+
+uci set network.ext1mesh.ipaddr=$MESHIP
 uci set network.ext1mesh.dns=$EXIT_NODE_MESH_IPv4
 uci set network.ext1mesh.netmask=$ADHOC_SUBNET_IPv4_BITMASK
+
+uci set network.ext2mesh.ipaddr=$MESHIP
 uci set network.ext2mesh.dns=$EXIT_NODE_MESH_IPv4
 uci set network.ext2mesh.netmask=$ADHOC_SUBNET_IPv4_BITMASK
+
+uci set network.mesh2.ipaddr=$MESHIP
 uci set network.mesh2.dns=$EXIT_NODE_MESH_IPv4
 uci set network.mesh2.netmask=$ADHOC_SUBNET_IPv4_MASK
+
+uci set network.mesh5.ipaddr=$MESHIP
 uci set network.mesh5.dns=$EXIT_NODE_MESH_IPv4
 uci set network.mesh5.netmask=$ADHOC_SUBNET_IPv4_MASK
+
+uci set network.open.ipaddr=$MESHIP
 uci set network.open.dns=$EXIT_NODE_MESH_IPv4
 uci set network.open.netmask=$OPEN_SUBNET_IPv4_MASK
+
 uci commit network
 
+
+# config notdhcp
+uci delete notdhcpserver.@server[0].addresses
+uci add_list notdhcpserver.@server[0].addresses='eth0.1='$EXTENDER_NODE_IP_1'/32'
+uci add_list notdhcpserver.@server[0].addresses='eth0.2='$EXTENDER_NODE_IP_2'/32'
+uci commit notdhcpserver
+
+
+# config polipo
 uci delete polipo.general.allowedClients
 uci add_list polipo.general.allowedClients='172.30.0.0/24'
 uci add_list polipo.general.allowedClients='127.0.0.1'
 uci add_list polipo.general.allowedClients=$MESH_SUBNET_IPv4'/'$MESH_SUBNET_IPv4_BITMASK
 uci commit polipo
 
+
+# config rpcd
 uci set rpcd.@login[0].username=$RPCD_USER_NAME
 uci set rpcd.@login[0].password='$p$'$RPCD_USER_NAME
 uci commit rpcd
 
+
+# config tunneldigger
 uci set tunneldigger.main.uuid=$UUID
 uci set tunneldigger.main.limit_bw_down=$DOWNSTREAM_BW'kbit'
 uci set tunneldigger.main.limit_bw_up=$UPSTREAM_BW'kbit'
 uci commit tunneldigger
+
+
+# config wirless
 
 uci set wireless.radio0.channel=$CHANNEL_2_4
 uci set wireless.radio0.txpower=$TX_POWER
@@ -61,6 +132,7 @@ uci delete wireless.radio0.ht_capab
 uci add_list wireless.radio0.ht_capab='TX-STBC'
 uci add_list wireless.radio0.ht_capab='TX-STBC-2BY1'
 uci add_list wireless.radio0.ht_capab='RX-STBC'$STREAMS_2G
+uci set wireless.@wifi-iface[0].ssid='peoplesopen.net '$LAST_3_OF_IP
 uci set wireless.@wifi-iface[1].key=$PRIVATE_WIFI_KEY
 uci set wireless.@wifi-iface[1].ssid=$PRIVATE_WIFI_SSID
 
@@ -70,11 +142,25 @@ uci delete wireless.radio1.ht_capab
 uci add_list wireless.radio1.ht_capab='GF'
 uci add_list wireless.radio1.ht_capab='TX-STBC'
 uci add_list wireless.radio1.ht_capab='RX-STBC'$STREAMS_5G
+uci set wireless.@wifi-iface[3].ssid='peoplesopen.net fast '$LAST_3_OF_IP 
 uci set wireless.@wifi-iface[4].key=$PRIVATE_WIFI_KEY
 uci set wireless.@wifi-iface[4].ssid=$PRIVATE_WIFI_SSID
 
 uci commit wireless
 
+
+# deal with old shell config file
+# TODO move this to a uci config
+HOME_NODE=/etc/sudomesh/home_node
+echo "LANNET="$MESHBLOCK"/26" >>$HOME_NODE
+echo "NODEIP="$MESHIP >>$HOME_NODE
+
+
+# config complete
 cp /opt/mesh/zeroconf_succeeded /root/. 
+sed -i -e "s/<ins.ert.mes.hip>/${MESHIP}/g" /root/zeroconf_succeeded
+
+echo "node reconfigured with mesh IP "$MESHIP
+echo "if running manually, please reboot to apply changes"
 
 exit 0
