@@ -16,7 +16,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -yq \
       xsltproc=1.1.28-2build1 \
       unzip=6.0-9ubuntu1.5 \
       python=2.7.5-5ubuntu3 \
-      wget=1.15-1ubuntu1.14.04.3
+      wget=1.15-1ubuntu1.14.04.4
 RUN apt-get clean
 
 ENV FIRMWARE_DIR /usr/local/sudowrt-firmware
