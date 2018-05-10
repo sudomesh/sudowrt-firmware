@@ -155,10 +155,13 @@ HOME_NODE=/etc/sudomesh/home_node
 echo "LANNET="$MESHBLOCK"/26" >>$HOME_NODE
 echo "NODEIP="$MESHIP >>$HOME_NODE
 
+# deal with tunnel_hook related to bug #31
+sed -i -e "s/<%= mesh_addr_ipv4 %>/$MESHIP/g" /opt/mesh/tunnelhook
+sed -i -e "s/<%= tun_subnet_ipv4_bitmask %>/32/g" /opt/mesh/tunnelhook
 
 # config complete
 cp /opt/mesh/zeroconf_succeeded /root/. 
-sed -i -e "s/<ins.ert.mes.hip>/${MESHIP}/g" /root/zeroconf_succeeded
+sed -i -e "s/<ins.ert.mes.hip>/$MESHIP/g" /root/zeroconf_succeeded
 
 echo "node reconfigured with mesh IP "$MESHIP
 echo "if running manually, please reboot to apply changes"
