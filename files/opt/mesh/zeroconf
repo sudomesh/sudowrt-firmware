@@ -53,8 +53,9 @@ EXTENDER_NODE_IP_1=$(nextip $MESHIP)
 EXTENDER_NODE_IP_2=$(nextip $EXTENDER_NODE_IP_1)
  
 
-# copy template configs to /etc/
+# copy template configs
 cp -r /opt/mesh/templates/etc/* /etc/.
+cp -r /opt/mesh/templates/opt/* /opt/.
 
 
 # config babeld
