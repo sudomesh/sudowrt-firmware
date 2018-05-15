@@ -31,14 +31,9 @@ DEBIAN_FRONTEND=noninteractive apt-get install -yq --force-yes \
 git clone https://github.com/${SUDOWRT_REPO} ${SUDOWRT_DIR}
 
 
-crontab -l > new_cron
-
 echo "${CRON_TIME} * * * ${SUDOWRT_DIR}/auto_build" >> new_cron
 
 crontab new_cron
 rm new_cron
-
-# run initial build in background
-#nohup /opt/sudowrt-firmware/auto_build &>/dev/null &
 
 exit 0

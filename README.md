@@ -36,6 +36,23 @@ Changes that need to be made in the `/etc` directory can be added to in two plac
 The openwrt wiki has some examples of requirements per distro:
 http://wiki.openwrt.org/doc/howto/buildroot.exigence#examples.of.package.installations
 
+## the "super-easy" way
+If you'd rather not use your personal computer to build this firmware, you can create a dedicated build machine out of any Ubuntu 16.04 server (e.g. on digitalocean, or the mesh).   
+
+Clone this repository on your local machine.  
+
+Now run:
+```
+ssh root@[ip build machine] 'bash -s' < create_build_machine.sh
+``` 
+This should automatically set a build to run every night at midnight (note: this still needs to be tested)  
+
+If you would like to manually trigger a build, run the following:
+```
+ssh root@[ip build machine] '/opt/sudowrt-firmware/auto_build > /var/log/build.log 2>&1 &'
+```
+This will run the build in background on the server and produce no output. If you would like to see if your build started correctly, you can ssh into you server and run ```tail -f /var/log/build.log```. You should be greeted with a familiar wall of text.
+
 ## the "easy" way
 If you'd like to build the firmware in a controlled/clean environment, you can use [docker](https://docker.io) with the provided [Dockerfile](./Dockerfile) or a prebuilt image hosted on [our docker-hub](https://hub.docker.com/r/sudomesh/sudowrt-firmware/tags/).  
 Docker provides good instructions for [installing docker-ce on Ubuntu](https://docs.docker.com/install/linux/docker-ce/ubuntu/) or [Debian](https://docs.docker.com/install/linux/docker-ce/debian/) as well as other operating systems.  
@@ -149,6 +166,8 @@ built_firmware/builder.ar71xx.extender-node/bin/ar71xx/
 
 # Stuff to check after building a new version of this firmware
 
+After building a new version of the firmware, you should first make sure you can flash the target device(s). Then check the following:
+
 * do nodes get a mesh ip
 * do nodes tunnel to an exitnode
 * do nodes babel with other nodes (both physically via ad-hoc interface and virtually via tunnel)
@@ -166,4 +185,4 @@ built_firmware/builder.ar71xx.extender-node/bin/ar71xx/
 # Rebuilding firmware
 
 The untested rebuild script was removed in [this commit](https://github.com/sudomesh/sudowrt-firmware/commit/78c7293bc4ac1d39d28311234a6a1ddb72f9c2c3).
-People are currently working on a new rebuild process using docker and travis. See issues [111](https://github.com/sudomesh/sudowrt-firmware/issues/111) and [116](https://github.com/sudomesh/sudowrt-firmware/issues/116).
+Further investigation needs to be done as to how to expedite the build process and prevent it from rebuilding the OpenWrt toolchain on every build.
