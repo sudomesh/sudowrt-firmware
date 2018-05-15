@@ -1,6 +1,10 @@
 #!/bin/sh
 
-rm -r firmware_images
+SUDOWRT_DIR='/opt/sudowrt-firmware'
+
+cd ${SUDOWRT_DIR}
+
+rm -r ./firmware_images
 git pull
 # docker rm $(docker ps -a -q)
 # docker rmi $(docker images -q) 
