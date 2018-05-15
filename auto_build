@@ -1,0 +1,9 @@
+#!/bin/sh
+
+rm -r firmware_images
+git pull
+# docker rm $(docker ps -a -q)
+# docker rmi $(docker images -q) 
+docker build -t sudomesh/sudowrt-firmware .
+docker run -v $PWD/firmware_images:/firmware_images sudomesh/sudowrt-firmware
+
