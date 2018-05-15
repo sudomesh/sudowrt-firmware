@@ -4,13 +4,13 @@ A sudomesh firmware builder.
 
 # Pre-built Versions
 
+
 Pre-built versions of the firmware can be found here:
 
  | name | architecture | version | link | commonly used |
 |  --- | --- | --- | --- | --- |
 | Home Node | ar71xx | 0.2.3 | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1205601.svg)](https://doi.org/10.5281/zenodo.1205601) | [mynet n600](https://zenodo.org/record/1205601/files/openwrt-ar71xx-generic-mynet-n600-squashfs-factory.bin) or [mynet n750](https://zenodo.org/record/1205601/files/openwrt-ar71xx-generic-mynet-n750-squashfs-factory.bin)
 | Extender Node | ar71xx | 0.2.3 | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1206171.svg)](https://doi.org/10.5281/zenodo.1206171) |
-
 
 # Developing on this firmware
 
@@ -56,12 +56,12 @@ docker build -t sudomesh/sudowrt-firmware .
 
 or re-use a pre-built one using
 ```
-docker pull sudomesh/sudowrt-firmware:zeroconf
+docker pull sudomesh/sudowrt-firmware:0.2.3
 ```
 
 After creating the container image, build the ar71xx and ar71xx.extender-node firmware using: 
 ```
-docker run -v $PWD/firmware_images:/firmware_images sudomesh/sudowrt-firmware:zeroconf
+docker run --rm -v $PWD/firmware_images:/firmware_images sudomesh/sudowrt-firmware:0.2.3
 ``` 
 
 This command executes [entrypoint.sh](./entrypoint.sh) in the docker container. If the process completes successfully, the built firmware images `/firmware_images` directory of the repo. For some history on this topics please see https://github.com/sudomesh/sudowrt-firmware/issues/110 and https://github.com/sudomesh/sudowrt-firmware/issues/105 . 
