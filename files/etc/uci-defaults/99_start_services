@@ -1,0 +1,4 @@
+/etc/init.d/cron start
+/etc/init.d/cron enable
+/etc/init.d/meshrouting start
+/etc/init.d/meshrouting enable

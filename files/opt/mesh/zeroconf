@@ -163,6 +163,9 @@ sed -i -e "s/<%= tun_subnet_ipv4_bitmask %>/32/g" /opt/mesh/tunnel_hook
 cp /opt/mesh/zeroconf_succeeded /root/. 
 sed -i -e "s/<ins.ert.mes.hip>/$MESHIP/g" /root/zeroconf_succeeded
 
+# restart meshrouting
+/etc/init.d/meshrouting restart
+
 echo "node reconfigured with mesh IP "$MESHIP
 echo "if running manually, please reboot to apply changes"
 
