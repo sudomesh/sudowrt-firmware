@@ -1,0 +1,5 @@
+config filter
+  option type 'redistribute'
+  option ip '<%= mesh_addr_ipv4 %>/32'
+  option local 'true'
+  option action 'allow'

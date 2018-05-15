@@ -2,7 +2,8 @@ A sudomesh firmware builder.
 
 [![Build Status](https://travis-ci.org/sudomesh/sudowrt-firmware.svg?branch=master)](https://travis-ci.org/sudomesh/sudowrt-firmware)
 
-# pre-built versions
+# Pre-built Versions
+
 
 Pre-built versions of the firmware can be found here:
 
@@ -11,15 +12,33 @@ Pre-built versions of the firmware can be found here:
 | Home Node | ar71xx | 0.2.3 | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1205601.svg)](https://doi.org/10.5281/zenodo.1205601) | [mynet n600](https://zenodo.org/record/1205601/files/openwrt-ar71xx-generic-mynet-n600-squashfs-factory.bin) or [mynet n750](https://zenodo.org/record/1205601/files/openwrt-ar71xx-generic-mynet-n750-squashfs-factory.bin)
 | Extender Node | ar71xx | 0.2.3 | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1206171.svg)](https://doi.org/10.5281/zenodo.1206171) |
 
- 
+# Developing on this firmware
 
-# Requirements
+If you like to make additions to th sudowrt-firmware, there a few ways in which to integrate your desired changes. First, firgure out what change you are trying to make by testing it out on a live node.
+
+## Adding an OpenWrt package
+Maybe you'd like to expose a feature by installing an OpenWrt package. If you find yourself needing to run on your home node,
+```
+opkg update
+opkg install <package-name>
+```
+You can build this into the firmware by adding to the package name to the list located in /openwrt_configs/packages.
+
+## Adding `/etc/` configurations
+Changes that need to be made in the `/etc` directory can be added to in two places.
+
+1. `files/etc/` this is where you should put configurations that are neccessary at very first boot or during zeroconf. Any changes to this directory may be overwritten by the second location.
+
+2. `files/opt/mesh/templates/etc/` this is the directory that is copied in after you recieve an IP on the mesh. Any mesh dependent configurations should be made here. Files in this directory supersede `files/etc`
+
+# Building this firmware
 
 The openwrt wiki has some examples of requirements per distro:
 http://wiki.openwrt.org/doc/howto/buildroot.exigence#examples.of.package.installations
 
-# the "easy" way
-If you'd like to build the firmware in a controlled/clean environment, you can use [docker](https://docker.io) with the provided [Dockerfile](./Dockerfile):
+## the "easy" way
+If you'd like to build the firmware in a controlled/clean environment, you can use [docker](https://docker.io) with the provided [Dockerfile](./Dockerfile) or a prebuilt image hosted on [our docker-hub](https://hub.docker.com/r/sudomesh/sudowrt-firmware/tags/).  
+Docker provides good instructions for [installing docker-ce on Ubuntu](https://docs.docker.com/install/linux/docker-ce/ubuntu/) or [Debian](https://docs.docker.com/install/linux/docker-ce/debian/) as well as other operating systems.  
 
 First clone this repository:
 
@@ -51,10 +70,10 @@ Note that building with ```docker run --net=none -v $PWD/firmware_images:/firmwa
 
 If the build fails, capture the console output, yell loudly, talk to someone or create [a new issue](https://github.com/sudomesh/meshwrt-firmware/issues/new).
 
-## Docker debugging
+### Docker debugging
 The [entrypoint.sh](./entrypoint.sh) should make it easy to automate the build process. However, when debugging the build scripts, it might be useful to poke around a build machine container using ```docker run -it --entrypoint=/bin/bash sudomesh/sudowrt-firmware:latest -i``` . This will start an interactive terminal which allows for manually running/debugging scripts like ./build_only .  
 
-## Docker clean-up
+### Docker clean-up
 After finishing a build or before rerunning the build, it may be a good idea to remove any old docker containers and images. To remove all old containers and images, run the following commands:  
 ```
 docker rm $(docker ps -a -q)
@@ -64,7 +83,7 @@ Note this will indiscriminately delete all docker containers and images. If you'
 
 Now go to https://peoplesopen.net/walkthrough and follow the instructions to flash the firmware onto your router.
 
-# the "hard" way
+## the "hard" way
 If you'd rather build the firmware without Docker, please keep reading.
 
 Unless you know what you are doing, you should build this on a Ubuntu 64bit box/container. At time of writing (Jan 2017), the [build script does not appear to work on Ubuntu 16.04](https://github.com/sudomesh/sudowrt-firmware/issues/103). 
@@ -78,7 +97,7 @@ sudo apt-get update
 sudo apt-get install build-essential subversion libncurses5-dev zlib1g-dev gawk gcc-multilib flex git-core gettext quilt ccache libssl-dev xsltproc unzip python wget
 ```
 
-# Building home-node firmware
+### Building home-node firmware
 
 Note: The below sections may no longer be relevant as they have not been sufficiently tested since build script refactor. 
 
@@ -106,7 +125,7 @@ The firmware images will be available in:
 built_firmware/builder.ar71xx/bin/ar71xx/
 ```
 
-# Building extender-node firmware
+### Building extender-node firmware
 
 Make sure you've already built the home-node firmware as the extender-node firmware will not build otherwise.
 
@@ -128,7 +147,23 @@ The firmware images will be available in:
 built_firmware/builder.ar71xx.extender-node/bin/ar71xx/
 ```
 
+# Stuff to check after building a new version of this firmware
+
+* do nodes get a mesh ip
+* do nodes tunnel to an exitnode
+* do nodes babel with other nodes (both physically via ad-hoc interface and virtually via tunnel)
+* do nodes successfully assign IPs and network w/ extenders on ports 1 and 2
+* do ports 3 and 4 work as expected (i.e. do they provide access to the private / public networks respectively)
+* do wireless clients get a WAN connection on the private SSID
+* do wireless clients get a WAN connection on the public SSID
+* does the retrieve_ip script clean itself up
+* can nodes be reconfigured with makenode v0.0.1
+* can the zeroconf script be re-run manually with a new (or the same) IP
+* does the [admin panel](https://github.com/sudomesh/peoplesopen-dash) work (with default pw and changed pw)
+* does the default root password expire after a day
+* are the instructions provided in zeroconf_succeeded text helpful... :)
+
 # Rebuilding firmware
 
 The untested rebuild script was removed in [this commit](https://github.com/sudomesh/sudowrt-firmware/commit/78c7293bc4ac1d39d28311234a6a1ddb72f9c2c3).
-We are currently working on a new rebuild process using docker and travis. See issues [111](https://github.com/sudomesh/sudowrt-firmware/issues/111) and [116](https://github.com/sudomesh/sudowrt-firmware/issues/116).
+People are currently working on a new rebuild process using docker and travis. See issues [111](https://github.com/sudomesh/sudowrt-firmware/issues/111) and [116](https://github.com/sudomesh/sudowrt-firmware/issues/116).

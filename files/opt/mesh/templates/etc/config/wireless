@@ -1,0 +1,123 @@
+
+# The 2.4 GHz radio
+config wifi-device 'radio0'
+  option type     mac80211
+  option channel  '<%= channel_2_4 %>'
+  option txpower  '<%= tx_power %>'
+
+  option path     'platform/ar934x_wmac'
+
+  # hwmode now only accepts 11g or 11a
+  # and only affects 2.4 vs 5 GHz operation
+  # see https://dev.openwrt.org/ticket/17541
+  option hwmode	11g
+
+  # This setting enables 802.11n and 20 MHz channel width
+  option htmode	HT20
+
+  # MIMO transmit support
+  list ht_capab	TX-STBC
+
+  # Support for transmission of at least 2x1 STBC
+  list ht_capab TX-STBC-2BY1
+
+  # RX-STBC1 means MIMO receive support for one spatial stream
+  # RX-STBC2 is for two streams, and so forth
+  # This should match the number of receive antennas
+
+# the open wifi ap 
+config wifi-iface
+  option device 'radio0'
+  option ifname 'open2'
+  option encryption 'none'
+  option network 'open'
+  option mode 'ap'
+  option ssid 'peoplesopen.net <%= ssid_unique_part %>'
+
+# the private wpa2 interface
+config wifi-iface
+  option device 'radio0'
+  option ifname 'priv2'
+  option network 'priv'
+  option encryption 'psk2'
+  option key '<%= private_wifi_key %>'
+  option mode 'ap'
+  option ssid '<%= private_wifi_ssid %>'
+
+# the mesh interface on 2.4 ghz
+config wifi-iface
+  option device 'radio0'
+  option ifname 'mesh2'
+  option network 'mesh2'
+  option encryption 'none'
+  option mode 'adhoc'
+  option bssid 'CA:FE:C0:DE:F0:0D'
+                                                                       
+  # If bssid is set to the same for all nodes
+  # then ssid becomes irrelevant and there is no need to broadcast
+  # see: http://ml.ninux.org/pipermail/battlemesh/2013-June/002446.html
+  option ssid 'pplsopen.net-node2node'
+  # HOWEVER: It makes debugging easier
+  #option hidden '1'
+ 
+# The 5 GHz radio
+config wifi-device 'radio1'
+  option type     mac80211
+  option channel  '<%= channel_5 %>'
+  option txpower  '<%= tx_power %>'
+
+  option path     'pci0000:00/0000:00:00.0'
+
+  # hwmode now only accepts 11g or 11a
+  # and only affects 2.4 vs 5 GHz operation
+  # see https://dev.openwrt.org/ticket/17541
+  option hwmode	11a
+
+  # Use a 40 MHz channel using specified 20 MHz channel and the next one up
+  option htmode	HT40+
+
+  # Greenfield enabled
+  list ht_capab GF
+
+  # MIMO transmit support
+  list ht_capab	TX-STBC
+
+  # RX-STBC1 means MIMO receive support for one spatial stream
+  # RX-STBC2 is for two streams, and so forth
+  # This should match the number of receive antennas
+
+# the open wifi ap on 5 ghz                                                
+config wifi-iface                                                          
+  option device 'radio1'                                                   
+  option ifname 'open5'                                                    
+  option encryption 'none'                                                 
+  option network 'open'                                                    
+  option mode 'ap'                                                         
+  option ssid 'peoplesopen.net fast <%= ssid_unique_part %>'
+
+# the private wpa2 interface on 5 ghz
+config wifi-iface
+  option device 'radio1'
+  option ifname 'priv5'
+  option network 'priv'
+  option encryption 'psk2'
+  option key '<%= private_wifi_key %>'
+  option mode 'ap'
+  option ssid '<%= private_wifi_ssid %>'
+
+# the mesh interface for the mesh
+config wifi-iface
+  option device 'radio1'
+  option ifname 'mesh5'
+  option network 'mesh5'
+  option encryption 'none'
+  option mode 'adhoc'
+  option bssid 'CA:FE:C0:DE:F0:0D'
+	
+  # If bssid is set to the same for all nodes
+  # then ssid becomes irrelevant and there is no need to broadcast
+  # see: http://ml.ninux.org/pipermail/battlemesh/2013-June/002446.html
+  option ssid 'pplsopen.net-node2node'
+  # HOWEVER: It makes debugging easier
+  #option hidden '1'
+ 

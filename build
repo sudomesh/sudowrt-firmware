@@ -4,6 +4,6 @@
 #
 #  If you only want to build, use [build_only]. If you only want to get resources needed to build, use [build_pre].
 #
-
-source build_pre
 source build_only
+source build_pre
+
