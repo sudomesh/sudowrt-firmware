@@ -20,7 +20,7 @@ deploy:
     on: 
       tags: true
   - provider: script
-    script: docker tag $BUILDING $DOCKER_IMAGE:zeroconf; docker push $DOCKER_IMAGE:latest
+    script: docker tag $BUILDING $DOCKER_IMAGE:latest; docker push $DOCKER_IMAGE:latest
     on:
       branch: master
 
