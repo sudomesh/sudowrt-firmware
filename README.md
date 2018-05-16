@@ -22,7 +22,7 @@ Maybe you'd like to expose a feature by installing an OpenWrt package. If you fi
 opkg update
 opkg install <package-name>
 ```
-You can build this into the firmware by adding to the package name to the list located in /openwrt_configs/packages.
+You can build this into the firmware by adding to the package name to the list located in `/openwrt_configs/packages`.
 
 ## Adding `/etc/` configurations
 Changes that need to be made in the `/etc` directory can be added to in two places.
@@ -37,7 +37,7 @@ The openwrt wiki has some examples of requirements per distro:
 http://wiki.openwrt.org/doc/howto/buildroot.exigence#examples.of.package.installations
 
 ## the "super-easy" way
-If you'd rather not use your personal computer to build this firmware, you can create a dedicated build machine out of any Ubuntu 16.04 server (e.g. on digitalocean, or the mesh).   
+If you'd rather not use your personal computer to build this firmware, you can create a dedicated build machine out of any Ubuntu 16.04 server (e.g. on digitalocean, or the mesh). Note: the server should have at least 50GB of storage, otherwise, the docker container will become to large for your server.
 
 Clone this repository on your local machine.  
 
