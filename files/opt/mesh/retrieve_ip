@@ -65,7 +65,7 @@ echo "recieved mesh IP:" $MESHIP >>$LOG
 echo "recieved mesh block:" $MESHBLOCK"/26" >>$LOG
 
 # complete rest of configurations in a reusable script
-/opt/mesh/zeroconf $MESHIP
+/opt/mesh/autoconf $MESHIP
 
 # start some services
 /etc/init.d/babeld start
