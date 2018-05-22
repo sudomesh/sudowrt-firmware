@@ -54,8 +54,8 @@ EXTENDER_NODE_IP_2=$(nextip $EXTENDER_NODE_IP_1)
  
 
 # copy template configs
-cp -r /opt/mesh/templates/etc/* /etc/.
-cp -r /opt/mesh/templates/opt/* /opt/.
+cp -r -f /opt/mesh/templates/etc/* /etc/.
+cp -r -f /opt/mesh/templates/opt/* /opt/.
 
 
 # config babeld
@@ -161,8 +161,8 @@ sed -i -e "s/<%= mesh_addr_ipv4 %>/$MESHIP/g" /opt/mesh/tunnel_hook
 sed -i -e "s/<%= tun_subnet_ipv4_bitmask %>/32/g" /opt/mesh/tunnel_hook
 
 # config complete
-cp /opt/mesh/zeroconf_succeeded /root/. 
-sed -i -e "s/<ins.ert.mes.hip>/$MESHIP/g" /root/zeroconf_succeeded
+cp /opt/mesh/config_succeeded /root/. 
+sed -i -e "s/<ins.ert.mes.hip>/$MESHIP/g" /root/config_succeeded
 
 # enable some services 
 /etc/init.d/meshrouting enable 
