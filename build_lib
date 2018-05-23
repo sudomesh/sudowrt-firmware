@@ -254,6 +254,8 @@ openwrt_buildprep()
   make download
   make package/libs/lzo/download V=s
   make package/libs/ncurses/download V=s
+  make package/utils/util-linux/download V=s
+  make package/feeds/openwrt/attr/download V=s
 }
 
 # adapted from https://bugzilla.yoctoproject.org/show_bug.cgi?id=7338#c7
