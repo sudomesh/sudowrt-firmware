@@ -252,6 +252,8 @@ openwrt_buildprep()
 
   # download dependencies (tools, toolchain, packages, feeds)
   make download
+  make package/libs/lzo/download V=s
+  make package/libs/ncurses/download V=s
 }
 
 # adapted from https://bugzilla.yoctoproject.org/show_bug.cgi?id=7338#c7
