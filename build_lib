@@ -256,6 +256,15 @@ openwrt_buildprep()
   make package/libs/ncurses/download V=s
   make package/utils/util-linux/download V=s
   make package/feeds/openwrt/attr/download V=s
+
+  # find all dependencies in package directory and force download them, related to issue #116
+  #for d in $(find package/ -mindepth 1 -maxdepth 2 -type d); do
+  #  if [ -e $d/Makefile ]; then
+  #    make $d/download V=s
+  #  else
+  #    echo "not a package"
+  #  fi
+  #done
 }
 
 # adapted from https://bugzilla.yoctoproject.org/show_bug.cgi?id=7338#c7
