@@ -9,12 +9,13 @@ Pre-built versions of the firmware can be found here:
 
  | name | architecture | version | link | commonly used |
 |  --- | --- | --- | --- | --- |
+| Home Node | ar71xx | 0.3.0 |  | [mynet n600](http://builds.sudomesh.org/builds/sudowrt/dispossessed/0.3.0/openwrt-ar71xx-generic-mynet-n600-squashfs-factory.bin) 
 | Home Node | ar71xx | 0.2.3 | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1205601.svg)](https://doi.org/10.5281/zenodo.1205601) | [mynet n600](https://zenodo.org/record/1205601/files/openwrt-ar71xx-generic-mynet-n600-squashfs-factory.bin) or [mynet n750](https://zenodo.org/record/1205601/files/openwrt-ar71xx-generic-mynet-n750-squashfs-factory.bin)
 | Extender Node | ar71xx | 0.2.3 | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1206171.svg)](https://doi.org/10.5281/zenodo.1206171) |
 
 # Developing on this firmware
 
-If you like to make additions to th sudowrt-firmware, there a few ways in which to integrate your desired changes. First, firgure out what change you are trying to make by testing it out on a live node.
+If you would like to make additions to the sudowrt-firmware, there a few ways in which to integrate your desired changes. First, figure out what change you are trying to make by testing it out on a live node. Most changes can be tested by sshing into a node and manually making the changes. The following 
 
 ## Adding an OpenWrt package
 Maybe you'd like to expose a feature by installing an OpenWrt package. If you find yourself needing to run on your home node,
@@ -22,14 +23,36 @@ Maybe you'd like to expose a feature by installing an OpenWrt package. If you fi
 opkg update
 opkg install <package-name>
 ```
-You can build this into the firmware by adding to the package name to the list located in `/openwrt_configs/packages`.
+You can build any package into the firmware by adding to the package name to the list located in `/openwrt_configs/packages`.
 
-## Adding `/etc/` configurations
-Changes that need to be made in the `/etc` directory can be added to in two places.
+## Adding/modifiying system files 
+Changes that need to be made in a node's system files can be added to in two places.
 
-1. `files/etc/` this is where you should put configurations that are neccessary at very first boot or during zeroconf. Any changes to this directory may be overwritten by the second location.
+1. `files/` - this is where you should put configurations that are neccessary at very first boot or during the autoconfiguration process. Any changes to this directory may be overwritten by the second location.
 
-2. `files/opt/mesh/templates/etc/` this is the directory that is copied in after you recieve an IP on the mesh. Any mesh dependent configurations should be made here. Files in this directory supersede `files/etc`
+2. `files/opt/mesh/templates/` - this directory is copied in after you recieve an IP on the mesh. The files here may also contain placeholders that can then be replaced with info relevant to People's Open Network (or any given mesh) during autoconfiguration. Files in this directory supersede `files/`
+
+# System file descriptions
+
+Most configurations relevant to People's Open Network are stored in [/etc/config/](https://github.com/sudomesh/sudowrt-firmware/tree/master/files/opt/mesh/templates/etc/config). These files can be alterted using OpenWrt's built-in UCI system, an example of how to use this can be seen in the [autoconf script](https://github.com/sudomesh/sudowrt-firmware/blob/master/files/opt/mesh/autoconf#L61), full documentation can be found [here](https://wiki.openwrt.org/doc/uci).
+
+* [babeld](https://github.com/sudomesh/sudowrt-firmware/blob/master/files/opt/mesh/templates/etc/config/babeld) - configurations for babel routing protocol daemon, not sure how this differs from or interops with [/etc/babeld.conf](https://github.com/sudomesh/sudowrt-firmware/blob/master/files/opt/mesh/templates/etc/babeld.conf)
+* [dhcp](https://github.com/sudomesh/sudowrt-firmware/blob/master/files/opt/mesh/templates/etc/config/dhcp) - configures dnsmasq and sets dhcp server IP addresses
+* [firewall](https://github.com/sudomesh/sudowrt-firmware/blob/master/files/opt/mesh/templates/etc/config/firewall) - seems to do very little, most firewall settings are handled by meshrouting described in next section
+* [network](https://github.com/sudomesh/sudowrt-firmware/blob/master/files/opt/mesh/templates/etc/config/network) - sets up physical ports and virutal interfaces for home node, takes the node's mesh IP and adds it to the necessary interfaces. Also, sets dns server IP addresses, usually the mesh IP of the exit node (e.g. 100.64.0.42 or 100.64.0.43).
+* [notdhcpserver](https://github.com/sudomesh/sudowrt-firmware/blob/master/files/opt/mesh/templates/etc/config/notdhcpserver) - sets ports 1 and 2 on home node to only accept connections from devices with the pre-determined extender node IPs. Though, a device connected to these ports doesn't have to be an extender node, it can be any device with the correct IP, typically the node's mesh IP +1 or +2, usage well dcpoumented in the [services guide](https://github.com/sudomesh/babeld-lab/blob/master/services_guide.md#use-case---raspberry-pi-as-wired-mesh-node-via-home-node).
+* [polipo](https://github.com/sudomesh/sudowrt-firmware/blob/master/files/opt/mesh/templates/etc/config/polipo) - configures cacheing, does not seem to be used by anything.
+* [rpcd](https://github.com/sudomesh/sudowrt-firmware/blob/master/files/opt/mesh/templates/etc/config/rpcd) - sets rpcd login username and password, taken from passwd/shadow files mentioned below.
+* [system](https://github.com/sudomesh/sudowrt-firmware/blob/master/files/etc/config/system) - sets the hostname of the node and configuration of indicator LEDs
+* [tunneldigger](https://github.com/sudomesh/sudowrt-firmware/blob/master/files/opt/mesh/templates/etc/config/tunneldigger) - sets a list of potential tunnel brokers (i.e. exit nodes) as well as the interface to tunnel over and the upload/download bandwidth limits
+* [uhttpd](https://github.com/sudomesh/sudowrt-firmware/blob/master/files/opt/mesh/templates/etc/config/uhttpd) - configurations for the uhttp server daemon (uhttpd = micro http daemon), points requests made on port 80 to the `/www/` folder where the admin dashboard is stored
+* [wireless](https://github.com/sudomesh/sudowrt-firmware/blob/master/files/opt/mesh/templates/etc/config/wireless) - sets up physical radio interfaces (channel, power, SSIDs, BSSIDs, encryption) and binds them to interfaces created by the network configuration.
+
+In addition, to UCI configurations, there are two scripts that use the bash configurations stored in [/etc/sudomesh/](https://github.com/sudomesh/sudowrt-firmware/tree/master/files/opt/mesh/templates/etc/sudomesh)  
+* [/etc/udhcpc.user](https://github.com/sudomesh/sudowrt-firmware/blob/master/files/opt/mesh/templates/etc/udhcpc.user) - this file is triggered by DHCP events on the WAN interface (i.e. your home node getting an IP address from your home router or a DHCP server somewhere on your LAN). It checks for an l2tp tunnel and a route to an exit node through that tunnel and then triggers the next script.  
+* [/etc/init/d/meshrouting](https://github.com/sudomesh/sudowrt-firmware/blob/master/files/opt/mesh/templates/etc/init.d/meshrouting) - this configures the firewall and sets up all of the routing rules for the home node. It makes sure that no packets slip from your private home network to the public mesh network. It then restarts tunneldigger and babeld.  
+
+The default usernames, passwords, and access levels are set by the [passwd](https://github.com/sudomesh/sudowrt-firmware/blob/master/files/etc/passwd) and [shadow](https://github.com/sudomesh/sudowrt-firmware/blob/master/files/etc/shadow) files. Shadow contains an MD5 hash of the default password, which is `meshtheplanet`. This should be changed immeadiately after the autoconf process completes by running `passwd root` and `passwd admin`.  
 
 # Building this firmware
 
@@ -37,7 +60,7 @@ The openwrt wiki has some examples of requirements per distro:
 http://wiki.openwrt.org/doc/howto/buildroot.exigence#examples.of.package.installations
 
 ## the "super-easy" way
-If you'd rather not use your personal computer to build this firmware, you can create a dedicated build machine out of any Ubuntu 16.04 server (e.g. on digitalocean, or the mesh). Note: the server should have at least 50GB of storage, otherwise, the docker container will become to large for your server.
+If you'd rather not use your personal computer to build this firmware, you can create a dedicated build machine out of any Ubuntu 16.04 server (e.g. a droplet on digitalocean, or a server on the mesh). Note: the server should have at least 50GB of storage, otherwise, the docker container will become to large for your server.
 
 Clone this repository on your local machine.  
 
@@ -51,7 +74,7 @@ If you would like to manually trigger a build, run the following:
 ```
 ssh root@[ip build machine] '/opt/sudowrt-firmware/auto_build > /var/log/build.log 2>&1 &'
 ```
-This will run the build in background on the server and produce no output. If you would like to see if your build started correctly, you can ssh into you server and run ```tail -f /var/log/build.log```. You should be greeted with a familiar wall of text.
+This will run the build in background on the server and produce no output. If you would like to see if your build started correctly, you can ssh into you server and ```tail -f /var/log/build.log```. You should be greeted with a familiar wall of text.
 
 ## the "easy" way
 If you'd like to build the firmware in a controlled/clean environment, you can use [docker](https://docker.io) with the provided [Dockerfile](./Dockerfile) or a prebuilt image hosted on [our docker-hub](https://hub.docker.com/r/sudomesh/sudowrt-firmware/tags/).  
