@@ -13,6 +13,8 @@ Pre-built versions of the firmware can be found here:
 | Home Node | ar71xx | 0.2.3 | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1205601.svg)](https://doi.org/10.5281/zenodo.1205601) | [mynet n600](https://zenodo.org/record/1205601/files/openwrt-ar71xx-generic-mynet-n600-squashfs-factory.bin) or [mynet n750](https://zenodo.org/record/1205601/files/openwrt-ar71xx-generic-mynet-n750-squashfs-factory.bin)
 | Extender Node | ar71xx | 0.2.3 | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1206171.svg)](https://doi.org/10.5281/zenodo.1206171) |
 
+Now go to https://peoplesopen.net/walkthrough and follow the instructions to flash the firmware onto your router.
+
 # Developing on this firmware
 
 If you would like to make additions to the sudowrt-firmware, there a few ways in which to integrate your desired changes. First, figure out what change you are trying to make by testing it out on a live node. Most changes can be tested by sshing into a node and manually making the changes. The following 
@@ -76,6 +78,8 @@ ssh root@[ip build machine] '/opt/sudowrt-firmware/auto_build > /var/log/build.l
 ```
 This will run the build in background on the server and produce no output. If you would like to see if your build started correctly, you can ssh into you server and ```tail -f /var/log/build.log```. You should be greeted with a familiar wall of text.
 
+Now go to https://peoplesopen.net/walkthrough and follow the instructions to flash the firmware onto your router.
+
 ## the "easy" way
 If you'd like to build the firmware in a controlled/clean environment, you can use [docker](https://docker.io) with the provided [Dockerfile](./Dockerfile) or a prebuilt image hosted on [our docker-hub](https://hub.docker.com/r/sudomesh/sudowrt-firmware/tags/).  
 Docker provides good instructions for [installing docker-ce on Ubuntu](https://docs.docker.com/install/linux/docker-ce/ubuntu/) or [Debian](https://docs.docker.com/install/linux/docker-ce/debian/) as well as other operating systems.  
@@ -136,6 +140,8 @@ Once you're logged in as a non-root user with sudo ability, install the neccesar
 sudo apt-get update
 sudo apt-get install build-essential subversion libncurses5-dev zlib1g-dev gawk gcc-multilib flex git-core gettext quilt ccache libssl-dev xsltproc unzip python wget
 ```
+
+Now go to https://peoplesopen.net/walkthrough and follow the instructions to flash the firmware onto your router.
 
 ### Building home-node firmware
 
