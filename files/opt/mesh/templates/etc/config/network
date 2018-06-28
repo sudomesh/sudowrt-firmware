@@ -109,6 +109,7 @@ config interface 'open'
   option ipaddr '<%= open_addr_ipv4 %>'
   option dns '<%= exit_node_mesh_ipv4_addr %>'
   option netmask '<%= open_subnet_ipv4_mask %>'
+  option multicast_to_unicast '0' # don't isolate access point clients
   list dns '100.64.0.42'        
   list dns '100.64.0.43'        
 
@@ -118,3 +119,4 @@ config interface 'priv'
   option proto 'static'
   option ipaddr '172.30.0.1'
   option netmask '16'
+  option multicast_to_unicast '0' # don't isolate access point clients
