@@ -66,9 +66,5 @@ echo "recieved mesh block:" $MESHBLOCK"/26" >>$LOG
 
 # complete rest of configurations in a reusable script
 /opt/mesh/autoconf $MESHIP
-
-# remove cron job, set to reboot, and delete this script 
-echo "deleting cronjob, removing /opt/mesh/retrieve_ip, and rebooting" >>$LOG
-sed -i '/retrieve_ip/d' /etc/crontabs/root
+echo "rebooting" >>$LOG
 reboot -d 10
-rm -- "$0"
