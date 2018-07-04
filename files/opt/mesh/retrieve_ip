@@ -67,10 +67,6 @@ echo "recieved mesh block:" $MESHBLOCK"/26" >>$LOG
 # complete rest of configurations in a reusable script
 /opt/mesh/autoconf $MESHIP
 
-# start some services
-/etc/init.d/babeld start
-/etc/init.d/meshrouting start
-
 # remove cron job, set to reboot, and delete this script 
 echo "deleting cronjob, removing /opt/mesh/retrieve_ip, and rebooting" >>$LOG
 sed -i '/retrieve_ip/d' /etc/crontabs/root
