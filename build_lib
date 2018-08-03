@@ -267,6 +267,15 @@ openwrt_buildprep()
   #done
 }
 
+openwrt_package_builder() 
+{
+  # rarely used script salvaged from build_package
+  echo "Compiling package ${1}"
+  make "package/${1}/compile"
+  make "package/${1}/install"
+  make package/index
+}
+
 # adapted from https://bugzilla.yoctoproject.org/show_bug.cgi?id=7338#c7
 # also see https://github.com/sudomesh/sudowrt-firmware/issues/113
 clean_confdir3_leftover() {
@@ -293,7 +302,7 @@ openwrt_builder()
   local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
   mkdir -p ${build_dir}
   echo "Building [${arch}] in dir: ${build_dir}..."  
-  make -j$BUILD_CORES V=s -C "${build_dir}" 2>&1 | tee -a "${build_dir}/build.log"
+  make -j$BUILD_CORES -C "${build_dir}" 2>&1 | tee -a "${build_dir}/build.log"
   if [ "$?" != "0" ]; then
     echo "Building [${arch}] failed. See ${build_dir}/build.log for details!"
     exit 1

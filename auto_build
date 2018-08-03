@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# This is intended to work in tandem with create_build_machine.sh to trigger nightly docker builds
+
 SUDOWRT_DIR='/opt/sudowrt-firmware'
 
 cd ${SUDOWRT_DIR}

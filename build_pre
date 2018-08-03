@@ -22,3 +22,6 @@ echo "Preparing for build for [${architecture}]..."
 openwrt_buildprep "${architecture}"
 echo "Preparing for build for [${architecture}] done."
 
+echo "Building firmware for [${architecture}]..."
+time openwrt_builder "${architecture}"
+echo "Building firmware for [${architecture}] done."
