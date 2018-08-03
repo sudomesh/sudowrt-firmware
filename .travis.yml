@@ -9,7 +9,7 @@ services:
   - docker
 
 script: 
-  - docker build -t $BUILDING .
+  - travis_wait 40 docker build -t $BUILDING .
 
 after_success:
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
