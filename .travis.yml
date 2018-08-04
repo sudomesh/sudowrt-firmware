@@ -34,4 +34,4 @@ env:
     - DOCKER_IMAGE=sudomesh/sudowrt-firmware
     - DOCKER_CONTAINER=sudowrt
     - BUILDING=$DOCKER_IMAGE:$TRAVIS_COMMIT
-    - BUILD_DIR=$/usr/local/sudowrt-firmware/
+    - BUILD_DIR=/usr/local/sudowrt-firmware/
