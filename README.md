@@ -91,26 +91,36 @@ git clone https://github.com/sudomesh/sudowrt-firmware
 cd sudowrt-firmware
 ```
 
-To build and run the image (depending on your network connect and hardware, the build takes a couple of hours): 
+Collect all the sudowrt-firmware dependencies and build the openwrt toolchain in a docker image using:
+```
+sudo docker build -t sudomesh/sudowrt-firmware .
+```
+This can take upwards of 45mins, so it is recommended to use our pre-built "builder" image. 
+```
+sudo docker pull sudomesh/sudowrt-firmware:latest
+```
+Next, create a container for the image with,
+```
+sudo docker create -v $PWD/firmware_images:/firmware_images --name <container-name> sudomesh/sudowrt-firmware:
+```
+The name can be anything you like, as long as it is unique on your system and matches in the next two steps.  
 
-Collect all the sudowrt-firmware dependencies into a docker image using:
-```
-docker build -t sudomesh/sudowrt-firmware .
-```
+Now you can make any changes you would like to the `files` or `openwrt_config/arch_configs/` directories (these are the only ones supported right now).  
 
-or re-use a pre-built one using
+To copy your changes into the docker container use, 
 ```
-docker pull sudomesh/sudowrt-firmware:0.2.3
+sudo docker cp . <container-name>:/usr/local/sudowrt-firmware 
 ```
-
-After creating the container image, build the ar71xx and ar71xx.extender-node firmware using: 
+After copying in your latest changes, you can trigger a rebuild of the firmware like so,
 ```
-docker run --rm -v $PWD/firmware_images:/firmware_images sudomesh/sudowrt-firmware:0.2.3
+sudo docker start -a <container-name>
 ``` 
+Currently, this builds only our most commonly used firmware, generic ar71xx for MyNetN600, more options comming soon to choose other target systems.  
+Depending on the changes made and your system's specs, this shouldn't take longer than 10mins (and has been known to take less than 1min)  
 
-This command executes [entrypoint.sh](./entrypoint.sh) in the docker container. If the process completes successfully, the built firmware images `/firmware_images` directory of the repo. For some history on this topics please see https://github.com/sudomesh/sudowrt-firmware/issues/110 and https://github.com/sudomesh/sudowrt-firmware/issues/105 . 
+This command executes [entrypoint.sh](./entrypoint.sh) in the docker container. If the process completes successfully, the built firmware images are placed in `/firmware_images` directory of the repo. For some history on this build process please see https://github.com/sudomesh/sudowrt-firmware/issues/137 , https://github.com/sudomesh/sudowrt-firmware/issues/110 , and https://github.com/sudomesh/sudowrt-firmware/issues/105 . 
 
-Note that building with ```docker run --net=none -v $PWD/firmware_images:/firmware_images sudomesh/sudowrt-firmware``` disables network connections and prevents (uncontrolled) external resources from getting pulled into the build process. Necessary external resources are pulled into the build image when building the sudowrt/firmware image. Ideally, the container images contains all external dependencies, however some works needs to be done to make this a reality (see https://github.com/sudomesh/sudowrt-firmware/issues/116).
+Note building the firmware with out a network connection should be possible, assuming you already have docker installed and the full builder image downloaded. This feature could prevent (uncontrolled) external resources from getting pulled into the build process. Necessary external resources are pulled in by Travis CI when (re)building the sudowrt/firmware image. Ideally, the container images contains all external dependencies, see history on this topic in https://github.com/sudomesh/sudowrt-firmware/issues/116 .
 
 If the build fails, capture the console output, yell loudly, talk to someone or create [a new issue](https://github.com/sudomesh/meshwrt-firmware/issues/new).
 
