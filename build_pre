@@ -23,5 +23,9 @@ openwrt_buildprep "${architecture}"
 echo "Preparing for build for [${architecture}] done."
 
 echo "Building firmware for [${architecture}]..."
-time openwrt_builder "${architecture}"
+openwrt_builder "${architecture}"
 echo "Building firmware for [${architecture}] done."
+
+echo "Removing images for [${architecture}], just leaving builder..." 
+remove_images "./bin/${architecture}"
+echo "Removing images for [${architecture}] done."

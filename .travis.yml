@@ -9,10 +9,14 @@ services:
   - docker
 
 script: 
-  - "travis_wait 40 sleep 1800 &"
-  - docker build -t $BUILDING .
+  - travis_wait sleep 600 &
+  - docker pull $DOCKER_IMAGE:latest
+  - docker create --name $DOCKER_CONTAINER $DOCKER_IMAGE:latest
+  - docker cp . $DOCKER_CONTAINER:$BUILD_DIR
+  - docker start -a  $DOCKER_CONTAINER
 
 after_success:
+  - docker commit $DOCKER_CONTAINER $BUILDING
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
   
 deploy:
@@ -28,4 +32,6 @@ deploy:
 env:
   global:
     - DOCKER_IMAGE=sudomesh/sudowrt-firmware
+    - DOCKER_CONTAINER=sudowrt
     - BUILDING=$DOCKER_IMAGE:$TRAVIS_COMMIT
+    - BUILD_DIR=$/usr/local/sudowrt-firmware/
