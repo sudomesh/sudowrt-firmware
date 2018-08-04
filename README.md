@@ -101,7 +101,7 @@ sudo docker pull sudomesh/sudowrt-firmware:latest
 ```
 Next, create a container for the image with,
 ```
-sudo docker create -v $PWD/firmware_images:/firmware_images --name <container-name> sudomesh/sudowrt-firmware:
+sudo docker create -v $PWD/firmware_images:/firmware_images --name <container-name> sudomesh/sudowrt-firmware:latest
 ```
 The name can be anything you like, as long as it is unique on your system and matches in the next two steps.  
 
@@ -116,7 +116,8 @@ After copying in your latest changes, you can trigger a rebuild of the firmware 
 sudo docker start -a <container-name>
 ``` 
 Currently, this builds only our most commonly used firmware, generic ar71xx for MyNetN600, more options comming soon to choose other target systems.  
-Depending on the changes made and your system's specs, this shouldn't take longer than 10mins (and has been known to take less than 1min)  
+
+Depending on the changes made and your system's specs, this shouldn't take longer than 10mins (and has been known to take less than 1min). 
 
 This command executes [entrypoint.sh](./entrypoint.sh) in the docker container. If the process completes successfully, the built firmware images are placed in `/firmware_images` directory of the repo. For some history on this build process please see https://github.com/sudomesh/sudowrt-firmware/issues/137 , https://github.com/sudomesh/sudowrt-firmware/issues/110 , and https://github.com/sudomesh/sudowrt-firmware/issues/105 . 
 
