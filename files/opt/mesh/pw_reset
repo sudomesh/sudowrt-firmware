@@ -1,7 +1,38 @@
 #!/bin/sh
 
-rm /etc/shadow
-echo "password deleted, to set new password run, 'passwd username'" >  /root/pw_reset_succeeded
-sed -i '/pw_reset/d' /etc/crontabs/root
-rm -- "$0"
+DEFAULT_ROOT_PWHASH='$1$0gxKX05m$amoqWHXrWF/IwR/ZxGWs.0'
+COUNTER_FILE=/opt/mesh/pw_counter
 
+if [ ! -f "$COUNTER_FILE" ]; then
+  echo "0" > $COUNTER_FILE
+fi
+
+COUNTER=$(cat $COUNTER_FILE)
+
+# This script is run every hour and increments a counter file
+# until it reaches 24.
+
+# Don't run this script if it's been less than 24 hours
+if [ "$COUNTER" -ne "24" ]; then
+  echo $(($COUNTER + 1)) > $COUNTER_FILE
+  exit
+fi
+
+if grep "root:$DEFAULT_ROOT_PWHASH" /etc/shadow; then
+    # if the `passwd -d` command doesn't work
+    # sed -i.old 's/^root:.*/root:*:16031:0:99999:7:::/' shadow
+    passwd -d root
+    echo "root password deleted, to set new password run, 'passwd root'" >>  /root/pw_reset_succeeded
+else
+    echo "# pw reset job canceled, root password changed manually. good job node admin." >> /etc/crontabs/root
+fi
+
+if grep "admin:$DEFAULT_ROOT_PWHASH" /etc/shadow; then
+    passwd -d admin 
+    echo "admin password deleted, to set new password run, 'passwd admin'" >>  /root/pw_reset_succeeded
+else
+    echo "# pw reset job canceled, admin password changed manually. good job node admin." >> /etc/crontabs/root
+fi
+
+# comment out this cronjob
+sed -i '/pw_reset/s/^/#/g' /etc/crontabs/root

@@ -9,13 +9,14 @@ services:
   - docker
 
 script: 
-  - travis_wait sleep 600 &
+  - travis_wait 20 sleep 600 &
   - docker pull $DOCKER_IMAGE:latest
-  - docker create --name $DOCKER_CONTAINER $DOCKER_IMAGE:latest
+  - docker create -v $PWD/firmware_images:/firmware_images --name $DOCKER_CONTAINER $DOCKER_IMAGE:latest
   - docker cp . $DOCKER_CONTAINER:$BUILD_DIR
   - docker start -a  $DOCKER_CONTAINER
 
 after_success:
+  - ls -al $PWD/firmware_images
   - docker commit $DOCKER_CONTAINER $BUILDING
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
   
