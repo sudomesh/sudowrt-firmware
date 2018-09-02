@@ -171,7 +171,9 @@ sed -i -e "s/<ins.ert.mes.hip>/$MESHIP/g" /root/config_succeeded
 # kill cron job
 sed -i '/retrieve_ip/d' /etc/crontabs/root
 
-echo "node reconfigured with mesh IP "$MESHIP
-echo "if running manually, please reboot to apply changes"
+echo "Node reconfigured with mesh IP $MESHIP."
+echo "If running manually, please reboot to apply changes."
+echo "Be sure to change root and admin passwords within 24 hours,"
+echo "or else they'll be deleted."
 
 exit 0
