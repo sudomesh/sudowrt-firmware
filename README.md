@@ -61,8 +61,8 @@ The default usernames, passwords, and access levels are set by the [passwd](http
 The openwrt wiki has some examples of requirements per distro:
 http://wiki.openwrt.org/doc/howto/buildroot.exigence#examples.of.package.installations
 
-## the "super-easy" way
-If you'd rather not use your personal computer to build this firmware, you can create a dedicated build machine out of any Ubuntu 16.04 server (e.g. a droplet on digitalocean, or a server on the mesh). Note: the server should have at least 50GB of storage, otherwise, the docker container will become to large for your server.
+## On a remote server 
+If you'd rather not use your personal computer to build this firmware, you can create a dedicated build machine out of any Ubuntu 16.04 server (e.g. a droplet on digitalocean, or a server on the mesh). Note: the server should have at least 50GB of storage, otherwise, the docker container will become too large for your server.
 
 Clone this repository on your local machine.  
 
@@ -80,7 +80,7 @@ This will run the build in background on the server and produce no output. If yo
 
 Now go to https://peoplesopen.net/walkthrough and follow the instructions to flash the firmware onto your router.
 
-## the "easy" way
+## In a local docker container 
 If you'd like to build the firmware in a controlled/clean environment, you can use [docker](https://docker.io) with the provided [Dockerfile](./Dockerfile) or a prebuilt image hosted on [our docker-hub](https://hub.docker.com/r/sudomesh/sudowrt-firmware/tags/).  
 Docker provides good instructions for [installing docker-ce on Ubuntu](https://docs.docker.com/install/linux/docker-ce/ubuntu/) or [Debian](https://docs.docker.com/install/linux/docker-ce/debian/) as well as other operating systems.  
 
@@ -91,11 +91,12 @@ git clone https://github.com/sudomesh/sudowrt-firmware
 cd sudowrt-firmware
 ```
 
-Collect all the sudowrt-firmware dependencies and build the openwrt toolchain in a docker image using:
+Collect all the sudowrt-firmware dependencies and build the openwrt toolchain in a docker image using,
+WARNING: This can take upwards of 45mins.  
 ```
 sudo docker build -t sudomesh/sudowrt-firmware .
 ```
-This can take upwards of 45mins, so it is recommended to use our pre-built "builder" image. 
+If you would rather not wait 45mins, it is recommended to use our pre-built "builder" image. This can be pulled from docker hub with the following command, 
 ```
 sudo docker pull sudomesh/sudowrt-firmware:latest
 ```
@@ -119,7 +120,7 @@ Currently, this builds only our most commonly used firmware, generic ar71xx for 
 
 Depending on the changes made and your system's specs, this shouldn't take longer than 10mins (and has been known to take less than 1min). 
 
-This command executes [entrypoint.sh](./entrypoint.sh) in the docker container. If the process completes successfully, the built firmware images are placed in `/firmware_images` directory of the repo. For some history on this build process please see https://github.com/sudomesh/sudowrt-firmware/issues/137 , https://github.com/sudomesh/sudowrt-firmware/issues/110 , and https://github.com/sudomesh/sudowrt-firmware/issues/105 . 
+The `docker start` command executes [entrypoint.sh](./entrypoint.sh) in the docker container. If the process completes successfully, the built firmware images are placed in `/firmware_images` directory of the repo. For some history on this build process please see https://github.com/sudomesh/sudowrt-firmware/issues/137 , https://github.com/sudomesh/sudowrt-firmware/issues/110 , and https://github.com/sudomesh/sudowrt-firmware/issues/105 . 
 
 Note building the firmware with out a network connection should be possible, assuming you already have docker installed and the full builder image downloaded. This feature could prevent (uncontrolled) external resources from getting pulled into the build process. Necessary external resources are pulled in by Travis CI when (re)building the sudowrt/firmware image. Ideally, the container images contains all external dependencies, see history on this topic in https://github.com/sudomesh/sudowrt-firmware/issues/116 .
 
@@ -138,7 +139,8 @@ Note this will indiscriminately delete all docker containers and images. If you'
 
 Now go to https://peoplesopen.net/walkthrough and follow the instructions to flash the firmware onto your router.
 
-## the "hard" way
+## On local machine 
+
 If you'd rather build the firmware without Docker, please keep reading.
 
 Unless you know what you are doing, you should build this on a Ubuntu 64bit box/container. At time of writing (Jan 2017), the [build script does not appear to work on Ubuntu 16.04](https://github.com/sudomesh/sudowrt-firmware/issues/103). 
@@ -221,8 +223,3 @@ After building a new version of the firmware, you should first make sure you can
 * does the [admin panel](https://github.com/sudomesh/peoplesopen-dash) work (with default pw and changed pw)
 * does the default root password expire after a day
 * are the instructions provided in zeroconf_succeeded text helpful... :)
-
-# Rebuilding firmware
-
-The untested rebuild script was removed in [this commit](https://github.com/sudomesh/sudowrt-firmware/commit/78c7293bc4ac1d39d28311234a6a1ddb72f9c2c3).
-Further investigation needs to be done as to how to expedite the build process and prevent it from rebuilding the OpenWrt toolchain on every build.

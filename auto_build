@@ -10,6 +10,9 @@ rm -r ./firmware_images
 git pull
 # docker rm $(docker ps -a -q)
 # docker rmi $(docker images -q) 
-docker build -t sudomesh/sudowrt-firmware .
-docker run -v $PWD/firmware_images:/firmware_images sudomesh/sudowrt-firmware
 
+docker pull sudomesh/sudowrt-firmware:latest
+docker run -v $PWD/firmware_images:/firmware_images sudomesh/sudowrt-firmware
+docker create -v $PWD/firmware_images:/firmware_images --name sudowrt-build sudomesh/sudowrt-firmware:latest
+docker cp . sudowrt-build:/usr/local/sudowrt-firmware 
+docker start -a sudowrt-build 
