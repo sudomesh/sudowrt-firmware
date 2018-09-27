@@ -1,8 +1,8 @@
 config broker 'main'
        list address '64.71.176.94:8942'
        list address '64.71.176.94:443'
-       #list address '45.34.140.42:8942'
-       #list address '45.34.140.42:443'
+       list address '45.34.140.42:8942'
+       list address '45.34.140.42:443'
        list address '142.254.26.9:8942'#not sure who/what this is?
        list address '104.236.181.202:8942'#sudoroom.org
        list address '104.131.158.147:8942'#omnicommones.org
