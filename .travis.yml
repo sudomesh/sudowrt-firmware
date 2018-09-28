@@ -15,10 +15,10 @@ after_success:
 - ls -al $PWD/firmware_images/ar71xx
 - eval "$(ssh-agent -s)"
 - chmod 600 ./deploy_key
-- echo -e "Host $SERVER_IP_ADDRESS\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+- echo -e "Host 107.170.219.5\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 - ssh-add ./deploy_key
 - ssh -i ./deploy_key ${DEPLOY_USERNAME}@$builds.sudomesh.org 'mkdir -p /var/www/builds.sudomesh.org/public/tests/test_dir'
-- rsync -Pavrt ./firmware_images/ar71xx ${DEPLOY_USERNAME}@builds.sudomesh.org:/var/www/builds.sudomesh.org/public/tests/.
+- rsync -Pavrt ./firmware_images/ar71xx ${DEPLOY_USERNAME}@107.170.219.5:/var/www/builds.sudomesh.org/public/tests/.
 - docker commit $DOCKER_CONTAINER $BUILDING
 - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
 deploy:
