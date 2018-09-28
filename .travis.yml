@@ -19,7 +19,7 @@ after_success:
   - ls -al $PWD/firmware_images/ar71xx
   - echo "${DEPLOY_KEY}" | base64 --decode > /tmp/sftp_rsa
   - chmod 400 /tmp/sftp_rsa
-  - scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i /tmp/sftp_rsa -r firmware_images/ar71xx ${DEPLOY_USER}@builds.sudomesh.org:/var/www/builds.sudomesh.org/public/tests/.
+  - scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i /tmp/sftp_rsa -r firmware_images/ar71xx ${DEPLOY_USERNAME}:${DEPLOY_PASSWORD}@builds.sudomesh.org:/var/www/builds.sudomesh.org/public/tests/.
   - docker commit $DOCKER_CONTAINER $BUILDING
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
   
