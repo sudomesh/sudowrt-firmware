@@ -7,6 +7,8 @@ config broker 'main'
        list address '104.236.181.202:8942'#sudoroom.org
        list address '104.131.158.147:8942'#omnicommones.org
        list address '107.170.219.5:8942'#builds.sudomesh.org
+       #list address '104.236.181.226:8942'
+       #list address '104.236.181.226:8943'
        option uuid '<%= id %>'
        option interface 'l2tp0'
        option bind_to_interface 'eth1'
