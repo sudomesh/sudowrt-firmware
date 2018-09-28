@@ -21,7 +21,7 @@ after_success:
   - eval "$(ssh-agent -s)"
   - chmod 600 /tmp/deploy_rsa
   - ssh-add /tmp/deploy_rsa
-    ssh -i /tmp/deploy_rsa ${DEPLOY_USER}@$builds.sudomesh.org 'mkdir -p /var/www/builds.sudomesh.org/public/tests/test_dir'
+  - ssh -i /tmp/deploy_rsa ${DEPLOY_USERNAME}@$builds.sudomesh.org 'mkdir -p /var/www/builds.sudomesh.org/public/tests/test_dir'
   - rsync -Pavrt ./firmware_images/ar71xx ${DEPLOY_USERNAME}@builds.sudomesh.org:/var/www/builds.sudomesh.org/public/tests
   - docker commit $DOCKER_CONTAINER $BUILDING
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
