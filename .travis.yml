@@ -18,17 +18,14 @@ after_success:
 - echo -e "Host 107.170.219.5\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 - ssh-add ./deploy_key
 - rsync -Pavrt ./firmware_images/ar71xx ${DEPLOY_USERNAME}@107.170.219.5:/var/www/builds.sudomesh.org/public/sudowrt-firmware/latest/.
-- docker commit $DOCKER_CONTAINER $BUILDING
-- docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
 deploy:
 - provider: script
-  script: docker tag $BUILDING $DOCKER_IMAGE:$TRAVIS_TAG; docker push $DOCKER_IMAGE:$TRAVIS_TAG
+  script: docker commit $DOCKER_CONTAINER $BUILDING; 
+          docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+          docker tag $BUILDING $DOCKER_IMAGE:$TRAVIS_TAG; 
+          docker push $DOCKER_IMAGE:$TRAVIS_TAG
   on:
     tags: true
-- provider: script
-  script: docker tag $BUILDING $DOCKER_IMAGE:latest; docker push $DOCKER_IMAGE:latest
-  on:
-    branch: master
 env:
   global:
   - DOCKER_IMAGE=sudomesh/sudowrt-firmware
