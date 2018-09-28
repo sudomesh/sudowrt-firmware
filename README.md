@@ -9,7 +9,7 @@ Pre-built versions of the firmware can be found here:
 
  | name | architecture | version | link | commonly used |
 |  --- | --- | --- | --- | --- |
-| Home Node | ar71xx | 0.3.0 |  | [mynet n600](http://builds.sudomesh.org/builds/sudowrt/dispossessed/0.3.0/openwrt-ar71xx-generic-mynet-n600-squashfs-factory.bin) 
+| Home Node | ar71xx | 0.3.0 |  | [mynet n600](http://builds.sudomesh.org/sudowrt-firmware/0.3.0/openwrt-ar71xx-generic-mynet-n600-squashfs-factory.bin) 
 | Home Node | ar71xx | 0.2.3 | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1205601.svg)](https://doi.org/10.5281/zenodo.1205601) | [mynet n600](https://zenodo.org/record/1205601/files/openwrt-ar71xx-generic-mynet-n600-squashfs-factory.bin) or [mynet n750](https://zenodo.org/record/1205601/files/openwrt-ar71xx-generic-mynet-n750-squashfs-factory.bin)
 | Extender Node | ar71xx | 0.2.3 | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1206171.svg)](https://doi.org/10.5281/zenodo.1206171) |
 
