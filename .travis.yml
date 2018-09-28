@@ -1,44 +1,41 @@
 sudo: required
-
 language: c
-
 compiler:
-  - gcc
-
+- gcc
 services:
-  - docker
-
-script: 
-  - travis_wait 20 sleep 600 &
-  - docker pull $DOCKER_IMAGE:latest
-  - docker create -v $PWD/firmware_images:/firmware_images --name $DOCKER_CONTAINER $DOCKER_IMAGE:latest
-  - docker cp . $DOCKER_CONTAINER:$BUILD_DIR
-  - docker start -a  $DOCKER_CONTAINER
-
+- docker
+script:
+- travis_wait 20 sleep 600 &
+- docker pull $DOCKER_IMAGE:latest
+- docker create -v $PWD/firmware_images:/firmware_images --name $DOCKER_CONTAINER
+  $DOCKER_IMAGE:latest
+- docker cp . $DOCKER_CONTAINER:$BUILD_DIR
+- docker start -a  $DOCKER_CONTAINER
 after_success:
-  - ls -al $PWD/firmware_images/ar71xx
-  - echo "${DEPLOY_KEY}" | base64 --decode > /tmp/deploy_rsa
-  - eval "$(ssh-agent -s)"
-  - chmod 600 /tmp/deploy_rsa
-  - ssh-add /tmp/deploy_rsa
-  - ssh -i /tmp/deploy_rsa ${DEPLOY_USERNAME}@$builds.sudomesh.org 'mkdir -p /var/www/builds.sudomesh.org/public/tests/test_dir'
-  - rsync -Pavrt ./firmware_images/ar71xx ${DEPLOY_USERNAME}@builds.sudomesh.org:/var/www/builds.sudomesh.org/public/tests
-  - docker commit $DOCKER_CONTAINER $BUILDING
-  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-  
+- ls -al $PWD/firmware_images/ar71xx
+- eval "$(ssh-agent -s)"
+- chmod 600 ./deploy_key
+- echo -e "Host $SERVER_IP_ADDRESS\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+- ssh-add ./deploy_key
+- ssh -i ./deploy_key ${DEPLOY_USERNAME}@$builds.sudomesh.org 'mkdir -p /var/www/builds.sudomesh.org/public/tests/test_dir'
+- rsync -Pavrt ./firmware_images/ar71xx ${DEPLOY_USERNAME}@builds.sudomesh.org:/var/www/builds.sudomesh.org/public/tests/.
+- docker commit $DOCKER_CONTAINER $BUILDING
+- docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
 deploy:
-  - provider: script
-    script: docker tag $BUILDING $DOCKER_IMAGE:$TRAVIS_TAG; docker push $DOCKER_IMAGE:$TRAVIS_TAG
-    on: 
-      tags: true
-  - provider: script
-    script: docker tag $BUILDING $DOCKER_IMAGE:latest; docker push $DOCKER_IMAGE:latest
-    on:
-      branch: master
-
+- provider: script
+  script: docker tag $BUILDING $DOCKER_IMAGE:$TRAVIS_TAG; docker push $DOCKER_IMAGE:$TRAVIS_TAG
+  on:
+    tags: true
+- provider: script
+  script: docker tag $BUILDING $DOCKER_IMAGE:latest; docker push $DOCKER_IMAGE:latest
+  on:
+    branch: master
 env:
   global:
-    - DOCKER_IMAGE=sudomesh/sudowrt-firmware
-    - DOCKER_CONTAINER=sudowrt
-    - BUILDING=$DOCKER_IMAGE:$TRAVIS_COMMIT
-    - BUILD_DIR=/usr/local/sudowrt-firmware/
+  - DOCKER_IMAGE=sudomesh/sudowrt-firmware
+  - DOCKER_CONTAINER=sudowrt
+  - BUILDING=$DOCKER_IMAGE:$TRAVIS_COMMIT
+  - BUILD_DIR=/usr/local/sudowrt-firmware/
+before_install:
+- openssl aes-256-cbc -K $encrypted_c4a3135f480b_key -iv $encrypted_c4a3135f480b_iv
+  -in deploy_key.enc -out ./deploy_key -d
