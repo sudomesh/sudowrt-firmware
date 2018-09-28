@@ -16,7 +16,9 @@ script:
   - docker start -a  $DOCKER_CONTAINER
 
 after_success:
-  - ls -al $PWD/firmware_images
+  - ls -al $PWD/firmware_images/ar71xx
+  - echo "${DEPLOY_KEY}" | base64 --decode >/tmp/sftp_rsa
+  - sftp -i /tmp/sftp_rsa ${DEPLOY_USER}@builds.sudomesh.org:tests/ar71xx/ <<< $'put ./firmware_images/ar71xx/openwrt-ar71xx-generic-mynet-n600-squashfs-factory.bin'
   - docker commit $DOCKER_CONTAINER $BUILDING
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
   
