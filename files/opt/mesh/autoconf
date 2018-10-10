@@ -104,14 +104,6 @@ uci add_list notdhcpserver.@server[0].addresses='eth0.2='$EXTENDER_NODE_IP_2'/32
 uci commit notdhcpserver
 
 
-# config polipo
-uci delete polipo.general.allowedClients
-uci add_list polipo.general.allowedClients='172.30.0.0/24'
-uci add_list polipo.general.allowedClients='127.0.0.1'
-uci add_list polipo.general.allowedClients=$MESH_SUBNET_IPv4'/'$MESH_SUBNET_IPv4_BITMASK
-uci commit polipo
-
-
 # config rpcd
 uci set rpcd.@login[0].username=$RPCD_USER_NAME
 uci set rpcd.@login[0].password='$p$'$RPCD_USER_NAME
