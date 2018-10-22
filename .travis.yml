@@ -16,7 +16,7 @@ after_success:
 - chmod 600 ./deploy_key
 - echo -e "Host 107.170.219.5\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 - ssh-add ./deploy_key
-- for f in $FIMRWARE_DIR/*.bin ; do mv ${f%.*}.bin ${f%.*}-$TRAVIS_COMMIT.bin; done
+- for f in $FIRMWARE_DIR/*.bin ; do mv ${f%.*}.bin ${f%.*}-$TRAVIS_COMMIT.bin; done
 - ls -al $FIRMWARE_DIR 
 - rsync -Pavrt $FIRMWARE_DIR ${DEPLOY_USERNAME}@107.170.219.5:/var/www/builds.sudomesh.org/public/sudowrt-firmware/latest/.
 deploy:
