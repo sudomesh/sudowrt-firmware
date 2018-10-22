@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-#  Intended to build the sudowrt firmware
-#  Prepares openwrt builder, and builds the sudowrt firmware. 
+#  Intended to build a clean image for rebuilding sudowrt firmware
+#  Prepares openwrt builder, builds sudowrt firmware, and then deletes the firmware binaries. 
 #
-#  If you only want to prepare the openwrt toolchain use [build_pre].
-#  If you only want to build the firmware, and delete the firmware binaries use [build_clean]
+#  If you only want to get *some* of the resources for building the firmware, use [build_pre]
+#  If you only want to build the firmware and not delete the binaries, use [build].
 #
 
 source build_lib
@@ -24,3 +24,8 @@ echo "Preparing for build for [${architecture}] done."
 echo "Building firmware for [${architecture}]..."
 openwrt_builder "${architecture}"
 echo "Building firmware for [${architecture}] done."
+
+echo "Removing images for [${architecture}], just leaving builder..." 
+remove_images "./bin/${architecture}"
+echo "Removing images for [${architecture}] done."
+

@@ -1,6 +1,0 @@
-#!/bin/bash
-
-./build_only ar71xx
-./build_only ath25
-./build_extender-node ar71xx
-./build_extender-node ath25

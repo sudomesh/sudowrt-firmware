@@ -1,12 +1,11 @@
 #!/bin/bash
 #
-# Retrieves and configures resources needed for a build of sudowrt firmware.
+#  Intended to prepare an openwrt toolchain for building sudowrt firmware
+#  Prepares openwrt builder. 
 #
-# uses build_lib for build functions
+#  If you only want to build the firmware use [build].
+#  If you only want to build the firmware, and delete the firmware binaries use [build_clean]
 #
-
-# peopleswifi firmware prepare script
-# based on wlanslovenija prepare script
 
 source build_lib
 
@@ -21,11 +20,3 @@ echo "Generating build configurations for [${architecture}] done."
 echo "Preparing for build for [${architecture}]..."
 openwrt_buildprep "${architecture}"
 echo "Preparing for build for [${architecture}] done."
-
-echo "Building firmware for [${architecture}]..."
-openwrt_builder "${architecture}"
-echo "Building firmware for [${architecture}] done."
-
-#echo "Removing images for [${architecture}], just leaving builder..." 
-#remove_images "./bin/${architecture}"
-#echo "Removing images for [${architecture}] done."
