@@ -12,12 +12,13 @@ script:
 - docker cp . $DOCKER_CONTAINER:$BUILD_DIR
 - docker start -a  $DOCKER_CONTAINER
 after_success:
-- ls -al $PWD/firmware_images/ar71xx
 - eval "$(ssh-agent -s)"
 - chmod 600 ./deploy_key
 - echo -e "Host 107.170.219.5\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 - ssh-add ./deploy_key
-- rsync -Pavrt ./firmware_images/ar71xx ${DEPLOY_USERNAME}@107.170.219.5:/var/www/builds.sudomesh.org/public/sudowrt-firmware/latest/.
+- for f in $FIMRWARE_DIR/*.bin ; do mv ${f%.*}.bin ${f%.*}-$TRAVIS_COMMIT.bin; done
+- ls -al $FIRMWARE_DIR 
+- rsync -Pavrt $FIRMWARE_DIR ${DEPLOY_USERNAME}@107.170.219.5:/var/www/builds.sudomesh.org/public/sudowrt-firmware/latest/.
 deploy:
 - provider: script
   script: docker commit $DOCKER_CONTAINER $BUILDING; 
@@ -32,6 +33,7 @@ env:
   - DOCKER_CONTAINER=sudowrt
   - BUILDING=$DOCKER_IMAGE:$TRAVIS_COMMIT
   - BUILD_DIR=/usr/local/sudowrt-firmware/
+  - FIRMWARE_DIR=./firmware_images/ar71xx
 before_install:
 - openssl aes-256-cbc -K $encrypted_c4a3135f480b_key -iv $encrypted_c4a3135f480b_iv
   -in deploy_key.enc -out ./deploy_key -d
