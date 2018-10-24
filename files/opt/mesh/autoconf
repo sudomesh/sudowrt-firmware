@@ -160,6 +160,9 @@ sed -i -e "s/<ins.ert.mes.hip>/$MESHIP/g" /root/config_succeeded
 /etc/init.d/meshrouting enable 
 /etc/init.d/babeld enable 
 
+# kill cron job
+sed -i '/retrieve_ip/d' /etc/crontabs/root
+
 echo "node reconfigured with mesh IP "$MESHIP
 echo "if running manually, please reboot to apply changes"
 
