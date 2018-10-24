@@ -16,11 +16,13 @@ after_success:
 - chmod 600 ./deploy_key
 - echo -e "Host 107.170.221.27\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 - ssh-add ./deploy_key
+- mkdir deploy_images
+- mkdir deploy_images/ar71xx
 - cd $FIRMWARE_DIR
-- for f in *.bin ; do mv $f ${f%.*}-test.bin; done
+- for f in *.bin ; do cp $f ../../deploy_images/ar71xx/${f%.*}-test.bin; done
 - cd ../..
 - ls -al $FIRMWARE_DIR 
-- rsync -Pavrt $FIRMWARE_DIR ${DEPLOY_USERNAME}@107.170.221.27:/var/www/builds.sudomesh.org/public/sudowrt-firmware/latest/.
+- rsync -Pavrt deploy_images/ar71xx ${DEPLOY_USERNAME}@107.170.221.27:/var/www/builds.sudomesh.org/public/sudowrt-firmware/latest/.
 deploy:
 - provider: script
   script: docker commit $DOCKER_CONTAINER $BUILDING; 
