@@ -16,13 +16,11 @@ after_success:
 - chmod 600 ./deploy_key
 - echo -e "Host 107.170.221.27\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 - ssh-add ./deploy_key
-- mkdir deploy_images
-- mkdir deploy_images/ar71xx
+- mkdir deploy_images $DEPLOY_DIR $DEPLOY_DIR/$DATE
 - cd $FIRMWARE_DIR
-- for f in *.bin ; do cp $f ../../deploy_images/ar71xx/${f%.*}-${TRAVIS_COMMIT}.bin; done
+- for f in *.bin ; do cp $f ../../$DEPLOY_DIR/$DATE/${f%.*}-$TRAVIS_COMMIT.bin; done
 - cd ../..
-- ls -al $FIRMWARE_DIR 
-- rsync -Pavrt deploy_images/ar71xx ${DEPLOY_USERNAME}@107.170.221.27:/var/www/builds.sudomesh.org/public/sudowrt-firmware/latest/.
+- rsync -Pavrt $DEPLOY_DIR $DEPLOY_USERNAME@107.170.221.27:/var/www/builds.sudomesh.org/public/sudowrt-firmware/latest/.
 deploy:
 - provider: script
   script: docker commit $DOCKER_CONTAINER $BUILDING; 
@@ -37,7 +35,9 @@ env:
   - DOCKER_CONTAINER=sudowrt
   - BUILDING=$DOCKER_IMAGE:$TRAVIS_COMMIT
   - BUILD_DIR=/usr/local/sudowrt-firmware/
-  - FIRMWARE_DIR=./firmware_images/ar71xx
+  - FIRMWARE_DIR=firmware_images/ar71xx
+  - DEPLOY_DIR=deploy_images/ar71xx
+  - DATE="$("%d-%m-%Y")"
 before_install:
 - openssl aes-256-cbc -K $encrypted_c4a3135f480b_key -iv $encrypted_c4a3135f480b_iv
   -in deploy_key.enc -out ./deploy_key -d

@@ -8,7 +8,7 @@
  -------------------------------------------------------------------------
  sudowrt v0.3.0 (dispossessed)  <hash>
 
- UNCONFIGURED - plug in an internet connection to autoconfigure 
+ AUTOCONFIGURED - for updates, check https://github.com/sudomesh/patches 
 
                               based on OpenWRT 15.05 (Chaos Calmer)
  -------------------------------------------------------------------------
