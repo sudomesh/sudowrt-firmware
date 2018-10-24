@@ -12,6 +12,7 @@ script:
 - docker cp . $DOCKER_CONTAINER:$BUILD_DIR
 - docker start -a  $DOCKER_CONTAINER
 after_success:
+- echo $DATE
 - eval "$(ssh-agent -s)"
 - chmod 600 ./deploy_key
 - echo -e "Host 107.170.221.27\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
@@ -36,7 +37,7 @@ env:
   - BUILDING=$DOCKER_IMAGE:$TRAVIS_COMMIT
   - BUILD_DIR=/usr/local/sudowrt-firmware/
   - FIRMWARE_DIR=firmware_images/ar71xx
-  - DATE="$(date +"%d-%m-%Y")"
+  - DATE=$(date +%F)
   - DEPLOY_DIR=deploy_images/$DATE/ar71xx
 before_install:
 - openssl aes-256-cbc -K $encrypted_c4a3135f480b_key -iv $encrypted_c4a3135f480b_iv
