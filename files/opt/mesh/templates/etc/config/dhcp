@@ -14,7 +14,6 @@ config dnsmasq
   option resolvfile '/etc/resolv.conf.dnsmasq'
   list interface 'br-open'
   list interface 'br-priv'
-  list server '/sudomesh.org/<%= exit_node_mesh_ipv4_addr %>' # sudomesh exit server for sudomesh.org dns names
 
 config 'dhcp' 'openpool'
   option interface 'open'

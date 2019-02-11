@@ -68,7 +68,6 @@ uci delete dhcp.openpool.dhcp_option
 uci add_list dhcp.openpool.dhcp_option='1,255.255.255.192'
 uci add_list dhcp.openpool.dhcp_option='3,'$MESHIP
 uci add_list dhcp.openpool.dhcp_option='6,'$MESHIP
-uci set dhcp.@dnsmasq[0].server='/sudomesh.org/'$EXIT_NODE_MESH_IPv4_ADDR
 uci commit dhcp
 
 
