@@ -19,7 +19,7 @@ after_success:
 - ssh-add ./deploy_key
 - mkdir deploy_images deploy_images/$DATE $DEPLOY_DIR
 - cd $FIRMWARE_DIR
-- for f in *.bin ; do cp $f ../../$DEPLOY_DIR/${f%.*}-$TRAVIS_COMMIT.bin; done
+- for f in *.bin ; do cp $f ../../$DEPLOY_DIR/${f%.*}-${TRAVIS_COMMIT:0:6}.bin; done
 - cd ../..
 - rsync -Pavrt deploy_images/$DATE $DEPLOY_USERNAME@107.170.221.27:/var/www/builds.sudomesh.org/public/sudowrt-firmware/latest/.
 deploy:
