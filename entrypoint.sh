@@ -13,7 +13,7 @@ rm -r $BUILD_DIR/files
 cp -r ./files $BUILD_DIR/files
 
 # execute rebuild of firmware
-time ./build $ARCH
+time ./build_only $ARCH
 
 mkdir -p ./firmware_images
 cp -r $BUILD_DIR/bin/ar71xx /firmware_images/.
