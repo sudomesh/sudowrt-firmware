@@ -1,0 +1,5 @@
+config filter
+  option type 'redistribute'
+  option ip '100.127.0.1/32'
+  option local 'true'
+  option action 'allow'

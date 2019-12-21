@@ -1,0 +1,20 @@
+# shell variables imported by /etc/init.d/meshrouting and /etc/udhcp.user
+# TODO turn these into UCI configs
+
+OPEN=br-open # The open peoplesopen.net SSID and ethernet ports
+PRIV=br-priv # The private WPA2 wifi SSID
+TUN=l2tp0 # The tunnel
+MESH2=mesh2 # The mesh on 2.4 ghz
+MESH5=mesh5 # The mesh on 5 ghz
+
+MESHNET=100.64.0.0/10
+PRIVNET=172.30.0.0/24
+
+UPSTREAMLAN1=192.168.0.0/16
+UPSTREAMLAN2=10.0.0.0/8
+
+LOCALNET1=172.22.0.0/24
+
+PRIVIP=172.30.0.1
+LANNET=100.127.0.1/26
+NODEIP=100.127.0.1

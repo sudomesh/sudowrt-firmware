@@ -1,0 +1,63 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+STATUS=$1
+IFACE=$2
+
+# callback called by config_load tunneldigger
+config_cb() {
+	local cfg="$CONFIG_SECTION"
+  config_get configname "$cfg" TYPE
+
+
+
+  case "$configname" in
+    broker)
+      config_get limit_bw_up "$cfg" limit_bw_up
+
+      tc qdisc del dev $IFACE root
+      tc qdisc add dev $IFACE root handle 1: htb default 1
+      tc class add dev $IFACE parent 1: classid 1:1 htb rate $limit_bw_up ceil $limit_bw_up
+      tc qdisc add dev $IFACE parent 1:1 fq_codel
+
+
+    ;;
+  esac
+}
+
+
+case "$STATUS" in
+  session.up)
+    echo "Received 'session.up' for interface ${IFACE}"
+    logger "Received 'session.up' for interface ${IFACE}"
+
+    ip link set $IFACE up
+    ip addr add 100.127.0.1/32 dev $IFACE
+    config_load tunneldigger 
+    /etc/init.d/snmpd restart
+
+    # Setting dhcp openpool mtu to appropriate value
+    mtu=$(ip addr show dev $IFACE | grep -w mtu | awk '{ print $5}')
+    logger "New mtu=$mtu"
+    prev_dhcp=$(uci get dhcp.openpool.dhcp_option)
+    stripped_dhcp=$(echo "${prev_dhcp}" | sed 's/[ ]*26,[0-9]\+//')
+    new_dhcp="$stripped_dhcp 26,$mtu"
+    logger "New dhcp value=$new_dhcp"
+    uci set dhcp.openpool.dhcp_option="$new_dhcp"
+    uci commit
+
+    ;;
+    
+  session.down)
+    echo "Received 'session.down' for interface ${IFACE}"
+    logger "Received 'session.down' for interface ${IFACE}"
+
+    prev_dhcp=$(uci get dhcp.openpool.dhcp_option)
+    stripped_dhcp=$(echo "${prev_dhcp}" | sed 's/[ ]*26,[0-9]\+//')
+    uci set dhcp.openpool.dhcp_option="$stripped_dhcp"
+    uci commit
+
+    ;;
+esac
+

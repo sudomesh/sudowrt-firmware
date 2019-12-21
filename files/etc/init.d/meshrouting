@@ -1,0 +1,180 @@
+#!/bin/sh /etc/rc.common
+
+START=90
+
+# TODO
+#  Add connection tracking helpers:
+#    https://home.regit.org/netfilter-en/secure-use-of-helpers/
+
+depends="/usr/share/sudomesh/wireless.sh"
+
+for file in /etc/sudomesh/*; do
+  depends="$depends $file"
+done
+
+for file in $depends; do
+  if [ -f "$file" ] 
+  then
+    . "$file"
+  else
+    logger "$file does not exist. meshrouting depends on it"
+    exit 2
+  fi
+done
+
+start() {
+
+    iptables -F INPUT
+    iptables -P INPUT ACCEPT
+    iptables -F FORWARD
+    iptables -P FORWARD ACCEPT
+    iptables -t nat -F POSTROUTING
+    iptables -t mangle -F FORWARD 
+
+    # Enable IP masquerading for ethernet output (NAT)
+    iptables -t nat -A POSTROUTING -o $WAN -j MASQUERADE
+    echo 1 > /proc/sys/net/ipv4/ip_forward
+
+    # Enable IP masquerading for private net access to mesh
+    iptables -t nat -A POSTROUTING -s $PRIVNET -d $MESHNET -j MASQUERADE 
+
+    # Only allow stuff from mesh to private if is part of
+    # an established connection and is from the mesh subnet
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -d $PRIVNET -s $MESHNET -j ACCEPT
+    iptables -A INPUT -s $MESHNET -d $PRIVNET -j DROP
+
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -d $LOCALNET1 -s $MESHNET -j ACCEPT
+    iptables -A INPUT -s $MESHNET -d $LOCALNET1 -j DROP
+
+    # debug connections between home and extender nodes
+    iptables -A INPUT -s $LOCALNET1 -d $LOCALNET1 -j ACCEPT
+
+    # accept everything local
+    iptables -A INPUT -i lo -j ACCEPT
+
+    # allow packets from the open, mesh and priv interfaces as long as the IP's are correct
+    iptables -A INPUT -i $MESH2 -s $MESHNET -j ACCEPT
+    iptables -A INPUT -i $MESH5 -s $MESHNET -j ACCEPT
+    iptables -A INPUT -i $TUN -s $MESHNET -j ACCEPT
+    iptables -A INPUT -i $PRIV -s $PRIVNET -j ACCEPT
+    iptables -A INPUT -i $OPEN -s $MESHNET -j ACCEPT
+    iptables -A INPUT -i $EXT1 -s $MESHNET -j ACCEPT
+    iptables -A INPUT -i $EXT2 -s $MESHNET -j ACCEPT
+    iptables -A INPUT -i $EXT3 -s $MESHNET -j ACCEPT
+    iptables -A INPUT -i $EXT4 -s $MESHNET -j ACCEPT
+
+    # allow DHCP on open and priv
+    iptables -A INPUT -i $PRIV -p udp --dport 67:68 --sport 67:68 -j ACCEPT
+    iptables -A INPUT -i $OPEN -p udp --dport 67:68 --sport 67:68 -j ACCEPT
+
+    # allow established connections from internet, including on ethernet, l2tp and mesh
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $WAN -j ACCEPT
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $MESH2 -j ACCEPT
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $MESH5 -j ACCEPT
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $TUN -j ACCEPT
+
+    # allow notdhcp packets
+    iptables -A INPUT -i $EXT1 -d 255.255.255.255 -p udp --dport 4242 --sport 4343 -j ACCEPT
+    iptables -A INPUT -i $EXT2 -d 255.255.255.255 -p udp --dport 4242 --sport 4343 -j ACCEPT
+    iptables -A INPUT -i $EXT3 -d 255.255.255.255 -p udp --dport 4242 --sport 4343 -j ACCEPT
+    iptables -A INPUT -i $EXT4 -d 255.255.255.255 -p udp --dport 4242 --sport 4343 -j ACCEPT
+
+    iptables -A INPUT -i $WAN -s $LOCALNET1 -j ACCEPT
+    iptables -P INPUT DROP
+
+    ### FORWARDING ###
+
+    # Don't forward any traffic from mesh to upstream lan
+    iptables -A FORWARD -s $MESHNET -d $UPSTREAMLAN1 -j DROP
+    iptables -A FORWARD -s $MESHNET -d $UPSTREAMLAN2 -j DROP
+
+    # no mesh to internet forward (only through tunnel)
+    iptables -A FORWARD -i $MESH2 -o $WAN -j DROP
+    iptables -A FORWARD -i $MESH5 -o $WAN -j DROP
+    iptables -A FORWARD -i $TUN -o $WAN -j DROP
+    iptables -A FORWARD -i $OPEN -o $WAN -j DROP
+    iptables -A FORWARD -i $EXT1 -o $WAN -j DROP
+    iptables -A FORWARD -i $EXT2 -o $WAN -j DROP
+    iptables -A FORWARD -i $EXT3 -o $WAN -j DROP
+    iptables -A FORWARD -i $EXT4 -o $WAN -j DROP
+    
+    # Allow traffic from mesh interfaces as long as it's not headed for privnet
+    iptables -A FORWARD -i $MESH2 -s $MESHNET ! -d $PRIVNET -j ACCEPT
+    iptables -A FORWARD -i $MESH5 -s $MESHNET ! -d $PRIVNET -j ACCEPT
+    iptables -A FORWARD -i $TUN -s $MESHNET ! -d $PRIVNET -j ACCEPT
+    iptables -A FORWARD -i $OPEN -s $MESHNET ! -d $PRIVNET -j ACCEPT
+    iptables -A FORWARD -i $EXT1 -s $MESHNET ! -d $PRIVNET -j ACCEPT
+    iptables -A FORWARD -i $EXT2 -s $MESHNET ! -d $PRIVNET -j ACCEPT
+    iptables -A FORWARD -i $EXT3 -s $MESHNET ! -d $PRIVNET -j ACCEPT
+    iptables -A FORWARD -i $EXT4 -s $MESHNET ! -d $PRIVNET -j ACCEPT
+
+    # Allow all traffic from privnet
+    iptables -A FORWARD -i $PRIV -s $PRIVNET -j ACCEPT
+
+    # allow forwarding of established connections from private
+    iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+    #iptables -A FORWARD -m state --state NEW -i $PRIV -j ACCEPT # TODO probably not needed
+
+    # No traffic from TUN to PRIV or from PRIV to TUN
+    iptables -A FORWARD -i $TUN -o $PRIV -j DROP
+    iptables -A FORWARD -i $PRIV -o $TUN -j DROP
+
+    iptables -t mangle -A FORWARD -o $TUN -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
+    iptables -t mangle -A FORWARD -i $TUN -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
+
+    iptables -P FORWARD DROP
+
+    # no internet to internet forward
+    iptables -A FORWARD -i $WAN -o $WAN -j DROP
+
+    # if ebtables, prevent rogue dhcp servers
+    if command -v ebtables; then
+      ebtables -F FORWARD
+      ebtables -I FORWARD -p ipv4 --in-interface $OPEN --out-interface $OPEN --ip-protocol udp --ip-source-port 67:68 --ip-destination-port 67:68 --jump DROP
+    fi
+
+    waitForWifi
+
+    iw open2 set bitrates legacy-2.4 6 9 12 18 24 36 48 54
+    iw open5 set bitrates legacy-5 6 9 12 18 24 36 48 54
+
+    ip route add $LANNET dev $OPEN  proto kernel  scope link  src $NODEIP table public
+
+    # We want private traffic to travel over the ethernet/main table
+    # but we want all other trafic to go over the mesh/public table
+    ip rule flush
+
+    ip rule add from all prio 1 table local
+
+    ip rule add from $LOCALNET1 prio 14000 table main
+    ip rule add to $LOCALNET1 prio 14000 table main
+
+    ip rule add from $PRIVNET prio 14000 table main
+    ip rule add to $PRIVNET prio 14000 table main
+
+    ip rule add iif $PRIV prio 15000 table main
+
+    ip rule add from all prio 16000 table public
+
+    ip rule add from all prio 32766 table main 
+    ip rule add from all prio 32767 table default 
+
+    ip route flush cache 
+
+    /etc/init.d/tunneldigger restart
+    sleep 10
+
+    # /etc/config/network isn't correctly adding open0 to the bridge
+    # As per this bug:
+    #  https://dev.openwrt.org/ticket/17262
+    brctl addif $OPEN open2
+    brctl addif $OPEN open5
+
+    /etc/init.d/babeld restart
+
+}
+
+stop() {
+    # TODO implement stop
+    echo 
+}

@@ -1,0 +1,8 @@
+config server
+  option enabled '1'
+  list addresses 'eth0.1=100.127.0.2/32'
+  list addresses 'eth0.2=100.127.0.3/32'
+  option hook_script '/opt/notdhcpserver/hook.sh'
+  option ssl_cert '/etc/uhttpd.crt'
+  option ssl_key '/etc/uhttpd.key'
+  option timeout_length '180'
