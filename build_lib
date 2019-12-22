@@ -316,3 +316,41 @@ remove_images()
     echo "Warning: ${image_dir} not found, maybe this is an initial build"
   fi
 }
+
+openwrt_rebuilder()
+{
+
+  BUILD_CORES=$(($SYSTEM_CORES * 2))
+  if [ -v $SUDOWRT_DEBUG ]; then
+    BUILD_CORES=1
+  fi
+
+  local arch=$1
+  local target=$2
+
+  # Rebuild any changes made to openwrt_configs
+  local build_dir=${workdir}/${BUILD_DIR}/builder.${arch}
+  local kconfig=${build_dir}/scripts/kconfig.pl
+  local config_dir=${workdir}/openwrt_config/arch_configs
+  local config=${build_dir}/config.${arch}
+  $kconfig 'm+' "${config_dir}/generic" "${config_dir}/${arch}" > "${config}"
+
+  cp ${config} ${build_dir}/.config
+  make defconfig -C ${build_dir}
+
+  echo "Deleting old binaries in dir: ${build_dir}/bin/${arch}..."
+  remove_images "${build_dir}/bin/${arch}"
+
+  echo "Rebuilding [${arch}] in dir: ${build_dir}..."
+
+  make -j$BUILD_CORES -C "${build_dir}" 2>&1 | tee -a "${build_dir}/build.log"
+
+  if [ "$?" != "0" ]; then
+    echo "Rebuilding [${arch}] failed. See ${build_dir}/build.log for details!"
+    exit 1
+  fi
+
+  clean_confdir3_leftover "${build_dir}/build_dir/host/findutils-4.4.2"
+
+  echo "Rebuilding [${arch}] done."
+}
