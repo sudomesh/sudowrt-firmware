@@ -18,9 +18,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -yq \
       python=2.7.5-5ubuntu3 \
       wget=1.15-1ubuntu1.14.04.5
 RUN apt-get clean
-
 ENV FIRMWARE_DIR /usr/local/sudowrt-firmware
 WORKDIR $FIRMWARE_DIR
 COPY . $FIRMWARE_DIR
 RUN ./build ar71xx
+RUN find . -maxdepth 1 -type f ! -name 'entrypoint.sh'  -exec rm -f {} +
+RUN find . -maxdepth 1 -type d ! -name '.' ! -name 'built_firmware' -exec rm -rf {} +
 ENTRYPOINT ["./entrypoint.sh"]
