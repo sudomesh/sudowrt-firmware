@@ -8,19 +8,20 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -yq \
       gawk=1:4.0.1+dfsg-2.1ubuntu2 \
       gcc-multilib=4:4.8.2-1ubuntu6 \
       flex=2.5.35-10.1ubuntu2 \
-      git-core=1:1.9.1-1ubuntu0.8 \
-      gettext=0.18.3.1-1ubuntu3 \
+      git-core=1:1.9.1-1ubuntu0.10\
+      gettext=0.18.3.1-1ubuntu3.1\
       quilt=0.61-1 \
       ccache=3.1.9-1 \
-      libssl-dev=1.0.1f-1ubuntu2.26 \
+      libssl-dev=1.0.1f-1ubuntu2.27 \
       xsltproc=1.1.28-2build1 \
       unzip=6.0-9ubuntu1.5 \
       python=2.7.5-5ubuntu3 \
-      wget=1.15-1ubuntu1.14.04.4
+      wget=1.15-1ubuntu1.14.04.5
 RUN apt-get clean
-
 ENV FIRMWARE_DIR /usr/local/sudowrt-firmware
 WORKDIR $FIRMWARE_DIR
 COPY . $FIRMWARE_DIR
 RUN ./build ar71xx
+RUN find . -maxdepth 1 -type f ! -name 'entrypoint.sh'  -exec rm -f {} +
+RUN find . -maxdepth 1 -type d ! -name '.' ! -name 'built_firmware' -exec rm -rf {} +
 ENTRYPOINT ["./entrypoint.sh"]

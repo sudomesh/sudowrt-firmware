@@ -9,6 +9,7 @@ Pre-built versions of the firmware can be found here:
 
  | name | architecture | version | link | commonly used |
 |  --- | --- | --- | --- | --- |
+| Home Node | ar71xx | latest |  | [mynet n600](http://builds.sudomesh.org/sudowrt-firmware/latest/) 
 | Home Node | ar71xx | 0.3.0 |  | [mynet n600](http://builds.sudomesh.org/sudowrt-firmware/0.3.0/ar71xx/openwrt-ar71xx-generic-mynet-n600-squashfs-factory.bin) 
 | Home Node | ar71xx | 0.2.3 | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1205601.svg)](https://doi.org/10.5281/zenodo.1205601) | [mynet n600](https://zenodo.org/record/1205601/files/openwrt-ar71xx-generic-mynet-n600-squashfs-factory.bin) or [mynet n750](https://zenodo.org/record/1205601/files/openwrt-ar71xx-generic-mynet-n750-squashfs-factory.bin)
 | Extender Node | ar71xx | 0.2.3 | [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1206171.svg)](https://doi.org/10.5281/zenodo.1206171) |
@@ -17,7 +18,7 @@ Now go to https://peoplesopen.net/walkthrough and follow the instructions to fla
 
 # Developing on this firmware
 
-If you would like to make additions to the sudowrt-firmware, there a few ways in which to integrate your desired changes. First, figure out what change you are trying to make by testing it out on a live node. Most changes can be tested by sshing into a node and manually making the changes. The following 
+If you would like to make additions to the sudowrt-firmware, there a few ways in which to integrate your desired changes. First, figure out what change you are trying to make by testing it out on a live node. Most changes can be tested by sshing into a node and manually making the changes. 
 
 ## Adding an OpenWrt package
 Maybe you'd like to expose a feature by installing an OpenWrt package. If you find yourself needing to run on your home node,
@@ -57,10 +58,60 @@ The default usernames, passwords, and access levels are set by the [passwd](http
 
 # Building this firmware
 
-The openwrt wiki has some examples of requirements per distro:
-http://wiki.openwrt.org/doc/howto/buildroot.exigence#examples.of.package.installations
+To test changes to made to this repo, you should rebuild the firmware. There are few methods for doing this.
 
-## On a remote server 
+## In a local docker container (recommended)
+To build the firmware in a controlled/clean environment, use [docker](https://docker.io). Docker provides good instructions for [installing docker-ce on Ubuntu](https://docs.docker.com/install/linux/docker-ce/ubuntu/) or [Debian](https://docs.docker.com/install/linux/docker-ce/debian/) as well as other operating systems.  
+
+First, clone this repository, enter the resulting directory, and pull the latest prebuilt image from [our docker-hub](https://hub.docker.com/r/sudomesh/sudowrt-firmware/tags/).
+```
+git clone https://github.com/sudomesh/sudowrt-firmware
+cd sudowrt-firmware
+docker pull sudomesh/sudowrt-firmware:latest
+```
+Pulling the docker hub image, may take between 7 and 20mins depending on your internet connection.  
+Once the image is downloaded, create a container for the image, copy the repo files into the container, and start the container.  
+```
+docker create -v $PWD/firmware_images:/firmware_images --name <container-name> sudomesh/sudowrt-firmware:latest
+docker cp . <container-name>:/usr/local/sudowrt-firmware 
+docker start -a <container-name>
+```
+The `docker start` command executes [entrypoint.sh](./entrypoint.sh) in the docker container. When the process completes, the built firmware images are placed in the `firmware_images` directory of the repo.  
+
+The `<container-name>` can be anything you like, as long as it is unique on your system.  
+
+If changes are made to the `files/` or `openwrt_config/` directories, rebuild the image by rerunning the last three docker commands with a new container name.
+
+### Building the docker hub image
+If a new docker hub image is needed, build it from scratch by running,
+```
+docker build -t sudomesh/sudowrt-firmware:latest .
+```
+This will run the the [Dockerfile](./Dockerfile) in a clean ubuntu 14.04 container. WARNING: This can take upwards of 45mins to complete.
+
+Push this image to docker hub with,
+```
+docker push sudomesh/sudowrt-firmware:latest
+```
+
+For an in-depth history of this build process please see https://github.com/sudomesh/sudowrt-firmware/issues/157#issuecomment-565839295 https://github.com/sudomesh/sudowrt-firmware/issues/137 , https://github.com/sudomesh/sudowrt-firmware/issues/110 , and https://github.com/sudomesh/sudowrt-firmware/issues/105 .
+
+If the build fails, capture the console output, yell loudly, talk to someone or create [a new issue](https://github.com/sudomesh/meshwrt-firmware/issues/new).
+
+### Docker debugging
+When debugging the build scripts, it might be useful to poke around a build machine container using ```docker run -it --entrypoint=/bin/bash sudomesh/sudowrt-firmware:latest -i``` . This will start an interactive terminal which allows for manually running/debugging scripts.  
+
+### Docker clean-up
+After finishing a build or before rerunning the build, it may be a good idea to remove any old docker containers and images. To remove all old containers and images, run the following commands:  
+```
+docker rm $(docker ps -a -q)
+docker rmi $(docker images -q)
+```
+Note: This will indiscriminately delete all docker containers and images. If you'd only like to remove select ones, replace the second part of both commands with the container and images ids, respectively. 
+
+Now go to https://peoplesopen.net/walkthrough and follow the instructions to flash the firmware onto your router.
+
+## On a remote server (status unknown)
 If you'd rather not use your personal computer to build this firmware, you can create a dedicated build machine out of any Ubuntu 16.04 server (e.g. a droplet on digitalocean, or a server on the mesh). Note: the server should have at least 50GB of storage, otherwise, the docker container will become too large for your server.
 
 Clone this repository on your local machine.  
@@ -79,70 +130,14 @@ This will run the build in background on the server and produce no output. If yo
 
 Now go to https://peoplesopen.net/walkthrough and follow the instructions to flash the firmware onto your router.
 
-## In a local docker container 
-If you'd like to build the firmware in a controlled/clean environment, you can use [docker](https://docker.io) with the provided [Dockerfile](./Dockerfile) or a prebuilt image hosted on [our docker-hub](https://hub.docker.com/r/sudomesh/sudowrt-firmware/tags/).  
-Docker provides good instructions for [installing docker-ce on Ubuntu](https://docs.docker.com/install/linux/docker-ce/ubuntu/) or [Debian](https://docs.docker.com/install/linux/docker-ce/debian/) as well as other operating systems.  
-
-First clone this repository:
-
-```
-git clone https://github.com/sudomesh/sudowrt-firmware
-cd sudowrt-firmware
-```
-
-Collect all the sudowrt-firmware dependencies and build the openwrt toolchain in a docker image using,
-WARNING: This can take upwards of 45mins.  
-```
-sudo docker build -t sudomesh/sudowrt-firmware .
-```
-If you would rather not wait 45mins, it is recommended to use our pre-built "builder" image. This can be pulled from docker hub with the following command, 
-```
-sudo docker pull sudomesh/sudowrt-firmware:latest
-```
-Next, create a container for the image with,
-```
-sudo docker create -v $PWD/firmware_images:/firmware_images --name <container-name> sudomesh/sudowrt-firmware:latest
-```
-The name can be anything you like, as long as it is unique on your system and matches in the next two steps.  
-
-Now you can make any changes you would like to the `files` or `openwrt_config/arch_configs/` directories (these are the only ones supported right now).  
-
-To copy your changes into the docker container use, 
-```
-sudo docker cp . <container-name>:/usr/local/sudowrt-firmware 
-```
-After copying in your latest changes, you can trigger a rebuild of the firmware like so,
-```
-sudo docker start -a <container-name>
-``` 
-Currently, this builds only our most commonly used firmware, generic ar71xx for MyNetN600, more options comming soon to choose other target systems.  
-
-Depending on the changes made and your system's specs, this shouldn't take longer than 10mins (and has been known to take less than 1min). 
-
-The `docker start` command executes [entrypoint.sh](./entrypoint.sh) in the docker container. If the process completes successfully, the built firmware images are placed in `/firmware_images` directory of the repo. For some history on this build process please see https://github.com/sudomesh/sudowrt-firmware/issues/137 , https://github.com/sudomesh/sudowrt-firmware/issues/110 , and https://github.com/sudomesh/sudowrt-firmware/issues/105 . 
-
-Note building the firmware with out a network connection should be possible, assuming you already have docker installed and the full builder image downloaded. This feature could prevent (uncontrolled) external resources from getting pulled into the build process. Necessary external resources are pulled in by Travis CI when (re)building the sudowrt/firmware image. Ideally, the container images contains all external dependencies, see history on this topic in https://github.com/sudomesh/sudowrt-firmware/issues/116 .
-
-If the build fails, capture the console output, yell loudly, talk to someone or create [a new issue](https://github.com/sudomesh/meshwrt-firmware/issues/new).
-
-### Docker debugging
-The [entrypoint.sh](./entrypoint.sh) should make it easy to automate the build process. However, when debugging the build scripts, it might be useful to poke around a build machine container using ```docker run -it --entrypoint=/bin/bash sudomesh/sudowrt-firmware:latest -i``` . This will start an interactive terminal which allows for manually running/debugging scripts like ./build_only .  
-
-### Docker clean-up
-After finishing a build or before rerunning the build, it may be a good idea to remove any old docker containers and images. To remove all old containers and images, run the following commands:  
-```
-docker rm $(docker ps -a -q)
-docker rmi $(docker images -q)
-```
-Note this will indiscriminately delete all docker containers and images. If you'd only like to remove select ones, replace the second part of both commands with the container and images ids, respectively. Perhaps this clean-up step could be automated, for discussion on this see https://github.com/sudomesh/sudowrt-firmware/issues/119 .  
-
-Now go to https://peoplesopen.net/walkthrough and follow the instructions to flash the firmware onto your router.
-
-## On local machine 
+## On local machine (legacy)
 
 If you'd rather build the firmware without Docker, please keep reading.
 
 Unless you know what you are doing, you should build this on a Ubuntu 64bit box/container. At time of writing (Jan 2017), the [build script does not appear to work on Ubuntu 16.04](https://github.com/sudomesh/sudowrt-firmware/issues/103). 
+
+The openwrt wiki has some examples of requirements per distro:
+http://wiki.openwrt.org/doc/howto/buildroot.exigence#examples.of.package.installations
 
 Be aware that it won't build as root, so if you need to, follow [these instructions](https://www.digitalocean.com/community/tutorials/how-to-add-and-delete-users-on-an-ubuntu-14-04-vps) to create a non-root user, and give it the power to sudo.
 
