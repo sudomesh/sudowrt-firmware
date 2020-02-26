@@ -1,6 +1,6 @@
 #!/bin/bash
 ARCH="ar71xx"
-TARGET="MYNETN600"
+TARGET="MYNETN750"
 BUILD_DIR=./built_firmware/builder.$ARCH
 
 # add commit hash to banners
