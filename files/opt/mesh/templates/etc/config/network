@@ -43,6 +43,12 @@ config switch_vlan
   option vlan '11'
   option ports '0t 3'
 
+# The wan port (eth0.5)
+config switch_vlan
+  option device 'switch0'
+  option vlan '5'
+  option ports '0t 5'
+
 config interface 'loopback'
   option ifname 'lo'
   option proto 'static'
@@ -50,7 +56,7 @@ config interface 'loopback'
   option netmask '255.0.0.0'
 
 config interface 'wan'
-  option ifname 'eth1'
+  option ifname 'eth0.5'
   option proto 'dhcp'
 
 # This is for development only
